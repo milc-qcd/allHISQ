@@ -1,0 +1,63 @@
+#! /bin/bash
+# shell script for submitting to PBS on the FNAL clusters
+#
+#PBS -S /bin/bash
+#PBS -q pi
+#### -M detar@physics.utah.edu
+#### -m abe
+#### -l  (command line in spawnjob*.sh)
+#### -N  (command line in spawnjob*.sh)
+#PBS -j oe
+#PBS -A fermimilcheavylight
+
+# Submission command must define LATS, SOURCES, JOBIDS, NCASES
+# qsub -c none -l walltime=${walltime} -l size=${NP} -N ${jobname} -v LATS=${cfgnos},NCASES=${ncases} ${pbs_script}
+
+# LATS    list of cfg numbers, separated by /
+# NCASES  number of cfg cases to run
+
+umask 0022
+
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/python2/lib:/usr/local/fftw/double-mvapich2/lib
+
+cd $HOME/allHISQ/l2464f211b600m0102m0509m635/
+export PYTHONPATH=$HOME/allHISQ/MILCprompts
+
+# Take predefined parameters from qsub command line:
+if [ -n "${PBS_O_WORKDIR}" ]
+then
+  echo "Running on nodes"
+  cat $PBS_NODELIST
+  cd ${PBS_O_WORKDIR}
+  # Get job-dependent variables
+  # Unpack lists
+  cfgs_milc=( `echo ${LATS} | sed 's|/| |g'` )
+  ncases=${NCASES}
+  pbsjobid=${PBS_JOBID}
+  if [ -z "${pbsjobid}" ]
+  then
+    pbsjobid=none
+  fi
+  testing=0
+  prompt=0
+else
+  echo "Not a PBS job.  Running in test mode."
+  cfgs_milc=(x.99)
+  t0s=(0)
+  jobids=("grp")
+  ncases=1
+  pbsjobid=test
+  testing=1
+  prompt=2
+fi
+
+/usr/local/python2/bin/python2.7  ../scripts/make-allHISQ-prompts.py ${cfgs_milc} ${ncases} 1 params-allHISQ.yaml
+
+if [ $? -ne 0 ]
+then
+    echo "Exiting because of errors in job"
+    exit 1
+else
+    exit 0
+fi
+
