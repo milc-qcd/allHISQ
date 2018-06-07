@@ -1196,23 +1196,49 @@ def updateParam(param, paramUpdate):
     return param
 
 ############################################################
+def loadParams(YAML, YAMLEns, YAMLMachine):
+    """Load a set of YAML parameter files into a single dictionary"""
+
+    # Initial parameter file
+    try:
+        param = yaml.load(open(YAML,'r'))
+    except:
+        print "ERROR: Error loading the parameter file", YAML
+        sys.exit(1)
+        
+    # Load parameters specific to the ensemble and add to the dictionary
+    paramEns = loadParam(YAMLEns)
+    param = updateParam(param, paramEns)
+
+    # Load parameters specific to the machine and installation
+    paramMachine = loadParam(YAMLMachine)
+    param = updateParam(param, paramMachine)
+
+    # Add further initial values to the parameters
+    initParam(param)
+
+    return param
+
+############################################################
 def main():
     
     # Set permissions
     os.system("umask 022")
 
     # Command-line args:
-    if len(sys.argv) < 4:
+    if len(sys.argv) < 6:
         print "Usage", sys.argv[0], "<cfgs> <ncases> <njobs> <yaml>"
         sys.exit(1)
 
     # Decode arguments 
-    # cfgList   List of configuration numbers to run             
-    # ncases    Number of cases to process                       
-    # njobs     Number of simultaneous cases in this partition   
-    # YAML      Parameter file in yaml format                    
+    # cfgList     List of configuration numbers to run             
+    # ncases      Number of cases to process                       
+    # njobs       Number of simultaneous cases in this partition   
+    # YAML        Basic parameter file in yaml format                    
+    # YAMLEns     Ensemble parameter file in yaml format                    
+    # YAMLMachine Machine/installation parameter file in yaml format                    
 
-    (cfgList, ncases, njobs, YAML) = sys.argv[1:5]
+    (cfgList, ncases, njobs, YAML, YAMLEns, YAMLMachine) = sys.argv[1:7]
 
     seriesCfgs = cfgList.split("/")    
     ncases = int(ncases)
@@ -1222,11 +1248,8 @@ def main():
         print "ERROR: Number of cases", ncases, "must be divisible by the number of jobs", njobs
         sys.exit(1)
 
-    # Load the initial parameter set
-    param = loadParam(YAML)
-
-    # Add some initial values to the parameters
-    initParam(param)
+    # Load the basic parameter set
+    param = loadParams(YAML, YAMLEns, YAMLMachine)
 
     # We generate the non-extended staggered propagators first.  So we
     # need to collect a shopping list of propagators.  The list is
@@ -1249,8 +1272,7 @@ def main():
     # and three-points based on the shopping list "hisqProps"
 
     # Restore the initial parameter set
-    param = loadParam(YAML)
-    initParam(param)
+    param = loadParams(YAML, YAMLEns, YAMLMachine)
 
     # Switch from KSscan to KSproduction mode
     param['scriptMode'] = 'KSproduction'

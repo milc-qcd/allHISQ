@@ -1,0 +1,260 @@
+# Parameters for controlling the all HISQ heavy-flavor calculation
+# C. DeTar 8 June 2018
+
+apelink:              # Applies only to links in point-split operators
+  weight: 0.05
+  iter: 20
+
+randomW:
+  rwNcolor: 1         # Number of random sources per time slice
+
+KSaction:
+  stride: 2           # In case we want smearing
+  bc: 'antiperiodic'  # Applies to all propagators
+
+######################################################################
+# Quark parameters
+######################################################################
+quarks:
+  qlight:
+    type: KS
+    mass: ['0.0102']
+    naik_epsilon: ['0.']
+    residual_loose:
+      L2: 1e-5
+      R2: 0.
+    residual_fine:
+      L2: 1e-9
+      R2: 0.
+    maxCG: 
+      iters: 4000
+      restarts: 5
+    precision: 2
+
+  qstrange:
+    type: KS
+    mass: ['0.053476']
+    naik_epsilon: ['0.']
+    residual_loose:
+      L2: 1e-5
+      R2: 0.
+    residual_fine:
+      L2: 1e-9
+      R2: 0.
+    maxCG:
+      iters: 2000
+      restarts: 50
+    precision: 2
+
+  qheavy:
+    type: KS
+    mass: ['0.6363','1.2726']
+    naik_epsilon: ['-0.229787', '-0.521']
+    residual_loose:
+      L2: 0.
+      R2: 1e-8
+    residual_fine:
+      L2: 0.
+      R2: 1e-12
+    maxCG:
+      iters: 400
+      restarts: 5
+    precision: 2
+
+######################################################################
+# Correlators
+######################################################################
+# The job run is split into steps to conserve memory
+# Each of the calculations is assigned a step
+# This stanza controls the steps that are actually run
+job:
+  steprange:
+    low: 0
+    high: 3
+
+######################################################################
+# 2pt correlators.  Their "steps" must precede the 3pts.
+# Explanation of notation below...
+# The quark values are
+# [ quark, source-smearing, sink-smearing ]
+# 'd' = no smearing
+corr2pts:
+  pi:
+    step: 0
+    aQ: [ 'qlight', ['d'], ['d'] ]
+    Q: [ 'qlight', ['d'], ['d'] ]
+    correlators: &ref_corr2ptPS [
+      [ 1, G5-G5, [0, 0, 0]],
+      [ 1, G5-G5, [1, 0, 0]],
+      [ 1, G5-G5, [1, 1, 0]],
+      [ 1, G5-G5, [2, 0, 0]],
+      [ 1, G5-G5, [2, 1, 1]],
+      [ 1, G5-G5, [3, 0, 0]]
+#      [ 1, G5-G5, [2, 2, 2]],
+#      [ 1, G5-G5, [4, 0, 0]],
+    ]
+
+  K:
+    step: 0
+    aQ: [ 'qstrange', ['d'], ['d'] ] 
+    Q: [ 'qlight', ['d'], ['d'] ]
+    correlators: *ref_corr2ptPS
+
+  # Heavy-light meson
+  H:
+    step: 0
+    aQ: [ 'qheavy', ['d'], ['d'] ]
+    Q: [ 'qlight', ['d'], ['d']]
+    correlators: *ref_corr2ptPS
+
+  # Heavy-strange meson
+  Hs:
+    step: 0
+    aQ: [ 'qheavy', ['d'], ['d'] ]
+    Q: [ 'qstrange', ['d'], ['d'] ]
+    correlators: *ref_corr2ptPS
+
+######################################################################
+# 3pt correlators
+# Explanation of notation below...
+# The daughter quark list values are
+# [ quark, source-smearing ]
+# The spectator quark list values are
+# [ quark, source-smearing ]
+# The correlator list values are
+# [ phase, gammaDaughter, gammaCurrent, momentum ]
+tSnkHtopi: &ref_tSnkHtopi [ 15, 18, 20, 21 ] 
+corr3pts:
+  # Vector and tensor-current H-to-pi
+  HV2pi:
+    step: 1
+    spinTasteParent: 'G5T-G5T'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qlight', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qlight', ['d'] ]
+    correlators: &ref_corrHLV3ptPS [
+      [ -1, GT-GT,  [0, 0, 0] ],
+      [ -1, GT-GT,  [1, 0, 0] ],
+      [ -1, GT-GT,  [1, 1, 0] ],
+      [ -1, GT-GT,  [2, 0, 0] ],
+      [ -1, GT-GT,  [2, 1, 1] ],
+      [ -1, GT-GT,  [3, 0, 0] ],
+#      [ -1, GT-GT,  [2, 2, 2] ],
+#      [ -1, GT-GT,  [4, 0, 0] ],
+
+      [  1, GXT-GT, [1, 0, 0] ],
+      [  1, GXT-GT, [1, 1, 0] ],
+      [ -1, GYT-GT, [1, 1, 0] ],
+      [  1, GXT-GT, [2, 0, 0] ],
+      [  1, GXT-GT, [2, 1, 1] ],
+      [ -1, GYT-GT, [2, 1, 1] ],
+      [  1, GZT-GT, [2, 1, 1] ],
+      [  1, GXT-GT, [3, 0, 0] ]
+#      [  1, GXT-GT, [2, 2, 2] ],
+#      [ -1, GYT-GT, [2, 2, 2] ],
+#      [  1, GZT-GT, [2, 2, 2] ],
+#      [  1, GXT-GT, [4, 0, 0] ]
+    ]
+
+  # Scalar density H-to-pi
+  HS2pi:
+    step: 1
+    spinTasteParent: 'G5-G5'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qlight', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qlight', ['d'] ]
+    correlators: &ref_corrHLS3ptPS  [
+      [  1, G1-G1,  [0, 0, 0] ],
+      [  1, G1-G1,  [1, 0, 0] ],
+      [  1, G1-G1,  [1, 1, 0] ],
+      [  1, G1-G1,  [2, 0, 0] ],
+      [  1, G1-G1,  [2, 1, 1] ],
+      [  1, G1-G1,  [3, 0, 0] ]
+#      [  1, G1-G1,  [2, 2, 2] ],
+#      [  1, G1-G1,  [4, 0, 0] ]
+    ]
+
+  # Vector and tensor-current H-to-K
+  HV2K:
+    step: 2
+    spinTasteParent: 'G5T-G5T'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qstrange', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qlight', ['d'] ]
+    correlators: *ref_corrHLV3ptPS
+
+  # Scalar density H-to-K
+  HS2K:
+    step: 2
+    spinTasteParent: 'G5-G5'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qstrange', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qlight', ['d'] ]
+    correlators: *ref_corrHLS3ptPS
+
+  # Vector and tensor-current Hs-to-K
+  HsV2K:
+    step: 2
+    spinTasteParent: 'G5T-G5T'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qlight', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qstrange', ['d'] ]
+    correlators: *ref_corrHLV3ptPS
+
+  # Scalar density Hs-to-K
+  HsS2K:
+    step: 2
+    spinTasteParent: 'G5-G5'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qlight', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qstrange', ['d'] ]
+    correlators: *ref_corrHLS3ptPS
+
+######################################################################
+# Table for converting code gamma notation to bilinear notation
+# Used to construct the correlator names
+corrKey:
+  prefix:
+    GX:  'V1'
+    GY:  'V2'
+    GZ:  'V3'
+    GT:  'V4'
+    G5:  'P5'
+    GYZ: 'T23'
+    GZX: 'T31'
+    GXY: 'T12'
+    GXT: 'T14'
+    GYT: 'T24'
+    GZT: 'T34'
+    G5X: 'A1'
+    G5Y: 'A2'
+    G5Z: 'A3'
+    G5T: 'A4'
+    G1:  'S'
+
+######################################################################
+# MILC code I/O commands for file types
+######################################################################
+fileCmd:
+  wf:
+    load: 'load_source'
+  lat:
+    load: 'reload_serial'
+    save: 'save_serial_scidac'
+  propKS:
+    load: 'reload_serial_ksprop'
+    save: 'save_partfile_scidac_ksprop'
+  propClover:
+    load: 'reload_serial_wprop'
+    save: 'save_partfile_scidac_wprop'
+  src:
+    load: 'load_source_serial'
+    save: 'save_partfile_scidac_ks_source'
+  corr:
+    save: 'save_corr_fnal'

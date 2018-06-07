@@ -9,9 +9,9 @@ from Cheetah.Template import Template
 
 # Usage
 
-# From the ensemble directory containing params-Bpilnu.yaml and the
+# From the ensemble directory containing params-allHISQ.yaml and the
 # todo file, do:
-# ../scripts/spawnmultijoblist.py
+# ../scripts/spawnjob.py
 
 # Requires a todo file with a list of configurations to be processed
 
@@ -22,7 +22,7 @@ from Cheetah.Template import Template
 # If the flag is "X", the job has been finished
 # If it is flagged "Q", the job was queued and <jobid> is present
 
-# Requires params-Bpilnu.yaml with definitions of variables needed here
+# Requires params-allHISQ.yaml with definitions of variables needed here
 
 ######################################################################
 def countQueue(  myjobname ):
@@ -229,7 +229,7 @@ def nannyLoop(YAML):
 def main():
 
     # Parameter file
-    YAML = "params-Bpilnu.yaml"
+    YAML = "params-machine.yaml"
     nannyLoop(YAML)
 
 
