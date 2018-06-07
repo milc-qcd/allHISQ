@@ -1,0 +1,33 @@
+C. DeTar 7 June 2018
+
+allHISQ package requirements.  They are installed at FNAL already:
+
+pyYAML and Cheetah
+
+I haven't tried installing from github, but here are the locations:
+
+https://github.com/cheetahtemplate/cheetah
+https://github.com/yaml/pyyaml
+
+To build, you need to set your PYTHONPATH to something like
+
+$HOME/python_modules:$HOME/python_modules/lib/python
+
+Then you can run
+
+python2.7 ./setup.py install --prefix=$HOME/python_modules --install-lib=$HOME/python_modules/lib/python
+
+for each of these packages.
+
+--------------------------------------
+
+MILC develop branch
+
+ks_spectrum_hisq
+
+Must be installed in the allHISQ/bin directory.
+
+There have been some changes in the way the "coordinate_origin" and
+"time_bc" are handled, so you need an up-to-date pull of this branch.
+
+
