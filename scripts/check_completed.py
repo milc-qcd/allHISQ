@@ -2,7 +2,7 @@
 
 import sys, os, yaml, re, subprocess, copy
 from TodoUtils import *
-from BpilnuFiles import *
+from allHISQFiles import *
 from Cheetah.Template import Template
 
 # Check job completion.  For any completed jobs, mark the todo list
@@ -10,12 +10,12 @@ from Cheetah.Template import Template
 
 # Usage
 
-# From the ensemble directory containing params-Bpilnu.yaml and the
+# From the ensemble directory containing params-allHISQ.yaml and the
 # todo file, do:
 # ../../scripts/check_completed.py
 
 # Requires a todo file with a list of configurations to be processed
-# Requires a params-Bpilnu.yaml file with file parameters.
+# Requires a params-allHISQ.yaml file with file parameters.
 
 ######################################################################
 def jobStillQueued(jobid):
@@ -69,7 +69,7 @@ def getTarPath(param, jobid, cfg):
     
     file = param['files']['tar']
     root = param['files']['root']
-    stream = param['files']['stream']
+    stream = param['stream']
 #    tag = param['paramSet']['tag']
     tag = ''
 
@@ -182,27 +182,27 @@ def checkComplete(param, tarFile):
 
     return True
 
-# ############################################################
-# def updateParam(param, paramUpdate):
-#     """Update the param dictionary according to terms in paramUpdate"""
-# 
-#     # Updating is recursive in the tree so we can update selected branches
-#     # leaving the remainder untouched
-#     for b in paramUpdate.keys():
-#         try:
-#             k = paramUpdate[b].keys()
-#             n = len(k)
-#         except AttributeError:
-#             n = 0
-# 
-#         if b in param.keys() and n > 0:
-#             # Keep descending until we run out of branches
-#             updateParam(param[b], paramUpdate[b])
-#         else:
-#             # Then stop, replacing just the last branch or creating a new one
-#             param[b] = paramUpdate[b]
-# 
-#     return param
+############################################################
+def updateParam(param, paramUpdate):
+    """Update the param dictionary according to terms in paramUpdate"""
+
+    # Updating is recursive in the tree so we can update selected branches
+    # leaving the remainder untouched
+    for b in paramUpdate.keys():
+        try:
+            k = paramUpdate[b].keys()
+            n = len(k)
+        except AttributeError:
+            n = 0
+
+        if b in param.keys() and n > 0:
+            # Keep descending until we run out of branches
+            updateParam(param[b], paramUpdate[b])
+        else:
+            # Then stop, replacing just the last branch or creating a new one
+            param[b] = paramUpdate[b]
+
+    return param
 
 ######################################################################
 # def makeParamSets(param):
@@ -240,11 +240,14 @@ def checkComplete(param, tarFile):
 #     return params
 
 ######################################################################
-def checkPendingJobs(YAML):
+def checkPendingJobs(YAMLMachine,YAMLEns):
     """Process all entries marked Q in the todolist"""
 
     # Read primary parameter file
-    param = loadParam(YAML)
+    param = loadParam(YAMLMachine)
+
+    paramEns = loadParam(YAMLEns)
+    param = updateParam(param,paramEns)
 
     # Add to param the possible locations of output files we will check
     addRootPaths(param)
@@ -317,9 +320,10 @@ def checkPendingJobs(YAML):
 def main():
 
     # Parameter file
-    YAML = "params-Bpilnu.yaml"
+    YAMLMachine = "params-machine.yaml"
+    YAMLEns = "params-ens.yaml"
 
-    checkPendingJobs(YAML)
+    checkPendingJobs(YAMLMachine, YAMLEns)
 
 
 ############################################################
