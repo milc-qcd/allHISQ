@@ -1,9 +1,9 @@
 ensemble:
-  run: 2464f211b600m0102m0509m635
-  dim: [ 24, 24, 24, 64 ]
-  u0: 0.8350          # Simone 10/21/2015 (MILC code forces u0 = 1 for HISQ)
-  atrue: 0.12121      # Decay constant paper arXiv 1407.3772 (In case of smearing)
-  afm: '0.12'         # Subdirectory label
+  run: 3248f211b580m002426m06730m8447
+  dim: [ 32, 32, 32, 48 ]
+  u0: 0.8203 # Jim Landau link 1/11/15
+  atrue: 0.15089
+  afm: '0.15'         # Subdirectory label
 
 tsrcRange:
   start: 0

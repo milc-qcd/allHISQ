@@ -77,7 +77,7 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
 
 # (2) remote: Large remote files: lattices, propagators, random source files
 #     etc.  The ensemble name is appended as a subdirectory.
-remoteRoot: '/lqcdproj/fermimilcheavylight/detar/Bpilnu'
+remoteRoot: '/lqcdproj/fermimilcheavylight/detar/allHISQ'
 
 # (3) archive: Smaller result files: Output correlators, logs
 archiveRoot: '/project/heavylight/hisq/allHISQ'
