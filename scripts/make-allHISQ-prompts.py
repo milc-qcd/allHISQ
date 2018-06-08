@@ -66,7 +66,7 @@ def stageLattice(param, suffix, cfg):
 #        saveLat = (fileCmd['lat']['save'], latCoul.path())
 #        gFix = 'coulomb_gauge_fix'
         gFix = 'no_gauge_fix'  # Force use of the v5 lattice
-        saveLat = 'forget'     # and don't save a copy.
+        saveLat = ('forget',) # and don't save a copy.
         if not latMILCv5.exist():
             print "ERROR: No lattice found"
             if param['scriptDebug'] != 'debug':
