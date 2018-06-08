@@ -1,5 +1,5 @@
 ######################################################################
-# Nanny parameters
+# Job submission parameters
 ######################################################################
 submit:
   jobname: allHISQ
@@ -23,7 +23,8 @@ nanny:
 ######################################################################
 # MPP launch parameters
 ######################################################################
-locale: chpc_mvapich2   # Must match one of the job launch stanzas below
+# The locale is defined in the job submission script and used to
+# select the appropriate stanza below.
 
 launch:           # The NP string gets replaced with basenodes * ppn * njobs
   chpc_mvapich2:
@@ -84,7 +85,6 @@ archiveRoot: '/project/heavylight/hisq/allHISQ'
 # (4) local: Staging location for run-time files.  See files/root/local below.
 
 files:
-  stream: run1
   root:
     project: '/home/detar/allHISQ'
 #    local: '/scratch' # If empty, we do not stage files

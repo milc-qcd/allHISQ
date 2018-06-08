@@ -144,7 +144,7 @@ def compile2ptCorrelators(param, correlators, quarkKeys, rndQ, rndAq, nstep, tsr
 
     ensemble = param['ensemble']
     run = ensemble['run']
-    stream = param['files']['stream']
+    stream = param['stream']
     
     corr2pts = param['corr2pts']
     for nptKey in corr2pts:
@@ -226,7 +226,7 @@ def compile3ptCorrelators(param, correlators, quarkKeys, rndQ, rndAq, nstep, tsr
 
     ensemble = param['ensemble']
     run = ensemble['run']
-    stream = param['files']['stream']
+    stream = param['stream']
     residQuality = param['residQuality']
     
     corr3pts = param['corr3pts']
@@ -324,7 +324,7 @@ def setUpJobTarFile(param, configId):
     localRoot = root['local']
 
     ensemble = param['ensemble']
-    stream = param['files']['stream']
+    stream = param['stream']
     jobid = param['job']['id']
     tag = ''
 
@@ -347,7 +347,7 @@ def setUpJobIOFiles(param, nstep, tsrcConfigId, kjob, njobs):
 
     ensemble = param['ensemble']
     run = ensemble['run']
-    stream = param['files']['stream']
+    stream = param['stream']
     jobid = param['job']['id']
     residQuality = param['residQuality']
 
@@ -1148,7 +1148,7 @@ def loadParam(YAML):
     return param
 
 ############################################################
-def initParam(param):
+def initParam(param, locale):
     """Set some initial values of params"""
 
     # Add the remote and archive roots to the yaml-generated dictionary:
@@ -1157,7 +1157,7 @@ def initParam(param):
     # Assume that we are debugging if we are not on PBS
     param['scriptDebug'] = 'KSproduction'
     job = param['job']
-    locale = param['locale']
+    param['locale'] = locale
     launchParam = param['launch'][locale]
     try:
         # Get the job ID number from the batch system
@@ -1196,7 +1196,7 @@ def updateParam(param, paramUpdate):
     return param
 
 ############################################################
-def loadParams(YAML, YAMLEns, YAMLMachine):
+def loadParams(YAML, locale, YAMLEns, YAMLMachine):
     """Load a set of YAML parameter files into a single dictionary"""
 
     # Initial parameter file
@@ -1215,7 +1215,7 @@ def loadParams(YAML, YAMLEns, YAMLMachine):
     param = updateParam(param, paramMachine)
 
     # Add further initial values to the parameters
-    initParam(param)
+    initParam(param, locale)
 
     return param
 
@@ -1226,8 +1226,8 @@ def main():
     os.system("umask 022")
 
     # Command-line args:
-    if len(sys.argv) < 6:
-        print "Usage", sys.argv[0], "<cfgs> <ncases> <njobs> <yaml>"
+    if len(sys.argv) < 7:
+        print "Usage", sys.argv[0], "<cfgs> <ncases> <njobs> <locale> <yaml> <yaml-ens> <yaml-machine>"
         sys.exit(1)
 
     # Decode arguments 
@@ -1238,7 +1238,7 @@ def main():
     # YAMLEns     Ensemble parameter file in yaml format                    
     # YAMLMachine Machine/installation parameter file in yaml format                    
 
-    (cfgList, ncases, njobs, YAML, YAMLEns, YAMLMachine) = sys.argv[1:7]
+    (cfgList, ncases, njobs, locale, YAML, YAMLEns, YAMLMachine) = sys.argv[1:8]
 
     seriesCfgs = cfgList.split("/")    
     ncases = int(ncases)
@@ -1249,7 +1249,7 @@ def main():
         sys.exit(1)
 
     # Load the basic parameter set
-    param = loadParams(YAML, YAMLEns, YAMLMachine)
+    param = loadParams(YAML, locale, YAMLEns, YAMLMachine)
 
     # We generate the non-extended staggered propagators first.  So we
     # need to collect a shopping list of propagators.  The list is
@@ -1272,7 +1272,7 @@ def main():
     # and three-points based on the shopping list "hisqProps"
 
     # Restore the initial parameter set
-    param = loadParams(YAML, YAMLEns, YAMLMachine)
+    param = loadParams(YAML, locale, YAMLEns, YAMLMachine)
 
     # Switch from KSscan to KSproduction mode
     param['scriptMode'] = 'KSproduction'

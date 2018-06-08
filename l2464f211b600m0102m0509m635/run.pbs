@@ -51,7 +51,7 @@ else
   prompt=2
 fi
 
-/usr/local/python2/bin/python2.7  ../scripts/make-allHISQ-prompts.py ${cfgs_milc} ${ncases} 1 ../scripts/params-allHISQ.yaml params-ens.yaml params-machine.yaml
+/usr/local/python2/bin/python2.7  ../scripts/make-allHISQ-prompts.py ${cfgs_milc} ${ncases} 1 "fnal_mvapich2" ../scripts/params-allHISQ.yaml params-ens.yaml params-machine.yaml
 
 if [ $? -ne 0 ]
 then
