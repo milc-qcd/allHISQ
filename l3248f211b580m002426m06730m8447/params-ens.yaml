@@ -1,0 +1,21 @@
+ensemble:
+  run: 2464f211b600m0102m0509m635
+  dim: [ 24, 24, 24, 64 ]
+  u0: 0.8350          # Simone 10/21/2015 (MILC code forces u0 = 1 for HISQ)
+  atrue: 0.12121      # Decay constant paper arXiv 1407.3772 (In case of smearing)
+  afm: '0.12'         # Subdirectory label
+
+tsrcRange:
+  start: 0
+  stop:  4            # DEBUG.  Normally 64.
+  step:  4
+  precess: 3          # For precessing the source times, based on the cfg number
+
+stream: run1
+
+tarCheck:             # For checking that the output tarball is complete
+  tarEntries: 389  # FIX THESE
+  tarbzip2Size: 10500000
+  tarDataLines: 1331096
+  tarDataWords: 3828568
+

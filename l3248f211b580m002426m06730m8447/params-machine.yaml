@@ -1,0 +1,139 @@
+######################################################################
+# Job submission parameters
+######################################################################
+submit:
+  jobname: allHISQ
+  pbsScript: run.pbs
+  walltime: "12:00:00"
+  layout:
+    njobs: &refNjobs 1  # Number of concurrent subjobs within a job (not supported)
+    basenodes: 4        # Number of nodes in one concurrent subjob
+    ppn: 12             # MPI ranks per node
+    layoutSciDAC:       # Node and I/O geometry
+      node: [2, 2, 3, 4]
+      io: [1, 1, 1, 4]
+    jobGeom: [ 1, 1, 1, 1]  # Not supported, yet
+
+nanny:
+  todofile: todo  # Ensemble series letter is included with cfg number
+  maxcases: 1     # Number of cfgs to run in a single job submission
+  maxqueue: 2     # Number of jobs to keep in the queue at one time
+  wait: 30        # Seconds between nanny job checks
+
+######################################################################
+# MPP launch parameters
+######################################################################
+# The locale is defined in the job submission script and used to
+# select the appropriate stanza below.
+
+launch:           # The NP string gets replaced with basenodes * ppn * njobs
+  chpc_mvapich2:
+    mpiparam: '-n NP'
+    mpirun: 'mpirun'
+    numa: ''
+    jobidName: 'SLURM_JOBID'
+
+  fnal_openmpi:
+    mpiparam: '-np NP --map-by ppr:2:node'
+    mpirun: '/usr/local/openmpi-1.10.0-gcc-4.8.4-cuda7/bin/mpirun'
+    numa: ''
+    jobidName: 'PBS_JOBID'
+
+  fnal_mvapich:
+    mpiparam: '-np NP'
+    mpirun: '/usr/local/mvapich/bin/mpirun'
+#    numa: '/usr/local/mvapich/bin/numa_32_mv'
+    numa: '/usr/local/mvapich/bin/numa_16_mv'
+    jobidName: 'PBS_JOBID'
+
+  fnal_mvapich2:
+    mpiparam: '-np NP'
+    mpirun: '/usr/local/mvapich2/bin/mpirun'
+    numa: '/usr/local/mvapich2/bin/numa_16_mv2'
+    jobidName: 'PBS_JOBID'
+
+  fnal_mvapich2-2.1:
+    mpiparam: '-np NP -launcher rsh -launcher-exec remsh -hostfile MYHOSTFILE'
+    mpirun: '/usr/local/mvapich2-2.1/bin/mpiexec.hydra'
+    numa: '/usr/local/mvapich2-2.1/bin/numa_32_mv2'
+    jobidName: 'PBS_JOBID'
+
+  alcf_bgq:
+    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 --mapping /gpfs/mira-home/detar/mapfiles/n4096c32s448162g16161632.map :'
+#    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 --mapping /gpfs/mira-home/detar/mapfiles/n512c32g161688.map :'
+#    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 :'
+    mpirun: 'runjob'
+    numa: ''
+    jobidName: '???'
+
+######################################################################
+# File system
+######################################################################
+# The file system has four parts
+# These are defined by files/root below
+
+# (1) project: Persistent files common to the entire project (usually the home file system):
+#     See files.root.project below
+
+# (2) remote: Large remote files: lattices, propagators, random source files
+#     etc.  The ensemble name is appended as a subdirectory.
+remoteRoot: '/lqcdproj/fermimilcheavylight/detar/Bpilnu'
+
+# (3) archive: Smaller result files: Output correlators, logs
+archiveRoot: '/project/heavylight/hisq/allHISQ'
+
+# (4) local: Staging location for run-time files.  See files/root/local below.
+
+files:
+  root:
+    project: '/home/detar/allHISQ'
+#    local: '/scratch' # If empty, we do not stage files
+    local: # If empty, we do not stage files
+    # member 'remote:' is added by the ensemble script, since it depends on the ensemble ID
+    # member 'archive:' is added by the ensemble script, since it depends on the ensemble ID
+  wavefunction:   # Probably won't use in this project
+    root: 'project'
+    subdirs: ['wavefunction']
+    1S: Richardson_cc_1S.ascii
+  exec:
+    root: 'project'
+    subdirs: ['bin']
+    name: 'ks_spectrum_hisq'
+  latMILCv5:
+    root: 'remote'
+    subdirs: [ 'lat', 'v5' ]
+  latCoul:
+    root: 'remote'
+    subdirs: [ 'lat', 'Coulomb' ]
+  rand:
+    root: 'remote'
+    subdirs: [ 'rand' ]
+       # With coherent sources we distinguish the random source file for the spectator
+       # from the file for the daughter. This is done with "spectRnd".
+       # We are not using coherent sources in this project.
+    coherent: 'no'
+  prop:
+    root: 'remote'
+    subdirs: [ 'prop' ]
+  # The subdirectory "stream" is included automatically in the subdirectories listed below
+  corr:
+    root: 'archive'
+    subdir: 'data'
+  in:
+    root: 'archive'
+    subdir: 'logs'
+  out:
+    root: 'archive'
+    subdir: 'logs'
+  err:
+    root: 'archive'
+    subdir: 'logs'
+  log:
+    # The log captures script stdout and stderr
+    # Not working at present, so commented out in the script.
+    root: 'archive'
+    subdir: 'logs'
+  tar:
+    root: 'archive'
+    subdir: 
+    list: [ 'data', 'logs' ]
