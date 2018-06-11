@@ -1,0 +1,60 @@
+######################################################################
+# MPP launch parameters
+######################################################################
+# The locale is defined in the params-machine.yaml file and used to
+# select the appropriate stanza below.
+
+launch:           # The NP string gets replaced with basenodes * ppn * njobs
+  chpc_mvapich2:
+    scheduler: SLURM
+    mpiparam: '-n NP'
+    mpirun: 'mpirun'
+    numa: ''
+    jobidName: 'SLURM_JOBID'
+
+  fnal_openmpi:
+    scheduler: PBS
+    mpiparam: '-np NP --map-by ppr:2:node'
+    mpirun: '/usr/local/openmpi-1.10.0-gcc-4.8.4-cuda7/bin/mpirun'
+    numa: ''
+    jobidName: 'PBS_JOBID'
+
+  fnal_mvapich:
+    scheduler: PBS
+    mpiparam: '-np NP'
+    mpirun: '/usr/local/mvapich/bin/mpirun'
+#    numa: '/usr/local/mvapich/bin/numa_32_mv'
+    numa: '/usr/local/mvapich/bin/numa_16_mv'
+    jobidName: 'PBS_JOBID'
+
+  fnal_mvapich2:
+    scheduler: PBS
+    mpiparam: '-np NP'
+    mpirun: '/usr/local/mvapich2/bin/mpirun'
+    numa: '/usr/local/mvapich2/bin/numa_16_mv2'
+    jobidName: 'PBS_JOBID'
+
+  fnal_mvapich2-2.1:
+    scheduler: PBS
+    mpiparam: '-np NP -launcher rsh -launcher-exec remsh -hostfile MYHOSTFILE'
+    mpirun: '/usr/local/mvapich2-2.1/bin/mpiexec.hydra'
+    numa: '/usr/local/mvapich2-2.1/bin/numa_32_mv2'
+    jobidName: 'PBS_JOBID'
+
+  alcf_bgq:
+    scheduler: ??
+    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 --mapping /gpfs/mira-home/detar/mapfiles/n4096c32s448162g16161632.map :'
+#    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 --mapping /gpfs/mira-home/detar/mapfiles/n512c32g161688.map :'
+#    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 :'
+    mpirun: 'runjob'
+    numa: ''
+    jobidName: '???'
+
+  summit:
+    scheduler: LFS
+    mpiparam: '-n NP -r 1 -g 6 -a 6 -c 42 -b none'
+    mpirun: 'jsrun'
+    numa: ''
+    jobidName: 'LSB_JOBID'
+    launchScript: './cdg_launcher.sh'
+
