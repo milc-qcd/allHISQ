@@ -51,7 +51,7 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
     jobidName: '???'
 
   summit:
-    scheduler: LFS
+    scheduler: LSF
     mpiparam: '-n NP -r 1 -g 6 -a 6 -c 42 -b none'
     mpirun: 'jsrun'
     numa: ''
