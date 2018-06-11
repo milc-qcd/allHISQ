@@ -1,0 +1,21 @@
+ensemble:
+  run: 96192f211b672m0008m022m260
+  dim: [ 96, 96, 96, 192 ]
+  u0: 0.871112 # Jim Landau link 10/13/2015
+  atrue: 0.05676 # charm decay constant paper NEEDS MEASURING
+  afm: '0.06'
+
+tsrcRange:
+  start: 0
+  stop:  24           # DEBUG.  Normally 64.
+  step:  24
+  precess: 3          # For precessing the source times, based on the cfg number
+
+stream: run1
+
+tarCheck:             # For checking that the output tarball is complete
+  tarEntries: 389  # FIX THESE
+  tarbzip2Size: 10500000
+  tarDataLines: 1331096
+  tarDataWords: 3828568
+

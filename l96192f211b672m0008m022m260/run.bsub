@@ -1,0 +1,68 @@
+#!/usr/bin/csh -v
+#BSUB -P CSC190PORT
+#BSUB -W 120
+#BSUB -nnodes 128
+#BSUB -e error_128.%J
+#BSUB -o output_128.%J
+#BSUB -J ws128
+
+# bsub -nnodes ${NP} -W walltime -N ${jobname} ${jobScript}
+
+# LATS    list of cfg numbers, separated by /
+# NCASES  number of cfg cases to run
+
+umask 0022
+
+cd $HOME/allHISQ/l2464f211b600m0102m0509m635/
+export PYTHONPATH=$HOME/MILCprompts
+
+cd /gpfs/alpinetds/csc190/scratch/gottlieb/weakscaling_32
+module load gcc
+module load spectrum-mpi
+module load cuda
+
+#setenv CUDA_NIC_INTEROP 1
+#setenv QUDA_RESOURCE_PATH /ccs/home/gottlieb/summit/run/tune
+setenv QUDA_RESOURCE_PATH /gpfs/alpinetds/csc190/scratch/gottlieb/weakscaling_32/tune.${nodes}
+mkdir $QUDA_RESOURCE_PATH
+setenv I_MPI_DEBUG 5
+
+# Take predefined parameters from bsub command line:
+if [ -n "${LS_SUBCWD}" ]
+then
+  echo "Running on nodes ${LSB_HOSTS}"
+  cd ${LS_SUBCWD}
+  # Get job-dependent variables
+  # Unpack lists
+  cfgs_milc=( `echo ${LATS} | sed 's|/| |g'` )
+  ncases=${NCASES}
+  pbsjobid=${LSB_JOBID}
+  if [ -z "${pbsjobid}" ]
+  then
+    pbsjobid=none
+  fi
+  testing=0
+  prompt=0
+else
+  echo "Not a PBS job.  Running in test mode."
+  cfgs_milc=(x.99)
+  t0s=(0)
+  jobids=("grp")
+  ncases=1
+  pbsjobid=test
+  testing=1
+  prompt=2
+fi
+
+argList="${cfgs_milc} ${ncases} 1"
+scriptList="../scripts/params-allHISQ.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml"
+python ../scripts/make-allHISQ-prompts.py ${argList} ${scriptList}
+
+if [ $? -ne 0 ]
+then
+    echo "Exiting because of errors in job"
+    exit 1
+else
+    exit 0
+fi
+
