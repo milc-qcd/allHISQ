@@ -1,4 +1,4 @@
-#! /usr/local/python2/bin/python2.7 -u
+#! /usr/bin/env python
 
 import sys, os, yaml, re, subprocess
 from TodoUtils import *
