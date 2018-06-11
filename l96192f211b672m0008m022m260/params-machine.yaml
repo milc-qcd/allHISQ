@@ -32,16 +32,16 @@ nanny:
 
 # (2) remote: Large remote files: lattices, propagators, random source files
 #     etc.  The ensemble name is appended as a subdirectory.
-remoteRoot: '/ccs/home/gottlieb/scratch1/allHISQ/'
+remoteRoot: '/gpfs/alpinetds/proj-shared/csc275/detar/allHISQ/scratch'
 
 # (3) archive: Smaller result files: Output correlators, logs
-archiveRoot: '/ccs/home/gottlieb/scratch1/project/heavylight/hisq/allHISQ'
+archiveRoot: '/ccs/proj/csc275/detar/allHISQ'
 
 # (4) local: Staging location for run-time files.  See files/root/local below.
 
 files:
   root:
-    project: '/ccs/home/gottlieb/allHISQ'
+    project: '/ccs/home/detar/allHISQ'
 #    local: '/scratch' # If empty, we do not stage files
     local: # If empty, we do not stage files
     # member 'remote:' is added by the ensemble script, since it depends on the ensemble ID
