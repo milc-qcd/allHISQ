@@ -11,7 +11,7 @@
 #PBS -A fermimilcheavylight
 
 # Submission command must define LATS, SOURCES, JOBIDS, NCASES
-# qsub -c none -l walltime=${walltime} -l size=${NP} -N ${jobname} -v LATS=${cfgnos},NCASES=${ncases} ${pbs_script}
+# qsub -c none -l walltime=${walltime} -l size=${NP} -N ${jobname}
 
 # LATS    list of cfg numbers, separated by /
 # NCASES  number of cfg cases to run
@@ -51,7 +51,10 @@ else
   prompt=2
 fi
 
-/usr/local/python2/bin/python2.7  ../scripts/make-allHISQ-prompts.py ${cfgs_milc} ${ncases} 1 "fnal_mvapich2" ../scripts/params-allHISQ.yaml params-ens.yaml params-machine.yaml
+argList="${cfgs_milc} ${ncases} 1"
+scriptList="../scripts/params-allHISQ.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml"
+
+/usr/local/python2/bin/python2.7  ../scripts/make-allHISQ-prompts.py ${argList} ${scriptList}
 
 if [ $? -ne 0 ]
 then

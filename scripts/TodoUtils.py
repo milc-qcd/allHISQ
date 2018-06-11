@@ -24,6 +24,28 @@ def removeTodoLock(lockFile):
     subprocess.call(["rm", lockFile])
 
 
+############################################################
+def updateParam(param, paramUpdate):
+    """Update the param dictionary according to terms in paramUpdate"""
+
+    # Updating is recursive in the tree so we can update selected branches
+    # leaving the remainder untouched
+    for b in paramUpdate.keys():
+        try:
+            k = paramUpdate[b].keys()
+            n = len(k)
+        except AttributeError:
+            n = 0
+
+        if b in param.keys() and n > 0:
+            # Keep descending until we run out of branches
+            updateParam(param[b], paramUpdate[b])
+        else:
+            # Then stop, replacing just the last branch or creating a new one
+            param[b] = paramUpdate[b]
+
+    return param
+
 ######################################################################
 def loadParam(file):
     """Read the YAML parameter file"""

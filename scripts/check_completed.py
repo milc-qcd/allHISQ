@@ -18,12 +18,24 @@ from Cheetah.Template import Template
 # Requires a params-allHISQ.yaml file with file parameters.
 
 ######################################################################
-def jobStillQueued(jobid):
+def jobStillQueued(param,jobid):
     """Get the status of the queued job"""
     # This code is locale dependent
 
+    locale = param['submit']['locale']
+    scheduler = param['launch'][locale]['scheduler']
+    
     user = os.environ['USER']
-    cmd = " ".join(["qstat", "-u", user, "|", "grep", jobid])
+    if scheduler == 'LSF':
+        cmd = " ".join(["bjobs", "-u", user, "|", "grep", jobid])
+    elif scheduler == 'PBS':
+        cmd = " ".join(["qstat", "-u", user, "|", "grep", jobid])
+    elif scheduler == 'SLURM':
+        cmd = " ".join(["squeue", "-u", user, "|", "grep", jobid])
+    else:
+        print "Don't recognize scheduler", scheduler
+        print "Quitting"
+        sys.exit(1)
     reply = ""
     try:
         reply = subprocess.check_output(cmd, shell = True)
@@ -32,15 +44,27 @@ def jobStillQueued(jobid):
         # If status is other than 0 or 1, we have a qstat problem
         # Treat job as unfinished
         if status != 1:
-            print "qstat error", status, "Can't get the job status.  Skipping."
+            print "Error", status, "Can't get the job status.  Skipping."
             return True
 
     if len(reply) > 0:
         a = reply.split()
-        queueTime = a[8]
-        jobstat = a[9]
+        if scheduler == 'LSF':
+            queueTime = a[len(a)-3:len(a)]  # Actually the date of submission
+            jobstat = a[2]
+        elif scheduler == 'PBS':
+            queueTime = a[8]
+            jobstat = a[9]
+        elif scheduler == 'SLURM':
+            queueTime = a[5]
+            jobstat = a[4]
+        else:
+            print "Don't recognize scheduler", scheduler
+            print "Quitting"
+            sys.exit(1)
+
         print "Job status", jobstat, "queue time", queueTime
-        # If job is being canceled, jobstat = C.  Treat as finished.
+        # If job is being canceled, jobstat = C (PBS).  Treat as finished.
         if jobstat == "C":
             return False
         else:
@@ -182,65 +206,8 @@ def checkComplete(param, tarFile):
 
     return True
 
-############################################################
-def updateParam(param, paramUpdate):
-    """Update the param dictionary according to terms in paramUpdate"""
-
-    # Updating is recursive in the tree so we can update selected branches
-    # leaving the remainder untouched
-    for b in paramUpdate.keys():
-        try:
-            k = paramUpdate[b].keys()
-            n = len(k)
-        except AttributeError:
-            n = 0
-
-        if b in param.keys() and n > 0:
-            # Keep descending until we run out of branches
-            updateParam(param[b], paramUpdate[b])
-        else:
-            # Then stop, replacing just the last branch or creating a new one
-            param[b] = paramUpdate[b]
-
-    return param
-
 ######################################################################
-# def makeParamSets(param):
-#     """Create parameter sets for all tasks"""
-# 
-#     # Main 2pt and 3pt correlators
-#     params = list([param])
-# 
-#     newparam = copy.deepcopy(param)
-#     while True:
-#         YAMLUpdate = newparam['paramSet']['nextParamUpdate']
-#         if YAMLUpdate == None:
-#             break
-#         # Parameter file update
-#         try:
-#             paramUpdate = yaml.load(open(YAMLUpdate,'r'))
-#         except:
-#             print "ERROR: Error loading the parameter file", YAMLUpdate
-#             sys.exit(1)
-#         updateParam(newparam, paramUpdate)
-#         params.append(newparam)
-# 
-#     # The KS parameter set if specified
-#     newparam = copy.deepcopy(param)
-#     YAMLKSUpdate = newparam['paramSet']['KSParamUpdate']
-#     if YAMLKSUpdate != None:
-#         try:
-#             paramKSUpdate = yaml.load(open(YAMLKSUpdate,'r'))
-#         except:
-#             print "ERROR: Error loading the parameter file", YAMLKSUpdate
-#             sys.exit(1)
-#         updateParam(newparam, paramKSUpdate)
-#         params.append(newparam)
-# 
-#     return params
-
-######################################################################
-def checkPendingJobs(YAMLMachine,YAMLEns):
+def checkPendingJobs(YAMLMachine,YAMLEns,YAMLLaunch):
     """Process all entries marked Q in the todolist"""
 
     # Read primary parameter file
@@ -248,6 +215,9 @@ def checkPendingJobs(YAMLMachine,YAMLEns):
 
     paramEns = loadParam(YAMLEns)
     param = updateParam(param,paramEns)
+
+    paramLaunch = loadParam(YAMLLaunch)
+    param = updateParam(param,paramLaunch)
 
     # Add to param the possible locations of output files we will check
     addRootPaths(param)
@@ -279,7 +249,7 @@ def checkPendingJobs(YAMLMachine,YAMLEns):
 
 
         # If job is still queued, skip this entry
-        if jobStillQueued(jobid):
+        if jobStillQueued(param,jobid):
             continue
 
         changed = True
@@ -322,8 +292,9 @@ def main():
     # Parameter file
     YAMLMachine = "params-machine.yaml"
     YAMLEns = "params-ens.yaml"
+    YAMLLaunch = "../scripts/params-launch.yaml"
 
-    checkPendingJobs(YAMLMachine, YAMLEns)
+    checkPendingJobs(YAMLMachine, YAMLEns, YAMLLaunch)
 
 
 ############################################################

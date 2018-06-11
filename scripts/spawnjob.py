@@ -82,50 +82,50 @@ def nextCfgnos( maxCases, todoList ):
 #     return qsubSeqNo
 
 ######################################################################
-def submitJob(param, cfgnos, pbsScript):
+def submitJob(param, cfgnos, jobScript):
     """Submit the job"""
 
     layout = param['submit']['layout']
     njobs = layout['njobs']
     nodes = layout['basenodes'] * njobs
     np = nodes * layout['ppn']
-    walltime = param['submit']['walltime']
 
+    walltime = param['submit']['walltime']
     jobname = param['submit']['jobname']
 
-    # qsubSeqNo = nextQsubSeqno("QSUBSEQNO")
-
-    # Job parameters are included on the qsub line.
-    # The are also written to a short file
-    # in case the job submission system
-    # doesn't support multiple parameters on the
-    # qsub line
-
-    # file = "variables" + str(qsubSeqNo) + ".sh"
-    # varFile = open(file,"w")
-    varlats = "LATS=" + "/".join(str(c) for c in cfgnos)
-    varncases = "NCASES=" + str(len(cfgnos))
-    varnjobs = "NJOBS=" + str(njobs)
-    varnp = "NP=" + str(np)
-    # print >>varFile, varlats
-    # print >>varFile, varncases
-    # print >>varFile, varnjobs
-    # print >>varFile, varnp
-    # 
-    # varFile.close()
-
-    varnodes = str(nodes)
-    varwalltime = walltime
-
+    locale = param['submit']['locale']
     try:
-        stat = os.stat(pbsScript)
+        archflags = param['launch'][locale]['archflags']
+    except KeyError:
+        archflags = ''
+    scheduler = param['launch'][locale]['scheduler']
+
+    # Environment variables passed to the job script
+    os.environ["LATS"] = "/".join(str(c) for c in cfgnos)
+    os.environ["NCASES"] = str(len(cfgnos))
+    os.environ["NJOBS"] = str(njobs)
+    os.environ["NP"] = str(np)
+
+    # Does job script exist?
+    try:
+        stat = os.stat(jobScript)
     except OSError:
-        print "Can't find", pbsScript
+        print "Can't find", jobScript
         print "Quitting"
         sys.exit(1)
 
-    cmd = [ "qsub", "-l", ",".join(["nodes="+varnodes, "walltime="+varwalltime]), "-N", jobname,
-            "-v", ",".join([varlats,varncases,varnjobs,varnp]), pbsScript ]
+    # Job submission command depends on locale
+    if scheduler == 'LSF':
+        cmd = [ "bsub", "-nnodes", str(nodes), "-W", walltime, "-J", jobname, jobScript ]
+    elif scheduler == 'PBS':
+        cmd = [ "qsub", "-l", ",".join(["nodes="+str(nodes), "walltime="+walltime]), "-N", jobname, jobScript ]
+    elif scheduler == 'SLURM':
+        cmd = [ "sbatch", "-N", str(nodes), "-t",walltime, "-J", jobname, archflags, jobScript ]
+    else:
+        print "Don't recognize scheduler", scheduler
+        print "Quitting"
+        sys.exit(1)
+
     cmd = " ".join(cmd)
 
     print cmd
@@ -159,7 +159,7 @@ def markQueuedTodoEntries(cfgnos, jobid, todoList):
         todoList[cfg] = [ cfg, "Q", jobid ]
 
 ######################################################################
-def nannyLoop(YAML):
+def nannyLoop(YAML, YAMLLaunch):
     """Check job periodically and submit to the queue"""
     
     date = subprocess.check_output("date",shell=True).rstrip("\n")
@@ -167,10 +167,14 @@ def nannyLoop(YAML):
     print date, "Spawn job process", os.getpid(), "started on", hostname
 
     param = loadParam(YAML)
+
+    paramLaunch = loadParam(YAMLLaunch)
+    param = updateParam(param, paramLaunch)
+
     todoFile = param['nanny']['todofile']
     maxCases = param['nanny']['maxcases']
     njobs = param['submit']['layout']['njobs']
-    pbsScript = param['submit']['pbsScript']
+    jobScript = param['submit']['jobScript']
     lockFile = lockFileName(todoFile)
 
     # Keep going until
@@ -203,7 +207,7 @@ def nannyLoop(YAML):
                 sys.exit(0)
 
             # Submit the job
-            ( status, jobid ) = submitJob(param, cfgnos, pbsScript)
+            ( status, jobid ) = submitJob(param, cfgnos, jobScript)
             
             # Job submission succeeded
             # Edit the todoFile, marking the lattice queued and indicating the jobid
@@ -224,13 +228,17 @@ def nannyLoop(YAML):
         # Reload parameters in case of changes
         param = loadParam(YAML)
 
+        paramLaunch = loadParam(YAMLLaunch)
+        param = updateParam(param, paramLaunch)
+
 
 ############################################################
 def main():
 
     # Parameter file
     YAML = "params-machine.yaml"
-    nannyLoop(YAML)
+    YAMLLaunch = "../scripts/params-launch.yaml"
+    nannyLoop(YAML, YAMLLaunch)
 
 
 ############################################################
