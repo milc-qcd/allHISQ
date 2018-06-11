@@ -14,7 +14,7 @@
 umask 0022
 
 cd $HOME/allHISQ/l2464f211b600m0102m0509m635/
-export PYTHONPATH=$HOME/MILCprompts
+export PYTHONPATH=${PYTHONPATH}:$HOME/MILCprompts
 
 cd /gpfs/alpinetds/csc190/scratch/gottlieb/weakscaling_32
 module load gcc
