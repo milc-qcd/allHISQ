@@ -1,5 +1,5 @@
 #!/usr/bin/csh -v
-#BSUB -P CSC190PORT
+#BSUB -P CSC275DETAR
 #BSUB -W 120
 #BSUB -nnodes 128
 #BSUB -e error_128.%J
@@ -10,22 +10,16 @@
 
 # LATS    list of cfg numbers, separated by /
 # NCASES  number of cfg cases to run
+# NP      number of nodes
 
 umask 0022
 
 cd $HOME/allHISQ/l2464f211b600m0102m0509m635/
 export PYTHONPATH=${PYTHONPATH}:$HOME/MILCprompts
 
-cd /gpfs/alpinetds/csc190/scratch/gottlieb/weakscaling_32
 module load gcc
 module load spectrum-mpi
 module load cuda
-
-#setenv CUDA_NIC_INTEROP 1
-#setenv QUDA_RESOURCE_PATH /ccs/home/gottlieb/summit/run/tune
-setenv QUDA_RESOURCE_PATH /gpfs/alpinetds/csc190/scratch/gottlieb/weakscaling_32/tune.${nodes}
-mkdir $QUDA_RESOURCE_PATH
-setenv I_MPI_DEBUG 5
 
 # Take predefined parameters from bsub command line:
 if [ -n "${LS_SUBCWD}" ]
@@ -36,6 +30,7 @@ then
   # Unpack lists
   cfgs_milc=( `echo ${LATS} | sed 's|/| |g'` )
   ncases=${NCASES}
+  np=${NP}
   pbsjobid=${LSB_JOBID}
   if [ -z "${pbsjobid}" ]
   then
@@ -49,10 +44,16 @@ else
   t0s=(0)
   jobids=("grp")
   ncases=1
+  np=1
   pbsjobid=test
   testing=1
   prompt=2
 fi
+
+#setenv CUDA_NIC_INTEROP 1
+QUDA_RESOURCE_PATH=tune.${np}
+mkdir $QUDA_RESOURCE_PATH
+setenv I_MPI_DEBUG 5
 
 argList="${cfgs_milc} ${ncases} 1"
 scriptList="../scripts/params-allHISQ.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml"
