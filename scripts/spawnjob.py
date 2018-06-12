@@ -25,11 +25,22 @@ from Cheetah.Template import Template
 # Requires params-allHISQ.yaml with definitions of variables needed here
 
 ######################################################################
-def countQueue(  myjobname ):
+def countQueue( scheduler,  myjobname ):
     """Count my jobs in the queue"""
 
     user = os.environ['USER']
-    cmd = ' '.join(["qstat -u", user, "| grep", user, "| grep", myjobname, "| wc -l"])
+
+    if scheduler == 'LSF':
+        cmd = ' '.join(["bjobs -u", user, "| grep", user, "| grep", myjobname, "| wc -l"])
+    elif scheduler == 'PBS':
+        cmd = ' '.join(["qstat -u", user, "| grep", user, "| grep", myjobname, "| wc -l"])
+    elif scheduler == 'SLURM':
+        cmd = ' '.join(["squeue -u", user, "| grep", user, "| grep", myjobname, "| wc -l"])
+    else:
+        print "Don't recognize scheduler", scheduler
+        print "Quitting"
+        sys.exit(1)
+
     nqueued = int(subprocess.check_output(cmd,shell=True))
 
     return nqueued
@@ -127,7 +138,6 @@ def submitJob(param, cfgnos, jobScript):
         sys.exit(1)
 
     cmd = " ".join(cmd)
-
     print cmd
     reply = ""
     try:
@@ -139,12 +149,15 @@ def submitJob(param, cfgnos, jobScript):
 
     print reply
 
-    # Get job ID (PBS version)
-    # qsub reply format is
-    # 3314170.kaon2.fnal.gov submitted
-    # but we want just the number
-
-    jobid = reply[0].split(".")[0]
+    if scheduler == 'LSF':
+        # a.2100 Q Job <99173> is submitted to default queue <batch>
+        jobid = reply[0].split()[1].split("<")[1].split(">")[0]
+    elif scheduler == 'PBS':
+        # 3314170.kaon2.fnal.gov submitted
+        jobid = reply[0].split(".")[0]
+    elif scheduler == 'SLURM':
+        # Submitted batch job 10059729
+        jobid = reply[0].split()[3]
 
     date = subprocess.check_output("date",shell=True).rstrip("\n")
     print date, "Submitted job", jobid, "for cfgs", cfgnos
@@ -171,24 +184,29 @@ def nannyLoop(YAML, YAMLLaunch):
     paramLaunch = loadParam(YAMLLaunch)
     param = updateParam(param, paramLaunch)
 
-    todoFile = param['nanny']['todofile']
-    maxCases = param['nanny']['maxcases']
-    njobs = param['submit']['layout']['njobs']
-    jobScript = param['submit']['jobScript']
-    lockFile = lockFileName(todoFile)
-
     # Keep going until
-    #   we see a file called "STOP"
-    #   we have exhausted the lis
-    #   there are qsub or qstat errors
+    #   we see a file called "STOP" OR
+    #   we have exhausted the list OR
+    #   there are job submission or queue checking errors
 
     while True:
         if os.access("STOP", os.R_OK):
             print "Spawn job process stopped because STOP file is present"
             break
 
+        todoFile = param['nanny']['todofile']
+        maxCases = param['nanny']['maxcases']
+        njobs = param['submit']['layout']['njobs']
+        jobScript = param['submit']['jobScript']
+        locale = param['submit']['locale']
+        launchLocale = param['launch'][locale]
+        scheduler = launchLocale['scheduler']
+        jobname = param['submit']['jobname']
+
+        lockFile = lockFileName(todoFile)
+
         # Count queued jobs with our job name
-        nqueued = countQueue( param['submit']['jobname'] )
+        nqueued = countQueue( scheduler, jobname )
   
         print "Found", nqueued, "jobs"
 

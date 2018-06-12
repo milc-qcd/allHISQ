@@ -50,20 +50,23 @@ def jobStillQueued(param,jobid):
     if len(reply) > 0:
         a = reply.split()
         if scheduler == 'LSF':
-            queueTime = a[len(a)-3:len(a)]  # Actually the date of submission
+            time = a[5]  # Actually the start time
+            field = "start"
             jobstat = a[2]
         elif scheduler == 'PBS':
-            queueTime = a[8]
+            time = a[8]
+            field = "queue"
             jobstat = a[9]
         elif scheduler == 'SLURM':
-            queueTime = a[5]
+            time = a[5]
+            field = "run"
             jobstat = a[4]
         else:
             print "Don't recognize scheduler", scheduler
             print "Quitting"
             sys.exit(1)
 
-        print "Job status", jobstat, "queue time", queueTime
+        print "Job status", jobstat, field, "time", time
         # If job is being canceled, jobstat = C (PBS).  Treat as finished.
         if jobstat == "C":
             return False

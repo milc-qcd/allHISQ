@@ -73,8 +73,9 @@ def readTodo(todoFile, lockFile):
         sys.exit(1)
 
     for line in todoLines:
+        if len(line) == 1:
+            continue
         a = line.split()
-#        a[0] = int(a[0])
         todoList[a[0]] = a
 
     todo.close()
