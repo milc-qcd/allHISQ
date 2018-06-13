@@ -144,7 +144,7 @@ def submitJob(param, cfgnos, jobScript):
         reply = subprocess.check_output(cmd, shell=True).splitlines()
     except subprocess.CalledProcessError as e:
         print reply
-        print "qsub error.  Return code", e.returncode
+        print "Job submission error.  Return code", e.returncode
         sys.exit(1)
 
     print reply
