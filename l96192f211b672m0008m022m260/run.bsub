@@ -4,7 +4,8 @@
 #BSUB -nnodes 128
 #BSUB -e error_128.%J
 #BSUB -o output_128.%J
-#BSUB -J ws128
+#BSUB -q batch
+#BSUB -J allHISQ
 
 # bsub -nnodes ${NP} -W walltime -N ${jobname} ${jobScript}
 
@@ -14,7 +15,6 @@
 
 umask 0022
 
-cd $HOME/allHISQ/l2464f211b600m0102m0509m635/
 export PYTHONPATH=${PYTHONPATH}:$HOME/MILCprompts
 
 module load gcc
@@ -22,10 +22,10 @@ module load spectrum-mpi
 module load cuda
 
 # Take predefined parameters from bsub command line:
-if [ -n "${LS_SUBCWD}" ]
+if [ -n "${LSB_JOBID}" ]
 then
   echo "Running on nodes ${LSB_HOSTS}"
-  cd ${LS_SUBCWD}
+  cd ${HOME}/allHISQ/l96192f211b672m0008m022m260
   # Get job-dependent variables
   # Unpack lists
   cfgs_milc=( `echo ${LATS} | sed 's|/| |g'` )
