@@ -1,0 +1,47 @@
+#! /bin/bash
+# shell script for submitting to PBS on the FNAL clusters
+#
+#PBS -S /bin/bash
+#PBS -q pi
+#### -M detar@physics.utah.edu
+#### -m abe
+#PBS -l walltime=12:00
+#PBS -l size=32
+#PBS -N allHISQtest
+#PBS -j oe
+#PBS -c none
+#PBS -A fermimilcheavylight
+
+# Submit with
+#     qsub run.pbs
+
+umask 0022
+
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/python2/lib:/usr/local/fftw/double-mvapich2/lib
+
+cd ${PBS_O_WORKDIR}
+
+echo "Running on nodes"
+cat $PBS_NODELIST
+# Get job-dependent variables
+
+cfgs_milc=( 1000 1005 1010 1015 1020 1025 1030 1035 1040 )
+
+for cfg in ${cfgs_milc}
+do
+  infile=intest.${cfg}
+  outfile=outtest.${cfg}
+  ./make_input.sh ${cfg} ${infile}
+
+  MPIRUN=/usr/local/mvapich2/bin/mpirun
+  MPIPARAM="-np 16 /usr/local/mvapich2/bin/numa_16_mv2"
+  EXEC=/home/detar/allHISQ/bin/ks_spectrum_hisq
+  GEOM="-qmp-geom 1 1 1 1"
+  cmd="${MPIRUN} ${MPIPARAM} ${EXEC} ${GEOM} ${infile} ${outfile}"
+  echo ${cmd}
+  ${cmd}
+done
+
+
+
+

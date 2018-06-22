@@ -202,7 +202,7 @@ def meson2pts(work, quarks, tsrc, seriesCfg):
             for errL in errsLight:
                 for errH in errsHeavy:
                     npts = list()
-                    prefix = 'H5_e' + str(errL) + '_' + str(errH) + '_'
+                    prefix = 'H5_r' + str(errL) + '_' + str(errH)
                     pmom = 'p000'
                     phase = 1
                     rwNorm = 1.
