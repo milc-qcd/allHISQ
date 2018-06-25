@@ -52,10 +52,10 @@ quarks:
     naik_epsilon: ['-0.229787', '-0.521']
     residual_loose:
       L2: 0.
-      R2: 1e-8
+      R2: 1e-3
     residual_fine:
       L2: 0.
-      R2: 1e-12
+      R2: 1e-5
     maxCG:
       iters: 400
       restarts: 5
