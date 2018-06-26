@@ -42,7 +42,7 @@ then
   prompt=0
 else
   echo "Not a SLURM job.  Running in test mode."
-  cfgs_milc=(99)
+  cfgs_milc=(x.99)
   t0s=(0)
   jobids=("grp")
   ncases=1
@@ -52,7 +52,10 @@ else
   prompt=2
 fi
 
-/usr/local/python2/bin/python2.7  ../scripts/make-allHISQ-prompts.py ${cfgs_milc} ${ncases} 1 params-allHISQ.yaml
+argList="${cfgs_milc} ${ncases} 1"
+scriptList="../scripts/params-allHISQ.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml"
+
+/usr/bin/python2.7  ../scripts/make-allHISQ-prompts.py ${argList} ${scriptList}
 
 if [ $? -ne 0 ]
 then
