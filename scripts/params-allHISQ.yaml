@@ -124,6 +124,7 @@ corr2pts:
 # The correlator list values are
 # [ phase, gammaDaughter, gammaCurrent, momentum ]
 tSnkHtopi: &ref_tSnkHtopi [ 15, 18, 20, 21 ] 
+tSnkHtoH: &ref_tSnkHtoH [ 15, 18, 20, 21 ] 
 corr3pts:
   # Vector and tensor-current H-to-pi
   HV2pi:
@@ -216,6 +217,35 @@ corr3pts:
     Sq: [ 'qstrange', ['d'] ]
     correlators: *ref_corrHLS3ptPS
 
+  # Vector current H-to-H
+  HV2H:
+    step: 2
+    spinTasteParent: 'G5T-G5T'
+    extT: *ref_tSnkHtoH
+    Dq: [ 'qheavy', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qlight', ['d'] ]
+    correlators: &ref_corrHHV3ptPS [
+      [ -1, GT-GT,  [0, 0, 0] ],
+      [ -1, GT-GT,  [1, 0, 0] ],
+      [ -1, GT-GT,  [1, 1, 0] ],
+      [ -1, GT-GT,  [2, 0, 0] ],
+      [ -1, GT-GT,  [2, 1, 1] ],
+      [ -1, GT-GT,  [3, 0, 0] ],
+#      [ -1, GT-GT,  [2, 2, 2] ],
+#      [ -1, GT-GT,  [4, 0, 0] ],
+    ]
+
+  # Vector current Hs-to-Hs
+  HsV2Hs:
+    step: 2
+    spinTasteParent: 'G5T-G5T'
+    extT: *ref_tSnkHtoH
+    Dq: [ 'qheavy', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qlight', ['d'] ]
+    correlators: *ref_corrHHV3ptPS
+
 ######################################################################
 # Table for converting code gamma notation to bilinear notation
 # Used to construct the correlator names
@@ -247,6 +277,9 @@ fileCmd:
   lat:
     load: 'reload_serial'
     save: 'save_serial_scidac'
+  eig:
+    load: 'reload_parallel_ks_eigen'
+    save: 'save_parallel_ks_eigen'
   propKS:
     load: 'reload_serial_ksprop'
     save: 'save_partfile_scidac_ksprop'
