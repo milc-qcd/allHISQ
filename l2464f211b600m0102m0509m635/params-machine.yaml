@@ -3,8 +3,8 @@
 ######################################################################
 submit:
   jobname: allHISQ
-  jobScript: run.pbs
-  locale: fnal_mvapich2
+  jobScript: run.slurm
+  locale: chpc_mvapich2
   walltime: "12:00:00"
   layout:
     njobs: &refNjobs 1  # Number of concurrent subjobs within a job (not supported)
@@ -32,16 +32,16 @@ nanny:
 
 # (2) remote: Large remote files: lattices, propagators, random source files
 #     etc.  The ensemble name is appended as a subdirectory.
-remoteRoot: '/lqcdproj/fermimilcheavylight/detar/allHISQ'
+remoteRoot: '/scratch/kingspeak/serial/detar/allHISQ'
 
 # (3) archive: Smaller result files: Output correlators, logs
-archiveRoot: '/project/heavylight/hisq/allHISQ'
+archiveRoot: '/scratch/kingspeak/serial/detar/allHISQ/project'
 
 # (4) local: Staging location for run-time files.  See files/root/local below.
 
 files:
   root:
-    project: '/home/detar/allHISQ'
+    project: '/uufs/chpc.utah.edu/common/home/u0029126/allHISQ'
 #    local: '/scratch' # If empty, we do not stage files
     local: # If empty, we do not stage files
     # member 'remote:' is added by the ensemble script, since it depends on the ensemble ID
@@ -60,6 +60,9 @@ files:
   latCoul:
     root: 'remote'
     subdirs: [ 'lat', 'Coulomb' ]
+  eigen:
+    root: 'remote'
+    subdirs: [ 'eigen' ]
   rand:
     root: 'remote'
     subdirs: [ 'rand' ]
