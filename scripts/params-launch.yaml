@@ -58,3 +58,18 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
     jobidName: 'LSB_JOBID'
     launchScript: './cdg_launcher.sh'
 
+  bnl-skylake:
+    scheduler: SLURM
+    mpiparam: '-n NP'
+    mpirun: 'srun'
+    numa: ''
+    jobidName: 'SLURM_JOBID'
+    launchScript: ''
+
+  bnl-ic:
+    scheduler: SLURM
+    mpiparam: '-n NP -c 1'
+    mpirun: 'srun'
+    numa: ''
+    jobidName: 'SLURM_JOBID'
+    launchScript: ''
