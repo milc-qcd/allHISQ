@@ -275,6 +275,11 @@ def latFileCoul( run, suffix, cfg):
     return 'l%s%s-Coul.%d.ildg' % (run, suffix, int(cfg))
 
 ######################################################################
+def latFileEig( run, suffix, cfg):
+    """Convention for eigenpair file names"""
+    return 'eig_%s%s.%d' % (run, suffix, int(cfg))
+
+######################################################################
 def latFileMILCv5( run, suffix, cfg):
     """Convention for MILC v5 lattice file names"""
     return 'l%s%s.%d' % (run, suffix, int(cfg))

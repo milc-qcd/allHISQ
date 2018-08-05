@@ -40,7 +40,6 @@ def stageLattice(param, suffix, cfg):
     lat = param['files']['latCoul']
 
     root = param['files']['root']
-    projectRoot = root['project']
     localRoot = root['local']
 
     fileCmd = param['fileCmd']
@@ -73,6 +72,26 @@ def stageLattice(param, suffix, cfg):
                 sys.exit(1)
 
     return (latCoul, loadLat, saveLat, gFix)
+
+######################################################################
+def stageEigen(param, suffix, cfg):
+    """Stage the eigenvector file"""
+
+    ensemble = param['ensemble']
+    run = ensemble['run']
+    eig = param['files']['eigen']
+
+    root = param['files']['root']
+    localRoot = root['local']
+
+    name = latFileEig( run, suffix, cfg )
+    inEigen = StageFile( localRoot, None, root[eig['root']], eig['subdirs'], name, 'r', None, False )
+
+    fileCmd = param['fileCmd']
+    loadEigen = (fileCmd['eig']['load'], inEigen.path())
+    saveEigen = ('forget_ks_eigen',)                   
+
+    return inEigen, loadEigen, saveEigen
 
 ######################################################################
 def fetchWF(param):
@@ -421,7 +440,14 @@ def startGauge(param, work, loadLat, saveLat, gFix, tsrc):
 
     work.newGauge(Gauge(loadLat, u0, gFix, saveLat, param['apelink'], uOrigin, bc))
 
-    return work
+######################################################################
+def addEigen(param, work, loadEigen, saveEigen):
+    """Add eigenpair stanza"""
+
+    Nvecs = param['eigen']['Nvecs']
+
+    eigs = Eigen(loadEigen, Nvecs, saveEigen)
+    work.newEigen(eigs)
 
 ######################################################################
 def createRandomSource(param, work, rndSq, rndDq, tsrcConfigId):
@@ -801,6 +827,9 @@ def createMILCprompts(param, nstep, tsrc, kjob, seriesCfg, njobs):
     
     # Stage lattice file
     (latCoul, loadLat, saveLat, gFix) = stageLattice(param, suffix, cfg)
+
+    # Stage eigenpair file
+    (eigenPair, loadEigen, saveEigen) = stageEigen(param, suffix, cfg)
     
     # Fetch 1S wavefunction file
     wf1S = fetchWF(param)
@@ -829,7 +858,10 @@ def createMILCprompts(param, nstep, tsrc, kjob, seriesCfg, njobs):
 
     # Add gauge load and gauge-fix stanzas
     startGauge(param, work, loadLat, saveLat, gFix, tsrc)
-    
+
+    # Add eigenpair specification
+    addEigen(param, work, loadEigen, saveEigen)
+
     # Generate commands for creating the random sources
     (sources, rwParams) = createRandomSource(param, work, rndSq, rndDq, tsrcConfigId)
     
