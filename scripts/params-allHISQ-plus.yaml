@@ -133,6 +133,7 @@ corr3pts:
     Dq: [ 'qlight', ['d'] ]
     Pq: [ 'qheavy' ]
     Sq: [ 'qlight', ['d'] ]
+    select: all
     correlators: &ref_corrHLV3ptPS [
       [ -1, GT-GT,  [0, 0, 0] ],
       [ -1, GT-GT,  [1, 0, 0] ],
@@ -165,6 +166,7 @@ corr3pts:
     Dq: [ 'qlight', ['d'] ]
     Pq: [ 'qheavy' ]
     Sq: [ 'qlight', ['d'] ]
+    select: all
     correlators: &ref_corrHLVx3ptPS [
       [ -1, GX-G1,  [0, 0, 0] ],
       [ -1, GX-G1,  [1, 0, 0] ],
@@ -202,6 +204,7 @@ corr3pts:
     Dq: [ 'qlight', ['d'] ]
     Pq: [ 'qheavy' ]
     Sq: [ 'qlight', ['d'] ]
+    select: all
     correlators: &ref_corrHLS3ptPS  [
       [  1, G1-G1,  [0, 0, 0] ],
       [  1, G1-G1,  [1, 0, 0] ],
@@ -221,6 +224,7 @@ corr3pts:
     Dq: [ 'qstrange', ['d'] ]
     Pq: [ 'qheavy' ]
     Sq: [ 'qlight', ['d'] ]
+    select: all
     correlators: *ref_corrHLV3ptPS
 
   # One-link vector current H-to-K
@@ -231,6 +235,7 @@ corr3pts:
     Dq: [ 'qstrange', ['d'] ]
     Pq: [ 'qheavy' ]
     Sq: [ 'qlight', ['d'] ]
+    select: all
     correlators: *ref_corrHLVx3ptPS
 
   # Scalar density H-to-K
@@ -241,6 +246,7 @@ corr3pts:
     Dq: [ 'qstrange', ['d'] ]
     Pq: [ 'qheavy' ]
     Sq: [ 'qlight', ['d'] ]
+    select: all
     correlators: *ref_corrHLS3ptPS
 
   # Vector and tensor-current Hs-to-K
@@ -251,6 +257,7 @@ corr3pts:
     Dq: [ 'qlight', ['d'] ]
     Pq: [ 'qheavy' ]
     Sq: [ 'qstrange', ['d'] ]
+    select: all
     correlators: *ref_corrHLV3ptPS
 
   # One-link vector Hs-to-K
@@ -261,6 +268,7 @@ corr3pts:
     Dq: [ 'qlight', ['d'] ]
     Pq: [ 'qheavy' ]
     Sq: [ 'qstrange', ['d'] ]
+    select: all
     correlators: *ref_corrHLVx3ptPS
 
   # Scalar density Hs-to-K
@@ -271,7 +279,41 @@ corr3pts:
     Dq: [ 'qlight', ['d'] ]
     Pq: [ 'qheavy' ]
     Sq: [ 'qstrange', ['d'] ]
+    select: all
     correlators: *ref_corrHLS3ptPS
+
+  # Diagonal Hs to Hs
+  HsVx2Hs:
+    step: 2
+    spinTasteParent: 'G5-G5'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qheavy', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qstrange', ['d'] ]
+    select: diagonal
+    correlators: &ref_corrHHV3ptPS  [
+      [  1, GX-G1,  [0, 0, 0] ],
+      [  1, GX-G1,  [1, 0, 0] ],
+      [  1, GX-G1,  [1, 1, 0] ],
+      [  1, GX-G1,  [2, 0, 0] ],
+      [  1, GX-G1,  [2, 1, 1] ],
+      [  1, GX-G1,  [3, 0, 0] ],
+
+      [  1, GY-G1,  [0, 0, 0] ],
+      [  1, GY-G1,  [1, 0, 0] ],
+      [  1, GY-G1,  [1, 1, 0] ],
+      [  1, GY-G1,  [2, 0, 0] ],
+      [  1, GY-G1,  [2, 1, 1] ],
+      [  1, GY-G1,  [3, 0, 0] ],
+
+      [  1, GZ-G1,  [0, 0, 0] ],
+      [  1, GZ-G1,  [1, 0, 0] ],
+      [  1, GZ-G1,  [1, 1, 0] ],
+      [  1, GZ-G1,  [2, 0, 0] ],
+      [  1, GZ-G1,  [2, 1, 1] ],
+      [  1, GZ-G1,  [3, 0, 0] ]
+    ]
+
 
 ######################################################################
 # Table for converting code gamma notation to bilinear notation
