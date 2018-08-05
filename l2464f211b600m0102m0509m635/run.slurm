@@ -1,7 +1,7 @@
 #! /bin/bash
 # shell script for submitting to PBS
 #
-#SBATCH -p ember
+#SBATCH -p pi
 ####### -M detar@physics.utah.edu
 ####### -m abe
 ####### -t (command line in spawnmultijob.py)
@@ -18,7 +18,9 @@
 
 umask 0022
 
-export LD_LIBRARY_PATH=/usr/local/ofed/lib64:/usr/local/fftw-3.3.7/mvapich2/lib:${LD_LIBRARY_PATH}:/usr/local/python2/lib:/usr/local/cuda/lib64
+#export LD_LIBRARY_PATH=/usr/local/ofed/lib64:/usr/local/fftw-3.3.7/mvapich2/lib:${LD_LIBRARY_PATH}:/usr/local/python2/lib:/usr/local/cuda/lib64
+
+module list
 
 echo "Running on nodes"
 echo $SLURM_JOB_NODELIST
@@ -42,17 +44,19 @@ then
   prompt=0
 else
   echo "Not a SLURM job.  Running in test mode."
-  cfgs_milc=(99)
+  cfgs_milc=(x.99)
   t0s=(0)
   jobids=("grp")
   ncases=1
-  njobs=0
   pbsjobid=test
   testing=1
   prompt=2
 fi
 
-/usr/local/python2/bin/python2.7  ../scripts/make-allHISQ-prompts.py ${cfgs_milc} ${ncases} 1 params-allHISQ.yaml
+argList="${cfgs_milc} ${ncases} 1"
+scriptList="../scripts/params-allHISQ-plus.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml"
+
+/usr/local/python2/bin/python2.7  ../scripts/make-allHISQ-prompts.py ${argList} ${scriptList}
 
 if [ $? -ne 0 ]
 then
