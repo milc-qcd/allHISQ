@@ -3,7 +3,7 @@
 ######################################################################
 submit:
   jobname: allHISQ
-  jobScript: run.pbs
+  jobScript: run.slurm
   locale: fnal_mvapich2
   walltime: "12:00:00"
   layout:
