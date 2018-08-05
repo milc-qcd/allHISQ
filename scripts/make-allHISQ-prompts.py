@@ -258,6 +258,10 @@ def compile3ptCorrelators(param, correlators, quarkKeys, rndQ, rndAq, nstep, tsr
         (qkD, smDSrcList) = corr3pts[nptKey]['Dq']
         smSSnk = 'ext'
         stP = corr3pts[nptKey]['spinTasteParent']
+        try:
+            select = corr3pts[nptKey]['select']
+        except KeyError:
+            select = 'all'
         for smDSrc in smDSrcList:
             for smSSrc in smSSrcList:
                 for extT in corr3pts[nptKey]['extT']:
@@ -286,6 +290,9 @@ def compile3ptCorrelators(param, correlators, quarkKeys, rndQ, rndAq, nstep, tsr
                             for momKey in corrAttrsTable.keys():
                                 quark = param['quarks'][qkD]
                                 for mQkD, epsQkD in zip(quark['mass'], quark['naik_epsilon']):
+                                    # Provision for doing only the diagonal mass case: skip off diagonal
+                                    if select == 'diagonal' and ( mQkD != mQkP or epsQkD != epsQkP ):
+                                        continue
                                     daughterKey = makeQuarkKey((residQuality, qkD, mQkD, epsQkD, rndAq, 
                                                                 makeSrcKey((smDSrc, momKey)), smDSnk))
                                     mom = splitMomKey(momKey)
