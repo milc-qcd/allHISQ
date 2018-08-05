@@ -28,7 +28,7 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
     jobidName: 'PBS_JOBID'
 
   fnal_mvapich2:
-    scheduler: PBS
+    scheduler: SLURM
     mpiparam: '-np NP'
     mpirun: '/usr/local/mvapich2/bin/mpirun'
     numa: '/usr/local/mvapich2/bin/numa_16_mv2'
