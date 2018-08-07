@@ -37,7 +37,7 @@ def countQueue( scheduler,  myjobname ):
     elif scheduler == 'SLURM':
         cmd = ' '.join(["squeue -u", user, "| grep", user, "| grep", myjobname, "| wc -l"])
     elif scheduler == 'Cobalt':
-        cmd = ' '.join(["qstat -u", user, "| grep", user, "| grep", myjobname, "| wc -l"])
+        cmd = ' '.join(["qstat -uf", user, "| grep", user, "| grep", myjobname, "| wc -l"])
     else:
         print "Don't recognize scheduler", scheduler
         print "Quitting"
@@ -165,7 +165,7 @@ def submitJob(param, cfgnos, jobScript):
     elif scheduler == 'Cobalt':
         # ** Project 'semileptonic'; job rerouted to queue 'prod-short'
         # ['1607897']
-        jobid = reply[1].split("[")[1].split("]")[0]
+        jobid = reply[-1]
 
     date = subprocess.check_output("date",shell=True).rstrip("\n")
     print date, "Submitted job", jobid, "for cfgs", cfgnos

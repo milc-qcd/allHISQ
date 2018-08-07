@@ -33,7 +33,7 @@ def jobStillQueued(param,jobid):
     elif scheduler == 'SLURM':
         cmd = " ".join(["squeue", "-u", user, "|", "grep", jobid])
     elif scheduler == 'Cobalt':
-        cmd = " ".join(["qstat", "-u", user, "|", "grep", jobid])
+        cmd = " ".join(["qstat", "-fu", user, "|", "grep", jobid])
     else:
         print "Don't recognize scheduler", scheduler
         print "Quitting"
@@ -64,9 +64,9 @@ def jobStillQueued(param,jobid):
             field = "run"
             jobstat = a[4]
         elif scheduler == 'Cobalt':
-            time = a[2]
-            field = "max"
-            jobstat = a[4]
+            time = a[5]
+            field = "run"
+            jobstat = a[8]
         else:
             print "Don't recognize scheduler", scheduler
             print "Quitting"

@@ -49,6 +49,13 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
     numa: ''
     jobidName: 'COBALT_JOBID'
 
+  alcf_theta:
+    scheduler: Cobalt
+    mpiparam: '-q debug-flat-quad -n NP -N 32 --verbose=INFO --envs OMP_NUM_THREADS=4 -cc depth -d 4 -j 2 :'
+    mpirun: 'aprun'
+    numa: ''
+    jobidName: 'COBALT_JOBID'
+
   summit:
     scheduler: LSF
     mpiparam: '-n NP -r 1 -g 6 -a 6 -c 42 -b none'
