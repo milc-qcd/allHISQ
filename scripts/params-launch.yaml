@@ -42,13 +42,13 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
     jobidName: 'PBS_JOBID'
 
   alcf_bgq:
-    scheduler: ??
-    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 --mapping /gpfs/mira-home/detar/mapfiles/n4096c32s448162g16161632.map :'
-#    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 --mapping /gpfs/mira-home/detar/mapfiles/n512c32g161688.map :'
+    scheduler: Cobalt
+#    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 --mapping /gpfs/mira-home/detar/mapfiles/n4096c32s448162g16161632.map :'
+    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 --mapping /gpfs/mira-home/detar/mapfiles/n512c32g161688.map :'
 #    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 :'
     mpirun: 'runjob'
     numa: ''
-    jobidName: '???'
+    jobidName: 'COBALT_JOBID'
 
   summit:
     scheduler: LSF
