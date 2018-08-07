@@ -301,18 +301,18 @@ def compile3ptCorrelators(param, correlators, quarkKeys, rndQ, rndAq, nstep, tsr
                             corrAttrsTable[momKey].append([prefix, p, stC])
         
                         quark = param['quarks'][qkS]
-                        for mQkS, epsQkS in zip(quark['mass'], quark['naik_epsilon']):
+                        for mQkS, epsS in zip(quark['mass'], quark['naik_epsilon']):
                             mom = [0, 0, 0]
-                            parentKey = makeQuarkKey((residQuality, qkS, mQkS, epsQkS, rndQ, 
+                            parentKey = makeQuarkKey((residQuality, qkS, mQkS, epsS, rndQ, 
                                                       makeSrcKey((smSSrc, makeMomKey(mom))), snkKey))
                             appendUnique(quarkKeys, parentKey)
                             for momKey in corrAttrsTable.keys():
                                 quark = param['quarks'][qkD]
-                                for mQkD, epsQkD in zip(quark['mass'], quark['naik_epsilon']):
+                                for mQkD, epsD in zip(quark['mass'], quark['naik_epsilon']):
                                     # Provision for doing only the diagonal mass case: skip off diagonal
-                                    if select == 'diagonal' and ( mQkD != mQkP or epsQkD != epsQkP ):
+                                    if select == 'diagonal' and ( mQkD != mQkP or epsD != epsP ):
                                         continue
-                                    daughterKey = makeQuarkKey((residQuality, qkD, mQkD, epsQkD, rndAq, 
+                                    daughterKey = makeQuarkKey((residQuality, qkD, mQkD, epsD, rndAq, 
                                                                 makeSrcKey((smDSrc, momKey)), smDSnk))
                                     mom = splitMomKey(momKey)
                                     quark = param['quarks'][qkP]
