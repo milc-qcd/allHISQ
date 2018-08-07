@@ -124,6 +124,7 @@ corr2pts:
 # The correlator list values are
 # [ phase, gammaDaughter, gammaCurrent, momentum ]
 tSnkHtopi: &ref_tSnkHtopi [ 15, 18, 20, 21 ] 
+tSnkHtoH: &ref_tSnkHtoH [ 15, 18, 20, 21 ] 
 corr3pts:
   # Vector and tensor-current H-to-pi
   HV2pi:
@@ -176,24 +177,6 @@ corr3pts:
       [ -1, GX-G1,  [3, 0, 0] ],
 #      [ -1, GX-G1,  [2, 2, 2] ],
 #      [ -1, GX-G1,  [4, 0, 0] ],
-
-      [ -1, GY-G1,  [0, 0, 0] ],
-      [ -1, GY-G1,  [1, 0, 0] ],
-      [ -1, GY-G1,  [1, 1, 0] ],
-      [ -1, GY-G1,  [2, 0, 0] ],
-      [ -1, GY-G1,  [2, 1, 1] ],
-      [ -1, GY-G1,  [3, 0, 0] ],
-#      [ -1, GY-G1,  [2, 2, 2] ],
-#      [ -1, GY-G1,  [4, 0, 0] ],
-
-      [ -1, GZ-G1,  [0, 0, 0] ],
-      [ -1, GZ-G1,  [1, 0, 0] ],
-      [ -1, GZ-G1,  [1, 1, 0] ],
-      [ -1, GZ-G1,  [2, 0, 0] ],
-      [ -1, GZ-G1,  [2, 1, 1] ],
-      [ -1, GZ-G1,  [3, 0, 0] ],
-#      [ -1, GZ-G1,  [2, 2, 2] ],
-#      [ -1, GZ-G1,  [4, 0, 0] ],
     ]
 
   # Scalar density H-to-pi
@@ -264,7 +247,7 @@ corr3pts:
   HsVx2K:
     step: 2
     spinTasteParent: 'G5-G5'
-    extT: *ref_tSnkHtopi
+    extT: *ref_tSnkHtoH
     Dq: [ 'qlight', ['d'] ]
     Pq: [ 'qheavy' ]
     Sq: [ 'qstrange', ['d'] ]
@@ -282,36 +265,53 @@ corr3pts:
     select: all
     correlators: *ref_corrHLS3ptPS
 
+  # Vector current H-to-H
+  HV2H:
+    step: 2
+    spinTasteParent: 'G5T-G5T'
+    extT: *ref_tSnkHtoH
+    Dq: [ 'qheavy', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qlight', ['d'] ]
+    select: all
+    correlators: &ref_corrHHV3ptPS [
+      [ -1, GT-GT,  [0, 0, 0] ],
+      [ -1, GT-GT,  [1, 0, 0] ],
+      [ -1, GT-GT,  [1, 1, 0] ],
+      [ -1, GT-GT,  [2, 0, 0] ],
+      [ -1, GT-GT,  [2, 1, 1] ],
+      [ -1, GT-GT,  [3, 0, 0] ],
+#      [ -1, GT-GT,  [2, 2, 2] ],
+#      [ -1, GT-GT,  [4, 0, 0] ],
+    ]
+
+  # Vector current Hs-to-Hs
+  HsV2Hs:
+    step: 2
+    spinTasteParent: 'G5T-G5T'
+    extT: *ref_tSnkHtoH
+    Dq: [ 'qheavy', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qlight', ['d'] ]
+    select: all
+    correlators: *ref_corrHHV3ptPS
+
   # Diagonal Hs to Hs
   HsVx2Hs:
     step: 2
     spinTasteParent: 'G5-G5'
-    extT: *ref_tSnkHtopi
+    extT: *ref_tSnkHtoH
     Dq: [ 'qheavy', ['d'] ]
     Pq: [ 'qheavy' ]
     Sq: [ 'qstrange', ['d'] ]
     select: diagonal
-    correlators: &ref_corrHHV3ptPS  [
+    correlators: &ref_corrHHVx3ptPS  [
       [  1, GX-G1,  [0, 0, 0] ],
       [  1, GX-G1,  [1, 0, 0] ],
       [  1, GX-G1,  [1, 1, 0] ],
       [  1, GX-G1,  [2, 0, 0] ],
       [  1, GX-G1,  [2, 1, 1] ],
       [  1, GX-G1,  [3, 0, 0] ],
-
-      [  1, GY-G1,  [0, 0, 0] ],
-      [  1, GY-G1,  [1, 0, 0] ],
-      [  1, GY-G1,  [1, 1, 0] ],
-      [  1, GY-G1,  [2, 0, 0] ],
-      [  1, GY-G1,  [2, 1, 1] ],
-      [  1, GY-G1,  [3, 0, 0] ],
-
-      [  1, GZ-G1,  [0, 0, 0] ],
-      [  1, GZ-G1,  [1, 0, 0] ],
-      [  1, GZ-G1,  [1, 1, 0] ],
-      [  1, GZ-G1,  [2, 0, 0] ],
-      [  1, GZ-G1,  [2, 1, 1] ],
-      [  1, GZ-G1,  [3, 0, 0] ]
     ]
 
 
@@ -346,6 +346,9 @@ fileCmd:
   lat:
     load: 'reload_serial'
     save: 'save_serial_scidac'
+  eig:
+    load: 'reload_parallel_ks_eigen'
+    save: 'save_parallel_ks_eigen'
   propKS:
     load: 'reload_serial_ksprop'
     save: 'save_partfile_scidac_ksprop'

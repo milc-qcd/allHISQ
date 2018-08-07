@@ -9,36 +9,35 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
     scheduler: SLURM
     mpiparam: '-n NP'
     mpirun: 'mpirun'
-    numa: ''
+    numa: '--distribution=cyclic:cyclic --cpu_bind=sockets --mem_bind=no'
     jobidName: 'SLURM_JOBID'
 
   fnal_openmpi:
-    scheduler: PBS
-    mpiparam: '-np NP --map-by ppr:2:node'
+    scheduler: SLURM
+    mpiparam: '-n NP --map-by ppr:2:node'
     mpirun: '/usr/local/openmpi-1.10.0-gcc-4.8.4-cuda7/bin/mpirun'
-    numa: ''
+    numa: '--distribution=cyclic:cyclic --cpu_bind=sockets --mem_bind=no'
     jobidName: 'PBS_JOBID'
 
   fnal_mvapich:
-    scheduler: PBS
-    mpiparam: '-np NP'
+    scheduler: SLURM
+    mpiparam: '-n NP'
     mpirun: '/usr/local/mvapich/bin/mpirun'
-#    numa: '/usr/local/mvapich/bin/numa_32_mv'
-    numa: '/usr/local/mvapich/bin/numa_16_mv'
+    numa: '--distribution=cyclic:cyclic --cpu_bind=sockets --mem_bind=no'
     jobidName: 'PBS_JOBID'
 
   fnal_mvapich2:
     scheduler: SLURM
-    mpiparam: '-np NP'
+    mpiparam: '-n NP'
     mpirun: '/usr/local/mvapich2/bin/mpirun'
-    numa: '/usr/local/mvapich2/bin/numa_16_mv2'
+    numa: '--distribution=cyclic:cyclic --cpu_bind=sockets --mem_bind=no'
     jobidName: 'PBS_JOBID'
 
   fnal_mvapich2-2.1:
-    scheduler: PBS
-    mpiparam: '-np NP -launcher rsh -launcher-exec remsh -hostfile MYHOSTFILE'
+    scheduler: SLURM
+    mpiparam: '-n NP -launcher rsh -launcher-exec remsh -hostfile MYHOSTFILE'
     mpirun: '/usr/local/mvapich2-2.1/bin/mpiexec.hydra'
-    numa: '/usr/local/mvapich2-2.1/bin/numa_32_mv2'
+    numa: '--distribution=cyclic:cyclic --cpu_bind=sockets --mem_bind=no'
     jobidName: 'PBS_JOBID'
 
   alcf_bgq:
@@ -62,7 +61,7 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
     scheduler: SLURM
     mpiparam: '-n NP'
     mpirun: 'srun'
-    numa: ''
+    numa: '--distribution=cyclic:cyclic --cpu_bind=sockets --mem_bind=no'
     jobidName: 'SLURM_JOBID'
     launchScript: ''
 
@@ -70,6 +69,6 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
     scheduler: SLURM
     mpiparam: '-n NP -c 1'
     mpirun: 'srun'
-    numa: ''
+    numa: '--distribution=cyclic:cyclic --cpu_bind=sockets --mem_bind=no'
     jobidName: 'SLURM_JOBID'
     launchScript: ''
