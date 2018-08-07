@@ -36,6 +36,8 @@ def countQueue( scheduler,  myjobname ):
         cmd = ' '.join(["qstat -u", user, "| grep", user, "| grep", myjobname, "| wc -l"])
     elif scheduler == 'SLURM':
         cmd = ' '.join(["squeue -u", user, "| grep", user, "| grep", myjobname, "| wc -l"])
+    elif scheduler == 'Cobalt':
+        cmd = ' '.join(["qstat -u", user, "| grep", user, "| grep", myjobname, "| wc -l"])
     else:
         print "Don't recognize scheduler", scheduler
         print "Quitting"
@@ -131,7 +133,9 @@ def submitJob(param, cfgnos, jobScript):
     elif scheduler == 'PBS':
         cmd = [ "qsub", "-l", ",".join(["nodes="+str(nodes), "walltime="+walltime]), "-N", jobname, jobScript ]
     elif scheduler == 'SLURM':
-        cmd = [ "sbatch", "-N", str(nodes), "-t",walltime, "-J", jobname, archflags, jobScript ]
+        cmd = [ "sbatch", "-N", str(nodes), "-t", walltime, "-J", jobname, archflags, jobScript ]
+    elif scheduler == 'Cobalt':
+        cmd = [ "qsub", "-A Semileptonic", "-n", str(nodes), "-t", walltime, "--jobname", jobname, archflags, "--mode script", jobScript ]
     else:
         print "Don't recognize scheduler", scheduler
         print "Quitting"
@@ -158,6 +162,10 @@ def submitJob(param, cfgnos, jobScript):
     elif scheduler == 'SLURM':
         # Submitted batch job 10059729
         jobid = reply[0].split()[3]
+    elif scheduler == 'Cobalt':
+        # ** Project 'semileptonic'; job rerouted to queue 'prod-short'
+        # ['1607897']
+        jobid = reply[1].split("[")[1].split("]")[0]
 
     date = subprocess.check_output("date",shell=True).rstrip("\n")
     print date, "Submitted job", jobid, "for cfgs", cfgnos
