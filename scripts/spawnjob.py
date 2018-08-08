@@ -114,10 +114,14 @@ def submitJob(param, cfgnos, jobScript):
     scheduler = param['launch'][locale]['scheduler']
 
     # Environment variables passed to the job script
-    os.environ["LATS"] = "/".join(str(c) for c in cfgnos)
-    os.environ["NCASES"] = str(len(cfgnos))
-    os.environ["NJOBS"] = str(njobs)
-    os.environ["NP"] = str(np)
+    LATS = "/".join(str(c) for c in cfgnos)
+    NCASES = str(len(cfgnos))
+    NJOBS = str(njobs)
+    NP = str(np)
+    os.environ["LATS"] = LATS
+    os.environ["NCASES"] = NCASES
+    os.environ["NJOBS"] = NJOBS
+    os.environ["NP"] = NP
 
     # Does job script exist?
     try:
@@ -135,7 +139,7 @@ def submitJob(param, cfgnos, jobScript):
     elif scheduler == 'SLURM':
         cmd = [ "sbatch", "-N", str(nodes), "-t", walltime, "-J", jobname, archflags, jobScript ]
     elif scheduler == 'Cobalt':
-        cmd = [ "qsub", "-A Semileptonic", "-n", str(nodes), "-t", walltime, "--jobname", jobname, archflags, "--mode script", jobScript ]
+        cmd = [ "qsub", "-A Semileptonic", "-n", str(nodes), "-t", walltime, "--jobname", jobname, archflags, "--mode script", "--env LATS="+LATS+":NCASES="+NCASES+":NJOBS="+NJOBS+":NP="+NP, jobScript ]
     else:
         print "Don't recognize scheduler", scheduler
         print "Quitting"
