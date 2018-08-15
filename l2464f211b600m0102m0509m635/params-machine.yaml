@@ -3,16 +3,16 @@
 ######################################################################
 submit:
   jobname: allHISQ
-  jobScript: run.slurm
-  locale: fnal_mvapich2
-  walltime: "12:00:00"
+  jobScript: run.cobalt
+  locale: alcf_theta
+  walltime: "1:00:00"
   layout:
     njobs: &refNjobs 1  # Number of concurrent subjobs within a job (not supported)
-    basenodes: 4        # Number of nodes in one concurrent subjob
-    ppn: 12             # MPI ranks per node
+    basenodes: 128      # Number of nodes in one concurrent subjob
+    ppn: 32             # MPI ranks per node
     layoutSciDAC:       # Node and I/O geometry
-      node: [2, 2, 3, 4]
-      io: [1, 1, 1, 4]
+      node: [8, 8, 8, 8]
+      io: [1, 1, 1, 8]
     jobGeom: [ 1, 1, 1, 1]  # Not supported, yet
 
 nanny:
@@ -32,16 +32,16 @@ nanny:
 
 # (2) remote: Large remote files: lattices, propagators, random source files
 #     etc.  The ensemble name is appended as a subdirectory.
-remoteRoot: '/scratch/kingspeak/serial/detar/allHISQ'
+remoteRoot: '/projects/Semileptonic/allHISQ/scratch'
 
 # (3) archive: Smaller result files: Output correlators, logs
-archiveRoot: '/scratch/kingspeak/serial/detar/allHISQ/project'
+archiveRoot: '/projects/Semileptonic/allHISQ'
 
 # (4) local: Staging location for run-time files.  See files/root/local below.
 
 files:
   root:
-    project: '/uufs/chpc.utah.edu/common/home/u0029126/allHISQ'
+    project: '/home/detar/allHISQ_theta'
 #    local: '/scratch' # If empty, we do not stage files
     local: # If empty, we do not stage files
     # member 'remote:' is added by the ensemble script, since it depends on the ensemble ID
