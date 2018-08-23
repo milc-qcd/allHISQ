@@ -37,7 +37,7 @@ def countQueue( scheduler,  myjobname ):
     elif scheduler == 'SLURM':
         cmd = ' '.join(["squeue -u", user, "| grep", user, "| grep", myjobname, "| wc -l"])
     elif scheduler == 'Cobalt':
-        cmd = ' '.join(["qstat -u", user, "| grep", user, "| grep", myjobname, "| wc -l"])
+        cmd = ' '.join(["qstat -uf", user, "| grep", user, "| grep", myjobname, "| wc -l"])
     else:
         print "Don't recognize scheduler", scheduler
         print "Quitting"
@@ -114,10 +114,14 @@ def submitJob(param, cfgnos, jobScript):
     scheduler = param['launch'][locale]['scheduler']
 
     # Environment variables passed to the job script
-    os.environ["LATS"] = "/".join(str(c) for c in cfgnos)
-    os.environ["NCASES"] = str(len(cfgnos))
-    os.environ["NJOBS"] = str(njobs)
-    os.environ["NP"] = str(np)
+    LATS = "/".join(str(c) for c in cfgnos)
+    NCASES = str(len(cfgnos))
+    NJOBS = str(njobs)
+    NP = str(np)
+    os.environ["LATS"] = LATS
+    os.environ["NCASES"] = NCASES
+    os.environ["NJOBS"] = NJOBS
+    os.environ["NP"] = NP
 
     # Does job script exist?
     try:
@@ -135,7 +139,7 @@ def submitJob(param, cfgnos, jobScript):
     elif scheduler == 'SLURM':
         cmd = [ "sbatch", "-N", str(nodes), "-t", walltime, "-J", jobname, archflags, jobScript ]
     elif scheduler == 'Cobalt':
-        cmd = [ "qsub", "-A Semileptonic", "-n", str(nodes), "-t", walltime, "--jobname", jobname, archflags, "--mode script", jobScript ]
+        cmd = [ "qsub", "-A Semileptonic", "-n", str(nodes), "-t", walltime, "--jobname", jobname, archflags, "--mode script", "--env LATS="+LATS+":NCASES="+NCASES+":NJOBS="+NJOBS+":NP="+NP, jobScript ]
     else:
         print "Don't recognize scheduler", scheduler
         print "Quitting"
@@ -165,7 +169,7 @@ def submitJob(param, cfgnos, jobScript):
     elif scheduler == 'Cobalt':
         # ** Project 'semileptonic'; job rerouted to queue 'prod-short'
         # ['1607897']
-        jobid = reply[1].split("[")[1].split("]")[0]
+        jobid = reply[-1]
 
     date = subprocess.check_output("date",shell=True).rstrip("\n")
     print date, "Submitted job", jobid, "for cfgs", cfgnos
@@ -216,7 +220,7 @@ def nannyLoop(YAML, YAMLLaunch):
         # Count queued jobs with our job name
         nqueued = countQueue( scheduler, jobname )
   
-        print "Found", nqueued, "jobs"
+        print "Found", nqueued, "queued job(s)"
 
         # Submit until we have the desired number of jobs in the queue
         if nqueued < param['nanny']['maxqueue']:
