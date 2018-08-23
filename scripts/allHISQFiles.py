@@ -277,7 +277,7 @@ def latFileCoul( run, suffix, cfg):
 ######################################################################
 def latFileEig( run, suffix, cfg):
     """Convention for eigenpair file names"""
-    return 'eig_%s%s.%d' % (run, suffix, int(cfg))
+    return 'eigPRIMME%snv600er10%s.%d' % (run, suffix, int(cfg))
 
 ######################################################################
 def latFileMILCv5( run, suffix, cfg):
