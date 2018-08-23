@@ -22,7 +22,7 @@ stream: run1
 quarks:
   qlight:
     type: KS
-    mass: ['0.0102']
+    mass: ['0.001907']
     naik_epsilon: ['0.']
     residual_loose:
       L2: 1e-5
@@ -37,7 +37,7 @@ quarks:
 
   qstrange:
     type: KS
-    mass: ['0.053476']
+    mass: ['0.05252']
     naik_epsilon: ['0.']
     residual_loose:
       L2: 1e-5
@@ -52,8 +52,8 @@ quarks:
 
   qheavy:
     type: KS
-    mass: ['0.6363','1.2726']
-    naik_epsilon: ['-0.229787', '-0.521']
+    mass: ['0.5744','0.6382' ]   # 0.9 and 1.0 ms
+    naik_epsilon: ['-0.1932', '-0.2309']
     residual_loose:
       L2: 0.
       R2: 1e-3
