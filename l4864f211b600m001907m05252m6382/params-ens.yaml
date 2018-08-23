@@ -16,6 +16,55 @@ eigen:
 
 stream: run1
 
+######################################################################
+# Quark parameters
+######################################################################
+quarks:
+  qlight:
+    type: KS
+    mass: ['0.0102']
+    naik_epsilon: ['0.']
+    residual_loose:
+      L2: 1e-5
+      R2: 0.
+    residual_fine:
+      L2: 1e-9
+      R2: 0.
+    maxCG: 
+      iters: 4000
+      restarts: 5
+    precision: 2
+
+  qstrange:
+    type: KS
+    mass: ['0.053476']
+    naik_epsilon: ['0.']
+    residual_loose:
+      L2: 1e-5
+      R2: 0.
+    residual_fine:
+      L2: 1e-9
+      R2: 0.
+    maxCG:
+      iters: 2000
+      restarts: 5
+    precision: 2
+
+  qheavy:
+    type: KS
+    mass: ['0.6363','1.2726']
+    naik_epsilon: ['-0.229787', '-0.521']
+    residual_loose:
+      L2: 0.
+      R2: 1e-3
+    residual_fine:
+      L2: 0.
+      R2: 1e-5
+    maxCG:
+      iters: 400
+      restarts: 5
+    precision: 2
+
 tarCheck:             # For checking that the output tarball is complete
   tarEntries: 389  # FIX THESE
   tarbzip2Size: 10500000

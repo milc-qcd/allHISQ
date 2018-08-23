@@ -13,55 +13,6 @@ KSaction:
   bc: 'antiperiodic'  # Applies to all propagators
 
 ######################################################################
-# Quark parameters
-######################################################################
-quarks:
-  qlight:
-    type: KS
-    mass: ['0.0102']
-    naik_epsilon: ['0.']
-    residual_loose:
-      L2: 1e-5
-      R2: 0.
-    residual_fine:
-      L2: 1e-9
-      R2: 0.
-    maxCG: 
-      iters: 4000
-      restarts: 5
-    precision: 2
-
-  qstrange:
-    type: KS
-    mass: ['0.053476']
-    naik_epsilon: ['0.']
-    residual_loose:
-      L2: 1e-5
-      R2: 0.
-    residual_fine:
-      L2: 1e-9
-      R2: 0.
-    maxCG:
-      iters: 2000
-      restarts: 50
-    precision: 2
-
-  qheavy:
-    type: KS
-    mass: ['0.6363','1.2726']
-    naik_epsilon: ['-0.229787', '-0.521']
-    residual_loose:
-      L2: 0.
-      R2: 1e-3
-    residual_fine:
-      L2: 0.
-      R2: 1e-5
-    maxCG:
-      iters: 400
-      restarts: 5
-    precision: 2
-
-######################################################################
 # Correlators
 ######################################################################
 # The job run is split into steps to conserve memory
@@ -89,9 +40,9 @@ corr2pts:
       [ 1, G5-G5, [1, 1, 0]],
       [ 1, G5-G5, [2, 0, 0]],
       [ 1, G5-G5, [2, 1, 1]],
-      [ 1, G5-G5, [3, 0, 0]]
-#      [ 1, G5-G5, [2, 2, 2]],
-#      [ 1, G5-G5, [4, 0, 0]],
+      [ 1, G5-G5, [3, 0, 0]],
+      [ 1, G5-G5, [2, 2, 2]],
+      [ 1, G5-G5, [4, 0, 0]],
     ]
 
   K:
@@ -123,8 +74,8 @@ corr2pts:
 # [ quark, source-smearing ]
 # The correlator list values are
 # [ phase, gammaDaughter, gammaCurrent, momentum ]
-tSnkHtopi: &ref_tSnkHtopi [ 15, 18, 20, 21 ] 
-tSnkHtoH: &ref_tSnkHtoH [ 15, 18, 20, 21 ] 
+tSnkHtopi: &ref_tSnkHtopi [ 13, 14, 15, 16 ]
+tSnkHtoH: &ref_tSnkHtoH [ 13, 14, 15, 16 ] 
 corr3pts:
   # Vector and tensor-current H-to-pi
   HV2pi:
@@ -134,6 +85,7 @@ corr3pts:
     Dq: [ 'qlight', ['d'] ]
     Pq: [ 'qheavy' ]
     Sq: [ 'qlight', ['d'] ]
+    select: all
     correlators: &ref_corrHLV3ptPS [
       [ -1, GT-GT,  [0, 0, 0] ],
       [ -1, GT-GT,  [1, 0, 0] ],
@@ -141,8 +93,8 @@ corr3pts:
       [ -1, GT-GT,  [2, 0, 0] ],
       [ -1, GT-GT,  [2, 1, 1] ],
       [ -1, GT-GT,  [3, 0, 0] ],
-#      [ -1, GT-GT,  [2, 2, 2] ],
-#      [ -1, GT-GT,  [4, 0, 0] ],
+      [ -1, GT-GT,  [2, 2, 2] ],
+      [ -1, GT-GT,  [4, 0, 0] ],
 
       [  1, GXT-GT, [1, 0, 0] ],
       [  1, GXT-GT, [1, 1, 0] ],
@@ -151,11 +103,11 @@ corr3pts:
       [  1, GXT-GT, [2, 1, 1] ],
       [ -1, GYT-GT, [2, 1, 1] ],
       [  1, GZT-GT, [2, 1, 1] ],
-      [  1, GXT-GT, [3, 0, 0] ]
-#      [  1, GXT-GT, [2, 2, 2] ],
-#      [ -1, GYT-GT, [2, 2, 2] ],
-#      [  1, GZT-GT, [2, 2, 2] ],
-#      [  1, GXT-GT, [4, 0, 0] ]
+      [  1, GXT-GT, [3, 0, 0] ],
+      [  1, GXT-GT, [2, 2, 2] ],
+      [ -1, GYT-GT, [2, 2, 2] ],
+      [  1, GZT-GT, [2, 2, 2] ],
+      [  1, GXT-GT, [4, 0, 0] ]
     ]
 
   # Scalar density H-to-pi
@@ -166,15 +118,16 @@ corr3pts:
     Dq: [ 'qlight', ['d'] ]
     Pq: [ 'qheavy' ]
     Sq: [ 'qlight', ['d'] ]
+    select: all
     correlators: &ref_corrHLS3ptPS  [
       [  1, G1-G1,  [0, 0, 0] ],
       [  1, G1-G1,  [1, 0, 0] ],
       [  1, G1-G1,  [1, 1, 0] ],
       [  1, G1-G1,  [2, 0, 0] ],
       [  1, G1-G1,  [2, 1, 1] ],
-      [  1, G1-G1,  [3, 0, 0] ]
-#      [  1, G1-G1,  [2, 2, 2] ],
-#      [  1, G1-G1,  [4, 0, 0] ]
+      [  1, G1-G1,  [3, 0, 0] ],
+      [  1, G1-G1,  [2, 2, 2] ],
+      [  1, G1-G1,  [4, 0, 0] ]
     ]
 
   # Vector and tensor-current H-to-K
@@ -185,6 +138,7 @@ corr3pts:
     Dq: [ 'qstrange', ['d'] ]
     Pq: [ 'qheavy' ]
     Sq: [ 'qlight', ['d'] ]
+    select: all
     correlators: *ref_corrHLV3ptPS
 
   # Scalar density H-to-K
@@ -195,6 +149,7 @@ corr3pts:
     Dq: [ 'qstrange', ['d'] ]
     Pq: [ 'qheavy' ]
     Sq: [ 'qlight', ['d'] ]
+    select: all
     correlators: *ref_corrHLS3ptPS
 
   # Vector and tensor-current Hs-to-K
@@ -205,6 +160,7 @@ corr3pts:
     Dq: [ 'qlight', ['d'] ]
     Pq: [ 'qheavy' ]
     Sq: [ 'qstrange', ['d'] ]
+    select: all
     correlators: *ref_corrHLV3ptPS
 
   # Scalar density Hs-to-K
@@ -215,6 +171,7 @@ corr3pts:
     Dq: [ 'qlight', ['d'] ]
     Pq: [ 'qheavy' ]
     Sq: [ 'qstrange', ['d'] ]
+    select: all
     correlators: *ref_corrHLS3ptPS
 
   # Vector current H-to-H
@@ -225,6 +182,7 @@ corr3pts:
     Dq: [ 'qheavy', ['d'] ]
     Pq: [ 'qheavy' ]
     Sq: [ 'qlight', ['d'] ]
+    select: all
     correlators: &ref_corrHHV3ptPS [
       [ -1, GT-GT,  [0, 0, 0] ],
       [ -1, GT-GT,  [1, 0, 0] ],
@@ -232,8 +190,8 @@ corr3pts:
       [ -1, GT-GT,  [2, 0, 0] ],
       [ -1, GT-GT,  [2, 1, 1] ],
       [ -1, GT-GT,  [3, 0, 0] ],
-#      [ -1, GT-GT,  [2, 2, 2] ],
-#      [ -1, GT-GT,  [4, 0, 0] ],
+      [ -1, GT-GT,  [2, 2, 2] ],
+      [ -1, GT-GT,  [4, 0, 0] ],
     ]
 
   # Vector current Hs-to-Hs
@@ -244,6 +202,7 @@ corr3pts:
     Dq: [ 'qheavy', ['d'] ]
     Pq: [ 'qheavy' ]
     Sq: [ 'qstrange', ['d'] ]
+    select: all
     correlators: *ref_corrHHV3ptPS
 
 ######################################################################
