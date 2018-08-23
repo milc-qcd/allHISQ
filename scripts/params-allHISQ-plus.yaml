@@ -292,7 +292,7 @@ corr3pts:
     extT: *ref_tSnkHtoH
     Dq: [ 'qheavy', ['d'] ]
     Pq: [ 'qheavy' ]
-    Sq: [ 'qlight', ['d'] ]
+    Sq: [ 'qstrange', ['d'] ]
     select: all
     correlators: *ref_corrHHV3ptPS
 
@@ -344,8 +344,8 @@ fileCmd:
   wf:
     load: 'load_source'
   lat:
-    load: 'reload_serial'
-    save: 'save_serial_scidac'
+    load: 'reload_parallel'
+    save: 'save_parallel_scidac'
   eig:
     load: 'reload_parallel_ks_eigen'
     save: 'save_parallel_ks_eigen'
