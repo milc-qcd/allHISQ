@@ -1,5 +1,6 @@
 *~
 */todo
-*.tsv
+*/*.tsv
 *.pyc
-*.bak
+*/*.pyc
+*/*.bak
