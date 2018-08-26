@@ -434,7 +434,8 @@ def initializePrompts(param, tsrcConfigId):
 def startGauge(param, work, loadLat, saveLat, gFix, tsrc):
     """Start input parameter set"""
 
-    uOrigin = [ 0, 0, 0, tsrc ]
+#    uOrigin = [ 0, 0, 0, tsrc ]
+    uOrigin = [ 0, 0, 0, 0 ]
     bc = param['KSaction']['bc']
     u0 = param['ensemble']['u0']
 
