@@ -502,11 +502,14 @@ def createRandomSource(param, work, rndSq, rndDq, tsrcConfigId):
     check = 'sourceonly'
     precision = 1
     thisSet = KSsolveSet(rwSrcDum, twist, check, maxCG, precision)
+    deflate = None
+    if param['eigen']['Nvecs'] > 0:
+        deflate = 'no'
     if param['residQuality'] == 'fine':
         residual = quark['residual_fine']
     else:
         residual = quark['residual_loose']
-    thisQ = KSsolveElement(mass, naik_epsilon, load, save, residual)
+    thisQ = KSsolveElement(mass, naik_epsilon, load, save, deflate, residual)
     thisSet.addPropagator(thisQ)
     work.addPropSet(thisSet)
     
@@ -623,11 +626,14 @@ def solveKSProp(param, work, thisSet, propFiles, quarks, quarkKeys,
     else:
         load = ('fresh_ksprop',)
         save = (fileCmd['propKS']['save'], propFiles[qkKeyBase].path())
+    deflate = None
+    if param['eigen']['Nvecs'] > 0:
+        deflate = quark['deflate'] 
     if param['residQuality'] == 'fine':
         residual = quark['residual_fine']
     else:
         residual = quark['residual_loose']
-    thisQ = KSsolveElement(mass, naik, load, save, residual)
+    thisQ = KSsolveElement(mass, naik, load, save, deflate, residual)
     thisSet.addPropagator( thisQ )
 
     # Create the "quark" as a copy of this basic propagator
@@ -693,11 +699,12 @@ def applySinkOp(param, work, quarks, quark, qkKeyMod, snkKeyMod, thisQ, wf1S, ts
         u0 = ensemble['u0']
         twist = [ 0, 0, 0 ]
         quarkP = param['quarks'][qkP]
+        deflate = quarkP['deflate'] 
         if param['residQuality'] == 'fine':
             residual = quarkP['residual_fine']
         else:
             residual = quarkP['residual_loose']
-        thisQ = KSInverseSink(q, mQkP, epsP, u0, quarkP['maxCG'], residual,
+        thisQ = KSInverseSink(q, mQkP, epsP, u0, quarkP['maxCG'], deflate, residual,
                               quarkP['precision'], twist, label, save)
     else:
         print "Unrecognized sink smearing", smSnk, "in", qkKeyMod
@@ -1092,6 +1099,9 @@ def doJobSteps(param, tsrcBase, njobs, seriesCfgsrep, asciiIOFileSets, binIOFile
     nt = param['ensemble']['dim'][3]
     tsrc = (tsrcBase + tShift) % nt
 
+    # FOR TSM TUNING ONLY!!
+    # tsrc = 0
+
     # Job steps for all cfgs in this group
     steprange = param['job']['steprange']
     for nstep in range(steprange['low'], steprange['high']):
@@ -1165,7 +1175,7 @@ def runParam(seriesCfgs, ncases, njobs, param):
         for tsrcBase in trange:
             doJobSteps(param, tsrcBase, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
 
-        # Fine calculation -- at the moment, only one source time per job
+        # Fine calculation -- only one source time per job
         param['residQuality'] = 'fine'
         # Fine solve times precess over the loose times, based on the first cfg number in this group
         suffix, cfg = decodeSeriesCfg(seriesCfgsrep[0])
