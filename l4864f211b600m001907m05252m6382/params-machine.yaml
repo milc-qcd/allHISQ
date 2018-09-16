@@ -5,20 +5,20 @@ submit:
   jobname: allHISQ
   jobScript: run.slurm
   locale: bnl-ic
-  walltime: "04:00:00"
+  walltime: "24:00:00"
   layout:
     njobs: &refNjobs 1  # Number of concurrent subjobs within a job (not supported)
-    basenodes: 4        # Number of nodes in one concurrent subjob
+    basenodes: 2        # Number of nodes in one concurrent subjob
     ppn: 4              # MPI ranks per node
     layoutSciDAC:       # Node and I/O geometry
-      node: [1, 2, 2, 4]
-      io: [1, 2, 2, 4]
+      node: [1, 2, 2, 2]
+      io: [1, 2, 2, 2]
     jobGeom: [ 1, 1, 1, 1]  # Not supported, yet
 
 nanny:
   todofile: todo  # Ensemble series letter is included with cfg number
   maxcases: 1     # Number of cfgs to run in a single job submission
-  maxqueue: 2     # Number of jobs to keep in the queue at one time
+  maxqueue: 32    # Number of jobs to keep in the queue at one time
   wait: 30        # Seconds between nanny job checks
 
 ######################################################################

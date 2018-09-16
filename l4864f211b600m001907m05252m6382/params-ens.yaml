@@ -7,14 +7,14 @@ ensemble:
 
 tsrcRange:
   start: 0
-  stop:  4            # DEBUG.  Normally 64.
-  step:  4
+  stop:  64 
+  step:  2
   precess: 3          # For precessing the source times, based on the cfg number
 
 eigen:
-  Nvecs: 200
+  Nvecs: 0
 
-stream: run1
+stream: run0
 
 ######################################################################
 # Quark parameters
@@ -25,30 +25,32 @@ quarks:
     mass: ['0.001907']
     naik_epsilon: ['0.']
     residual_loose:
-      L2: 1e-5
+      L2: 1e-3
       R2: 0.
     residual_fine:
-      L2: 1e-9
+      L2: 1e-8
       R2: 0.
     maxCG: 
       iters: 4000
       restarts: 5
-    precision: 2
+    precision: 1
+    deflate: 'yes'
 
   qstrange:
     type: KS
     mass: ['0.05252']
     naik_epsilon: ['0.']
     residual_loose:
-      L2: 1e-5
+      L2: 1e-3
       R2: 0.
     residual_fine:
-      L2: 1e-9
+      L2: 1e-8
       R2: 0.
     maxCG:
       iters: 2000
       restarts: 5
-    precision: 2
+    precision: 1
+    deflate: 'no'
 
   qheavy:
     type: KS
@@ -56,18 +58,20 @@ quarks:
     naik_epsilon: ['-0.1932', '-0.2309']
     residual_loose:
       L2: 0.
-      R2: 1e-3
+      R2: 1e-5
     residual_fine:
       L2: 0.
       R2: 1e-5
     maxCG:
       iters: 400
       restarts: 5
-    precision: 2
+    precision: 1
+    deflate: 'no'
 
 tarCheck:             # For checking that the output tarball is complete
-  tarEntries: 389  # FIX THESE
-  tarbzip2Size: 10500000
-  tarDataLines: 1331096
-  tarDataWords: 3828568
+# Values for the TSM tuning runs -- one source time per loose and fine
+  tarEntries: 1730
+  tarbzip2Size: 1636000
+  tarDataLines: 242576
+  tarDataWords: 682688
 
