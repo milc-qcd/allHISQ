@@ -82,6 +82,20 @@ def readTodo(todoFile, lockFile):
     return todoList
 
 ######################################################################
+def cmpToDoEntries(td1, td2):
+    """Compare quark keys.  This order is for multimass KS"""
+
+    (stream1, cfg1) = td1.split(".")
+    (stream2, cfg2) = td2.split(".")
+
+    # Sort first on stream, then on cfg
+    order = cmp(stream1, stream2)
+    if order == 0:
+        order = cmp(int(cfg1), int(cfg2))
+
+    return order
+
+######################################################################
 def writeTodo(todoFile, lockFile, todoList):
     """Write the todo file"""
 
@@ -95,7 +109,7 @@ def writeTodo(todoFile, lockFile, todoList):
         print "Can't open", todoFile, "for writing"
         sys.exit(1)
             
-    for line in sorted(todoList):
+    for line in sorted(todoList, cmpToDoEntries):
         a = tuple(todoList[line])
         if len(a) == 4:
             print >>todo, "%s %s %s %s" % a
