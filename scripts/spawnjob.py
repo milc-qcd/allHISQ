@@ -57,7 +57,7 @@ def nextCfgnos( maxCases, todoList ):
     # of the next lattice from the todo file
 
     cfgnos = []
-    for line in sorted(todoList):
+    for line in sorted(todoList,cmpToDoEntries):
         a = todoList[line]
         if len(a) == 1 or a[1] != "Q" and a[1] != "X" and a[1] != "XX":
             cfgnos.append(a[0])
