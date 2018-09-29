@@ -1003,15 +1003,22 @@ def tarList(scriptDebug, tarbase, dirs, suffix, cfg):
     # Lists all files in the dirs ending with the specified suffix and cfg number
     
     configId = codeCfg(suffix, cfg)
+    # Name of the tar-list file
     tList = "tar." + configId
+    # First delete any stale tar-list file
+    cmd = ['/bin/rm -f', tarbase + "/" + tList]
+    cmd = ' '.join(cmd)
+    if scriptDebug != 'debug':
+        try:
+            lines = subprocess.check_output(cmd, shell = True).splitlines()
+        except subprocess.CalledProcessError as e:
+            print "Error deleting", tList
     for d in dirs:
         cmd0 = ['cd', tarbase]
         cmd0 = ' '.join(cmd0)
-        cmd1 = ['/bin/rm -f', tList]
+        cmd1 = ['/bin/find', d, '-name', "'*" + configId + "'", '-print', ">>", tList]
         cmd1 = ' '.join(cmd1)
-        cmd2 = ['/bin/find', d, '-name', "'*" + configId + "'", '-print', ">>", tList]
-        cmd2 = ' '.join(cmd2)
-        cmd = ";".join([cmd0, cmd1, cmd2]);
+        cmd = ";".join([cmd0, cmd1]);
         print "#", cmd
         if scriptDebug != 'debug':
             try:
@@ -1066,7 +1073,7 @@ def storeTarFile(param, seriesCfg, tar):
     tList = tarList( param['scriptDebug'], tarbase, tardirs, suffix, cfg )
 
     # Create the tarball and check it for completeness
-    cmd = ['/bin/tar', '-C', tarbase, '--remove-files', '-cjf', tar.path(), '-T', tlist]
+    cmd = ['/bin/tar', '-C', tarbase, '--remove-files', '-cjf', tar.path(), '-T', tList]
     cmd = ' '.join(cmd) + " " + files
     print "#", cmd
     if param['scriptDebug'] != 'debug':
