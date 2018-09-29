@@ -774,12 +774,13 @@ def createCorrelators(param, work, quarks, correlators, rwParams, fileCmd, tsrc)
         (corrFile, QKey, aQKey, mom, corrAttrs) = corr
         om = oppMom(mom)
         pmom = 'p%d%d%d' % tuple(mom)
+        postfix = "-".join([pmom,param['residQuality']])
     
         # The corrAttrs apply to only one momentum
         npts = list()
         for corrAttr in corrAttrs:
             (prefix, phase, stSnk) = corrAttr
-            npts.append( MesonNpt(prefix, pmom, (phase,'/',rwNorm), [stSnk], om, ('EO','EO','EO')) )
+            npts.append( MesonNpt(prefix, postfix, (phase,'/',rwNorm), [stSnk], om, ('EO','EO','EO')) )
     
         # Generate the pair stanzas
         rOffset = [0,0,0,tsrc]
@@ -1002,25 +1003,22 @@ def tarList(scriptDebug, tarbase, dirs, suffix, cfg):
     # Lists all files in the dirs ending with the specified suffix and cfg number
     
     configId = codeCfg(suffix, cfg)
-#    cwd = os.getcwd()
-#    os.chdir(tarbase)
-    files = ""
-    lines = []
+    tList = "tar." + configId
     for d in dirs:
         cmd0 = ['cd', tarbase]
         cmd0 = ' '.join(cmd0)
-        cmd = ['/bin/find', d, '-name', "'*" + configId + "'", '-print']
-        cmd = ' '.join(cmd)
-        cmd = cmd0 + ';' + cmd
+        cmd1 = ['/bin/rm -f', tList]
+        cmd1 = ' '.join(cmd1)
+        cmd2 = ['/bin/find', d, '-name', "'*" + configId + "'", '-print', ">>", tList]
+        cmd2 = ' '.join(cmd2)
+        cmd = ";".join([cmd0, cmd1, cmd2]);
         print "#", cmd
         if scriptDebug != 'debug':
             try:
                 lines = subprocess.check_output(cmd, shell = True).splitlines()
             except subprocess.CalledProcessError as e:
                 print "Error finding files in", tarbase, d
-            files = files + " " + " ".join(lines)
-#    os.chdir(cwd)
-    return files
+    return tList
     
 ############################################################
 def storeFiles(param, asciiFileList, binFileList):
@@ -1065,10 +1063,10 @@ def storeTarFile(param, seriesCfg, tar):
     tardirs = param['files']['tar']['list']
 
     # Get a list of paths in the directories tardirs with matching configuration number
-    files = tarList( param['scriptDebug'], tarbase, tardirs, suffix, cfg )
+    tList = tarList( param['scriptDebug'], tarbase, tardirs, suffix, cfg )
 
     # Create the tarball and check it for completeness
-    cmd = ['/bin/tar', '-C', tarbase, '--remove-files', '-cjf', tar.path()]
+    cmd = ['/bin/tar', '-C', tarbase, '--remove-files', '-cjf', tar.path(), '-T', tlist]
     cmd = ' '.join(cmd) + " " + files
     print "#", cmd
     if param['scriptDebug'] != 'debug':
