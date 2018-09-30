@@ -1074,7 +1074,7 @@ def storeTarFile(param, seriesCfg, tar):
 
     # Create the tarball and check it for completeness
     cmd = ['/bin/tar', '-C', tarbase, '--remove-files', '-cjf', tar.path(), '-T', tList]
-    cmd = ' '.join(cmd) + " " + files
+    cmd = ' '.join(cmd)
     print "#", cmd
     if param['scriptDebug'] != 'debug':
         subprocess.check_output(cmd, shell = True)
