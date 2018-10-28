@@ -252,7 +252,7 @@ def nannyLoop(YAML, YAMLLaunch):
                     print "Will retry submitting", cfgnos, "later"
 
             writeTodo(todoFile, lockFile, todoList)
-            sys.stdout.flush()
+        sys.stdout.flush()
             
         subprocess.call(["sleep", str( param['nanny']['wait'] ) ])
 
