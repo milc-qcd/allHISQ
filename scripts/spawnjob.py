@@ -220,7 +220,7 @@ def nannyLoop(YAML, YAMLLaunch):
         # Count queued jobs with our job name
         nqueued = countQueue( scheduler, jobname )
   
-        print "Found", nqueued, "queued job(s)"
+        # print "Found", nqueued, "queued job(s)"
 
         # Submit until we have the desired number of jobs in the queue
         if nqueued < param['nanny']['maxqueue']:
@@ -252,6 +252,7 @@ def nannyLoop(YAML, YAMLLaunch):
                     print "Will retry submitting", cfgnos, "later"
 
             writeTodo(todoFile, lockFile, todoList)
+            sys.stdout.flush()
             
         subprocess.call(["sleep", str( param['nanny']['wait'] ) ])
 
