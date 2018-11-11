@@ -5,16 +5,23 @@ ensemble:
   atrue: 0.12121      # Decay constant paper arXiv 1407.3772 (In case of smearing)
   afm: '0.12'         # Subdirectory label
 
+apelink:              # Applies only to links in point-split operators
+  weight: 0.05
+  iter: 32
+
 tsrcRange:
   start: 0
-  stop:  64 
+  stop:  64
   step:  2
-  precess: 3          # For precessing the source times, based on the cfg number
+  precess: 2          # For precessing the source times, based on the cfg number
+
+tSnkHtopi: &ref_tSnkHtopi [ 17,18,20,21 ]
+tSnkHtoH: &ref_tSnkHtoH [ 12,13,14,15 ] 
 
 eigen:
   Nvecs: 0
 
-stream: run0
+stream: run1
 
 ######################################################################
 # Quark parameters
@@ -25,15 +32,15 @@ quarks:
     mass: ['0.001907']
     naik_epsilon: ['0.']
     residual_loose:
-      L2: 1e-3
+      L2: 1e-2
       R2: 0.
     residual_fine:
-      L2: 1e-8
+      L2: 1e-7
       R2: 0.
     maxCG: 
       iters: 4000
       restarts: 5
-    precision: 1
+    precision: 2
     deflate: 'yes'
 
   qstrange:
@@ -41,21 +48,21 @@ quarks:
     mass: ['0.05252']
     naik_epsilon: ['0.']
     residual_loose:
-      L2: 1e-3
+      L2: 1e-2
       R2: 0.
     residual_fine:
-      L2: 1e-8
+      L2: 1e-7
       R2: 0.
     maxCG:
       iters: 2000
       restarts: 5
-    precision: 1
+    precision: 2
     deflate: 'no'
 
   qheavy:
     type: KS
-    mass: ['0.5744','0.6382' ]   # 0.9 and 1.0 ms
-    naik_epsilon: ['-0.1932', '-0.2309']
+    mass: ['0.5744','0.6382','0.8935' ]   # 0.9, 1.0, 1.4 mc
+    naik_epsilon: ['-0.1932', '-0.2309', '-0.3899']
     residual_loose:
       L2: 0.
       R2: 1e-5
@@ -65,13 +72,20 @@ quarks:
     maxCG:
       iters: 400
       restarts: 5
-    precision: 1
+    precision: 2
     deflate: 'no'
 
 tarCheck:             # For checking that the output tarball is complete
+  tarEntries: 3233
+  tarDataEntries: 2936
+  tarbzip2Size: 43000000
+  tarDataLines: 6668772
+  tarDataWords: 18749544
 # Values for the TSM tuning runs -- one source time per loose and fine
-  tarEntries: 1730
-  tarbzip2Size: 1636000
-  tarDataLines: 242576
-  tarDataWords: 682688
+# tarEntries: 2954
+# tarDataEntries: 2936
+# tarbzip2Size: 2700000
+# tarDataLines: 404168
+# tarDataWords: 1136336
+
 

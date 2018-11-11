@@ -70,6 +70,7 @@ corr2pts:
 # [ quark, source-smearing ]
 # The correlator list values are
 # [ phase, gammaDaughter, gammaCurrent, momentum ]
+
 corr3pts:
   # Vector and tensor-current H-to-pi
   HV2pi:
