@@ -84,8 +84,11 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
 
   bnl-ic:
     scheduler: SLURM
-    mpiparam: '-n NP -c 8'
-    mpirun: 'srun'
-    numa: '--distribution=cyclic:cyclic --cpu_bind=sockets --mem_bind=no'
+#    mpiparam: '-n NP -c 8'
+#    mpirun: 'srun'
+#    numa: '--distribution=cyclic:cyclic --cpu_bind=sockets --mem_bind=no'
+    mpiparam: '-n NP -cpus-per-rank 8'
+    mpirun: 'mpirun'
+    numa: ''
     jobidName: 'SLURM_JOBID'
     launchScript: ''
