@@ -1,10 +1,6 @@
 # Parameters for controlling the all HISQ heavy-flavor calculation
 # C. DeTar 8 June 2018
 
-apelink:              # Applies only to links in point-split operators
-  weight: 0.05
-  iter: 20
-
 randomW:
   rwNcolor: 1         # Number of random sources per time slice
 
@@ -74,8 +70,6 @@ corr2pts:
 # [ quark, source-smearing ]
 # The correlator list values are
 # [ phase, gammaDaughter, gammaCurrent, momentum ]
-tSnkHtopi: &ref_tSnkHtopi [ 13, 14, 15, 16 ]
-tSnkHtoH: &ref_tSnkHtoH [ 13, 14, 15, 16 ] 
 corr3pts:
   # Vector and tensor-current H-to-pi
   HV2pi:
