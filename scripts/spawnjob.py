@@ -37,7 +37,7 @@ def countQueue( scheduler,  myjobname ):
     elif scheduler == 'SLURM':
         cmd = ' '.join(["squeue -u", user, "| grep", user, "| grep", myjobname, "| wc -l"])
     elif scheduler == 'Cobalt':
-        cmd = ' '.join(["qstat -uf", user, "| grep", user, "| grep", myjobname, "| wc -l"])
+        cmd = ' '.join(["qstat -fu", user, "| grep", user, "| grep", myjobname, "| wc -l"])
     else:
         print "Don't recognize scheduler", scheduler
         print "Quitting"
@@ -220,8 +220,6 @@ def nannyLoop(YAML, YAMLLaunch):
         # Count queued jobs with our job name
         nqueued = countQueue( scheduler, jobname )
   
-        print "Found", nqueued, "queued job(s)"
-
         # Submit until we have the desired number of jobs in the queue
         if nqueued < param['nanny']['maxqueue']:
             todoList = readTodo(todoFile, lockFile)
@@ -252,6 +250,7 @@ def nannyLoop(YAML, YAMLLaunch):
                     print "Will retry submitting", cfgnos, "later"
 
             writeTodo(todoFile, lockFile, todoList)
+        sys.stdout.flush()
             
         subprocess.call(["sleep", str( param['nanny']['wait'] ) ])
 
