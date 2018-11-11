@@ -241,7 +241,7 @@ def checkPendingJobs(YAMLMachine,YAMLEns,YAMLLaunch):
     params = [param]
 
     changed = False
-    for todoEntry in todoList:
+    for todoEntry in sorted(todoList,cmpToDoEntries):
         a = todoList[todoEntry]
         if len(a) == 3:
             (cfg, flag, jobid) = a
