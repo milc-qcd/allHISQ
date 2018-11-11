@@ -3,22 +3,22 @@
 ######################################################################
 submit:
   jobname: allHISQ
-  jobScript: run.bsub
-  locale: summit 
-  walltime: "12"
+  jobScript: run.slurm
+  locale: bnl-ic
+  walltime: "24:00:00"
   layout:
     njobs: &refNjobs 1  # Number of concurrent subjobs within a job (not supported)
-    basenodes: 128      # Number of nodes in one concurrent subjob
-    ppn: 6              # MPI ranks per node
+    basenodes: 2        # Number of nodes in one concurrent subjob
+    ppn: 4              # MPI ranks per node
     layoutSciDAC:       # Node and I/O geometry
-      node: [4, 4, 4, 12]  # NEEDS ANALYSIS
-      io: [4, 4, 4, 2]
+      node: [1, 2, 2, 2]
+      io: [1, 2, 2, 2]
     jobGeom: [ 1, 1, 1, 1]  # Not supported, yet
 
 nanny:
   todofile: todo  # Ensemble series letter is included with cfg number
   maxcases: 1     # Number of cfgs to run in a single job submission
-  maxqueue: 2     # Number of jobs to keep in the queue at one time
+  maxqueue: 32    # Number of jobs to keep in the queue at one time
   wait: 30        # Seconds between nanny job checks
 
 ######################################################################
@@ -32,16 +32,16 @@ nanny:
 
 # (2) remote: Large remote files: lattices, propagators, random source files
 #     etc.  The ensemble name is appended as a subdirectory.
-remoteRoot: '/gpfs/alpinetds/proj-shared/csc275/detar/allHISQ/scratch'
+remoteRoot: '/hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ'
 
 # (3) archive: Smaller result files: Output correlators, logs
-archiveRoot: '/ccs/proj/csc275/detar/allHISQ'
+archiveRoot: '/hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project'
 
 # (4) local: Staging location for run-time files.  See files/root/local below.
 
 files:
   root:
-    project: '/ccs/home/detar/allHISQ'
+    project: '/sdcc/u/detar/allHISQ'
 #    local: '/scratch' # If empty, we do not stage files
     local: # If empty, we do not stage files
     # member 'remote:' is added by the ensemble script, since it depends on the ensemble ID
@@ -60,6 +60,9 @@ files:
   latCoul:
     root: 'remote'
     subdirs: [ 'lat', 'Coulomb' ]
+  eigen:
+    root: 'remote'
+    subdirs: [ 'eigen' ]
   rand:
     root: 'remote'
     subdirs: [ 'rand' ]

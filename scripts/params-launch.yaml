@@ -47,7 +47,9 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
     scheduler: Cobalt
 #    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 --mapping /gpfs/mira-home/detar/mapfiles/n4096c32s448162g16161632.map :'
     # 32 ranks per node
-    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 --mapping /gpfs/mira-home/detar/mapfiles/n512c32g161688.map :'
+    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 :'
+#    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 :'
+#    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 --mapping /gpfs/mira-home/detar/mapfiles/n512c32g161688.map :'
 #    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 :'
     mpirun: 'runjob'
     numa: ''
@@ -55,8 +57,11 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
 
   alcf_theta:
     scheduler: Cobalt
-    # 32 ranks per node and four threads per rank
-    mpiparam: '-N 32 -n NP --env OMP_NUM_THREADS=4 -cc depth -d 4 -j 4 '
+    # 1 rank per node and 64 threads per rank
+# Note: -N must match the ppn value in the run.cobalt script
+#    mpiparam: '-N 64 -n NP -cc depth -d 1 -j 2'
+    mpiparam: '-N 32 -n NP -cc depth -d 2 -j 2 --env "OMP_NUM_THREADS=2"'
+#    mpiparam: '-N 16 -n NP -cc depth -d 4 -j 4 --env "OMP_NUM_THREADS=4"'
     mpirun: 'aprun'
     numa: ''
     jobidName: 'COBALT_JOBID'
