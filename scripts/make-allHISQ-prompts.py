@@ -133,10 +133,14 @@ def prepareRandomSource(param, tsrcConfigId):
                 sys.exit(1)
     else:
         name = rndFile('', run, tsrcConfigId)
+        # Store random sources in subdirectories labeled by the configuration ID
+        configID = codeCfg(suffix, cfg)
+        remotePath = rand['subdirs'] + [configID]
+
 #        rndDq = StageFile( localRoot, None, root[rand['root']], rand['subdirs'], name, 'x', None, False )
 #        rndSq = StageFile( localRoot, None, root[rand['root']], rand['subdirs'], name, 'x', None, False )
-        rndDq = StageFile( localRoot, None, root[rand['root']], rand['subdirs'], name, 'r', None, False )
-        rndSq = StageFile( localRoot, None, root[rand['root']], rand['subdirs'], name, 'r', None, False )
+        rndDq = StageFile( localRoot, None, root[rand['root']], remotePath, name, 'r', None, False )
+        rndSq = StageFile( localRoot, None, root[rand['root']], remotePath, name, 'r', None, False )
     
     # With coherent sources we must distinguish the spectator and daughter random sources
     # Equivalent to antiquark and quark random sources
@@ -617,8 +621,11 @@ def solveKSProp(param, work, thisSet, propFiles, quarks, quarkKeys,
     prop = param['files']['prop']
     name = propNameKS(qkKeyBase, run, tsrcConfigId)
 
+    # Store propagators in subdirectories labeled by the configuration ID
+    configID = codeCfg(suffix, cfg)
+    remotePath = prop['subdirs'] + [configID]
     propFiles[qkKeyBase] = StageFile(localRoot, None, root[prop['root']], 
-                                     prop['subdirs'], name, 'r', None, False)
+                                     remotePath, name, 'r', None, False)
     if propFiles[qkKeyBase].exist():
         load = (fileCmd['propKS']['load'],propFiles[qkKeyBase].path())
         save = ('forget_ksprop',)
