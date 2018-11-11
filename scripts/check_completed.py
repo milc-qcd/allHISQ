@@ -89,6 +89,59 @@ def markCompletedTodoEntry(cfg, todoList):
     print "Marked cfg", cfg, "completed"
 
 
+#######################################################################
+def decodeSeriesCfg(seriesCfg):
+    """Decode series, cfg, as it appeaers in the todo file"""
+    return seriesCfg.split(".")
+
+######################################################################
+def purgeProps(param,cfg):
+    """Purge propagators for the specified configuration"""
+
+    print "Purging props for", cfg
+    suffix, cfg = decodeSeriesCfg(cfg)
+    configID = codeCfg(suffix, cfg)
+    prop = param['files']['prop']
+    subdirs = prop['subdirs'] + [ configID ]
+    remotePath = os.path.join(*subdirs)
+    cmd = ' '.join([ "nohup", "/bin/rm -r", remotePath, "&"])
+    print cmd
+    try:
+        subprocess.call(cmd, shell=True)
+    except subprocess.CalledProcessError as e:
+        print "ERROR: can't remove props.  Error code", e.returncode, "."
+
+######################################################################
+def purgeRands(param,cfg):
+    """Purge random sources for the specified configuration"""
+
+    print "Purging rands for", cfg
+    suffix, cfg = decodeSeriesCfg(cfg)
+    configID = codeCfg(suffix, cfg)
+    rand = param['files']['rand']
+    subdirs = rand['subdirs'] + [ configID ]
+    remotePath = os.path.join(*subdirs)
+    cmd = ' '.join([ "nohup", "/bin/rm -r", remotePath, "&"])
+    print cmd
+    try:
+        subprocess.call(cmd, shell=True)
+    except subprocess.CalledProcessError as e:
+        print "ERROR: can't remove rands.  Error code", e.returncode, "."
+
+######################################################################
+def purgeSymLinks(param,jobID):
+    """Purge symlinks for the specified jobID"""
+
+    print "Purging symlinks for job", jobID
+    io = param['files']['out']
+    cmd = ' '.join([ "find -P", os.path.join(param['stream'],io['subdir']), "-lname '?*Job'"+ JobID + "'*' -exec /bin/rm '{}' \;"])
+    print cmd
+    print "Not executed for now"
+    try:
+        subprocess.call(cmd, shell=True)
+    except subprocess.CalledProcessError as e:
+        print "ERROR: rmdir exited with code", e.returncode, "."
+
 ######################################################################
 def resetTodoEntry(cfg, todoList):
     """Reset the todo entry for a job that did not complete"""
@@ -241,7 +294,7 @@ def checkPendingJobs(YAMLMachine,YAMLEns,YAMLLaunch):
     params = [param]
 
     changed = False
-    for todoEntry in todoList:
+    for todoEntry in sorted(todoList,cmpToDoEntries):
         a = todoList[todoEntry]
         if len(a) == 3:
             (cfg, flag, jobid) = a
@@ -266,6 +319,7 @@ def checkPendingJobs(YAMLMachine,YAMLEns,YAMLLaunch):
         tarFiles = list()
         # Check tar balls for all job steps
         complete = True
+        jobID = todoList[cfg][2]
         for p in params:
             tarFailPath = getTarFailPath(p, jobid, cfg)
             tarGoodPath = getTarGoodPath(p, jobid, cfg)
@@ -286,6 +340,11 @@ def checkPendingJobs(YAMLMachine,YAMLEns,YAMLLaunch):
             resetTodoEntry(cfg, todoList)
             for tarFile in tarFiles:
                 moveFailureFiles(tarFile, tarFailPath)
+
+        # Cleanup from complete and incomplete runs
+        purgeProps(param,cfg)
+        purgeRands(param,cfg)
+        purgeSymLinks(param,jobID)
 
         # Take a cat nap (avoids hammering the login node)
         subprocess.check_call(["sleep", "1"])
