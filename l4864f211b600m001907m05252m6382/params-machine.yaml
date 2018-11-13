@@ -18,7 +18,7 @@ submit:
 nanny:
   todofile: todo  # Ensemble series letter is included with cfg number
   maxcases: 1     # Number of cfgs to run in a single job submission
-  maxqueue: 32    # Number of jobs to keep in the queue at one time
+  maxqueue: 50    # Number of jobs to keep in the queue at one time
   wait: 30        # Seconds between nanny job checks
 
 ######################################################################
