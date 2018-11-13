@@ -16,6 +16,6 @@ cfgs_milc=( `echo ${LATS} | sed 's|/| |g'` )
 for((i=0; i<${NCASES}; i++)); do
   cfg_fnal=`echo ${cfgs_milc[$i]} | awk -F. '{printf("%s%06d",$1,$2)}'`
   echo "Purging props and rands for ${cfg_fnal}"
-  find prop/ -name '*.'${cfg_fnal}'.*' -exec /bin/rm '{}' \;
-  find rand/ -name '*.'${cfg_fnal}'.*' -exec /bin/rm '{}' \;
+  /bin/rm -r prop/${cfg_fnal}
+  /bin/rm -r rand/${cfg_fnal}
 done
