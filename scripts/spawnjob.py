@@ -37,7 +37,7 @@ def countQueue( scheduler,  myjobname ):
     elif scheduler == 'SLURM':
         cmd = ' '.join(["squeue -u", user, "| grep", user, "| grep", myjobname, "| wc -l"])
     elif scheduler == 'Cobalt':
-        cmd = ' '.join(["qstat -uf", user, "| grep", user, "| grep", myjobname, "| wc -l"])
+        cmd = ' '.join(["qstat -fu", user, "| grep", user, "| grep", myjobname, "| wc -l"])
     else:
         print "Don't recognize scheduler", scheduler
         print "Quitting"
