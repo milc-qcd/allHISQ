@@ -220,8 +220,6 @@ def nannyLoop(YAML, YAMLLaunch):
         # Count queued jobs with our job name
         nqueued = countQueue( scheduler, jobname )
   
-        # print "Found", nqueued, "queued job(s)"
-
         # Submit until we have the desired number of jobs in the queue
         if nqueued < param['nanny']['maxqueue']:
             todoList = readTodo(todoFile, lockFile)
