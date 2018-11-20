@@ -869,8 +869,9 @@ def createMILCprompts(param, nstep, tsrc, kjob, seriesCfg, njobs):
     # Append to list of needed HISQ quark propagators to param['hisqProps']
     if param['scriptMode'] == 'KSscan':
         collectKSProps(param, quarkKeys)
-        for qK in quarkKeys:
-            print qK
+        if False:
+            for qK in quarkKeys:
+                print qK
 
     # Add gauge load and gauge-fix stanzas
     startGauge(param, work, loadLat, saveLat, gFix, tsrc)

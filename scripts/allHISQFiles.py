@@ -3,6 +3,8 @@
 
 import os, sys, re, subprocess
 
+verbose = False
+
 ######################################################################
 def remoteRootDir(root, lrun):
     """Root of remote files for the current ensemble"""
@@ -96,7 +98,8 @@ class StageFile:
         # Create symlink to file if requested
         if self.multiJobName != None and self.createLink:
             self.pathSymLink = os.path.join(self.pathSymLink, self.multiJobName)
-            print "Creating symlink to", self.pathLocal, "from", self.pathSymLink
+            if verbose:
+                print "Creating symlink to", self.pathLocal, "from", self.pathSymLink
             # Create the target file if it doesn't exist
             if self.mode == 'w' and not os.access(self.pathLocal, os.R_OK):
                 f = open(self.pathLocal, 'w')
@@ -111,18 +114,21 @@ class StageFile:
         if not 'w' in self.mode:
             # Is the file already local?
             if os.access(self.pathLocal, os.R_OK):
-                print "Using existing",self.pathLocal
+                if verbose:
+                    print "Using existing",self.pathLocal
                 self.staged = True
             # Perhaps it is in partfile format locally
             # We check only vol0000 and assume all other parts are in place
             elif os.access(self.pathLocal+'.vol0000', os.R_OK):
-                print "Using existing partfile",self.pathLocal
+                if verbose:
+                    print "Using existing partfile",self.pathLocal
                 self.staged = True
             # If not local, then fetch it
 
             elif os.access(self.pathRemote, os.R_OK):
                 cmd = ' '.join(('/usr/bin/rsync -auv', self.pathRemote, self.pathLocal))
-                print '#',cmd
+                if verbose:
+                    print '#',cmd
                 try:
                     subprocess.check_output(cmd, shell = True)
                 except subprocess.CalledProcessError as e:
@@ -132,7 +138,8 @@ class StageFile:
             else:
                 self.staged = False
                 if 'r' in self.mode:
-                    print "WARNING: can't find", self.pathRemote
+                    if verbose:
+                        print "WARNING: can't find", self.pathRemote
 
     def openwrite(self):
         if self.fd == None:
@@ -177,7 +184,8 @@ class StageFile:
         if not filebz2.search(self.pathLocal):
             if os.access(self.pathLocal, os.R_OK):
                 cmd = ' '.join(('bzip2', self.pathLocal))
-                print "#", cmd
+                if verbose:
+                    print "#", cmd
                 subprocess.check_output(cmd, shell = True)
             self.pathLocal = self.pathLocal + '.bz2'
             if not filebz2.search(self.pathRemote):
@@ -197,29 +205,36 @@ class StageFile:
                     print "WARNING: rename failed for", self.pathSymLink
             # Otherwise, just remove the symlink
             else:
-                print "Removing sym link", self.pathSymLink
+                if verbose:
+                    print "Removing sym link", self.pathSymLink
                 try:
                     os.remove(self.pathSymLink)
                 except OSError:
                     print "WARNING: remove failed for", self.pathSymLink
 
         # Copy file to archive if needed
-        print "#", self.pathLocal, "->", self.pathRemote
+        if verbose:
+            print "#", self.pathLocal, "->", self.pathRemote
         if not 'x' in self.mode and os.access(self.pathLocal, os.R_OK):
             if(self.pathLocal != self.pathRemote):
                 cmd = ' '.join(('/usr/bin/rsync -auv --no-p --no-o --no-g', self.pathLocal, self.pathRemote))
-                print cmd
+                if verbose:
+                    print cmd
                 try:
                     subprocess.check_output(cmd, shell = True)
                 except subprocess.CalledProcessError as e:
                     print "WARNING: rsync failed for", e.cmd
                     print "return code", e.returncode
         else:
-            print self.pathLocal, "not stored, because either mode is", self.mode,"or read access is", os.access(self.pathLocal, os.R_OK)
+            if verbose:
+                print self.pathLocal, "not stored, because either mode is", self.mode,"or read access is", os.access(self.pathLocal, os.R_OK)
+            pass
+
     def delete_staged(self):
         if(self.staged and self.pathLocal != self.pathRemote):
             cmd = ' '.join(('/bin/rm', self.pathLocal))
-            print cmd
+            if verbose:
+                print cmd
             try:
                 subprocess.check_output(cmd, shell = True)
             except subprocess.CalledProcessError as e:
