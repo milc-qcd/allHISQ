@@ -104,7 +104,7 @@ def purgeProps(param,cfg):
     prop = param['files']['prop']
     subdirs = prop['subdirs'] + [ configID ]
     remotePath = os.path.join(*subdirs)
-    cmd = ' '.join([ "nohup", "/bin/rm -r", remotePath, "&"])
+    cmd = ' '.join([ "nohup", "/bin/rm -r", remotePath, "> /dev/null 2> /dev/null &"])
     print cmd
     try:
         subprocess.call(cmd, shell=True)
@@ -121,7 +121,7 @@ def purgeRands(param,cfg):
     rand = param['files']['rand']
     subdirs = rand['subdirs'] + [ configID ]
     remotePath = os.path.join(*subdirs)
-    cmd = ' '.join([ "nohup", "/bin/rm -r", remotePath, "&"])
+    cmd = ' '.join([ "nohup", "/bin/rm -r", remotePath, "> /dev/null 2> /dev/null &"])
     print cmd
     try:
         subprocess.call(cmd, shell=True)
