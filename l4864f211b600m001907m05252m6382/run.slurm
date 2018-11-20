@@ -72,8 +72,7 @@ then
     echo "Exiting because of errors in job"
     exit 1
 else
-    echo "Finished with status 0. Cleaning up props and rands."
-    ./purge_props.sh ${LATS} ${NCASES}
+    echo "Finished with status 0."
     exit 0
 fi
 
