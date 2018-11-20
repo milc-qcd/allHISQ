@@ -129,14 +129,13 @@ def purgeRands(param,cfg):
         print "ERROR: can't remove rands.  Error code", e.returncode, "."
 
 ######################################################################
-def purgeSymLinks(param,jobID):
-    """Purge symlinks for the specified jobID"""
+def purgeSymLinks(param,jobid):
+    """Purge symlinks for the specified jobid"""
 
-    print "Purging symlinks for job", jobID
+    print "Purging symlinks for job", jobid
     io = param['files']['out']
-    cmd = ' '.join([ "find -P", os.path.join(param['stream'],io['subdir']), "-lname '?*Job'"+ JobID + "'*' -exec /bin/rm '{}' \;"])
+    cmd = ' '.join([ "find -P", os.path.join(param['stream'],io['subdir']), "-lname '?*Job'"+ jobid + "'*' -exec /bin/rm '{}' \;"])
     print cmd
-    print "Not executed for now"
     try:
         subprocess.call(cmd, shell=True)
     except subprocess.CalledProcessError as e:
@@ -306,7 +305,7 @@ def checkPendingJobs(YAMLMachine,YAMLEns,YAMLLaunch):
             continue
     
         print "--------------------------------------"
-        print "Checking cfg", cfg, "jobID", jobid
+        print "Checking cfg", cfg, "jobid", jobid
         print "--------------------------------------"
 
 
@@ -319,7 +318,6 @@ def checkPendingJobs(YAMLMachine,YAMLEns,YAMLLaunch):
         tarFiles = list()
         # Check tar balls for all job steps
         complete = True
-        jobID = todoList[cfg][2]
         for p in params:
             tarFailPath = getTarFailPath(p, jobid, cfg)
             tarGoodPath = getTarGoodPath(p, jobid, cfg)
@@ -344,7 +342,7 @@ def checkPendingJobs(YAMLMachine,YAMLEns,YAMLLaunch):
         # Cleanup from complete and incomplete runs
         purgeProps(param,cfg)
         purgeRands(param,cfg)
-        purgeSymLinks(param,jobID)
+        purgeSymLinks(param,jobid)
 
         # Take a cat nap (avoids hammering the login node)
         subprocess.check_call(["sleep", "1"])
