@@ -31,13 +31,13 @@ def countQueue( scheduler,  myjobname ):
     user = os.environ['USER']
 
     if scheduler == 'LSF':
-        cmd = ' '.join(["bjobs -u", user, "| grep", user, "| grep", myjobname, "| wc -l"])
+        cmd = ' '.join(["bjobs -u", user, "| grep", user, "| grep -w", myjobname, "| wc -l"])
     elif scheduler == 'PBS':
-        cmd = ' '.join(["qstat -u", user, "| grep", user, "| grep", myjobname, "| wc -l"])
+        cmd = ' '.join(["qstat -u", user, "| grep", user, "| grep -w", myjobname, "| wc -l"])
     elif scheduler == 'SLURM':
-        cmd = ' '.join(["squeue -u", user, "| grep", user, "| grep", myjobname, "| wc -l"])
+        cmd = ' '.join(["squeue -u", user, "| grep", user, "| grep -w", myjobname, "| wc -l"])
     elif scheduler == 'Cobalt':
-        cmd = ' '.join(["qstat -fu", user, "| grep", user, "| grep", myjobname, "| wc -l"])
+        cmd = ' '.join(["qstat -fu", user, "| grep", user, "| grep -w", myjobname, "| wc -l"])
     else:
         print "Don't recognize scheduler", scheduler
         print "Quitting"
