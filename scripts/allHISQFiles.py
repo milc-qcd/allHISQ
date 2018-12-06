@@ -54,6 +54,7 @@ def makePath(path):
             os.makedirs(path)
         except OSError:
             print "WARNING: Can't create directories", path
+            subprocess.call("ls -l /local/scratch", shell = True)
             # sys.exit(1)
         
 #####################################################################
@@ -358,7 +359,7 @@ def logFileSymLink(run, tsrcConfigId, jobid, tag, seqno, kjob, njobs):
     if njobs == 1:
         return None
     else:
-        return 'logJob%s%s_t%d' % (tag, jobid, tsrc)
+        return 'logJob%s%s_%s_%s' % (tag, jobid, seqno, codeTsrcSym(tsrcConfigId, kjob))
 
 ######################################################################
 def outFileName(run, tsrcConfigId, jobid, tag, seqno):
@@ -397,7 +398,7 @@ def inFileSymLink(run, tsrcConfigId, jobid, tag, seqno, kjob, njobs):
     if njobs == 1:
         return None
     else:
-        return 'inJob%s%s_%s_%s' % (jobid, tag, seqno, codeTsrcSym(tsrcConfigId, kjob))
+        return 'inJob%s%s_%s_%s' % (tag, jobid, seqno, codeTsrcSym(tsrcConfigId, kjob))
 
 ######################################################################
 def tarFileName(configId, jobid, tag):
