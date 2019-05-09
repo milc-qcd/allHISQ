@@ -392,7 +392,7 @@ def setUpJobIOFiles(param, nstep, tsrcConfigId, kjob, njobs):
     # that might be needed in case the job fails.
     subDirs = [stream, io['subdir'], residQuality]
     stdlog = StageFile(None, None, localpath, subDirs, name, 'w', multiJobName, True)
-    # Redirect script stdout and stderr to the log file
+#    # Redirect script stdout and stderr to the log file
 #    if param['scriptDebug'] != 'debug':
 #        redirectStdoutStderr(stdlog.path())
 
@@ -1149,7 +1149,7 @@ def doJobSteps(param, tsrcBase, njobs, seriesCfgsrep, asciiIOFileSets, binIOFile
             # Resolve symlinks and store all result files, propagators, sources, etc.
             for seriesCfgSrc in sorted(asciiIOFileSets.keys()):
                 series, cfg, tsrca = decodeSeriesCfgSrc(seriesCfgSrc)
-                print "Storing files for", series, cfg
+#                print "Storing files for", series, cfg
                 storeFiles(param, asciiIOFileSets[seriesCfgSrc], binIOFileSets[seriesCfgSrc])
                 purgeProps(binIOFileSets[seriesCfgSrc])  # TEMPORARY
             
