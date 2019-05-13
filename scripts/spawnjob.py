@@ -133,6 +133,16 @@ def submitJob(param, cfgnos, jobScript):
 
     # Job submission command depends on locale
     if scheduler == 'LSF':
+        # Should sync files before submission
+        cmd = "./setup_rsync.sh"
+        print cmd
+        reply = ""
+        try:
+            reply = subprocess.check_output(cmd, shell=True).splitlines()
+        except subprocess.CalledProcessError as e:
+            print reply
+            print "Job rsync error.  Return code", e.returncode
+            sys.exit(1)
         cmd = [ "bsub", "-nnodes", str(nodes), "-W", walltime, "-J", jobname, jobScript ]
     elif scheduler == 'PBS':
         cmd = [ "qsub", "-l", ",".join(["nodes="+str(nodes), "walltime="+walltime]), "-N", jobname, jobScript ]
@@ -157,6 +167,7 @@ def submitJob(param, cfgnos, jobScript):
 
     print reply
 
+    # Get job ID
     if scheduler == 'LSF':
         # a.2100 Q Job <99173> is submitted to default queue <batch>
         jobid = reply[0].split()[1].split("<")[1].split(">")[0]
