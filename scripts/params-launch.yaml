@@ -68,11 +68,10 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
 
   summit:
     scheduler: LSF
-    mpiparam: '-n NP -r 1 -g 6 -a 6 -c 42 -b none'
+    mpiparam: '--smpiargs="-gpu" -n NP -r 1 -g 6 -a 6 -c 42 -dpacked -b packed:7 -l gpu-cpu'
     mpirun: 'jsrun'
     numa: ''
     jobidName: 'LSB_JOBID'
-    launchScript: './cdg_launcher.sh'
 
   bnl-skylake:
     scheduler: SLURM
