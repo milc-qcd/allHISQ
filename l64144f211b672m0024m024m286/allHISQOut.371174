@@ -1,0 +1,54 @@
+Running with LATS d.200 and NCASES 1
+/gpfs/alpine/proj-shared/phy131/detar/allHISQ/l64144f211b672m0024m024m286
+Running on nodes batch5 1 h30n10 42 h30n11 42 h30n12 42 h30n13 42 h30n14 42 h30n15 42 h30n16 42 h30n17 42 h30n18 42 h31n01 42 h31n02 42 h31n03 42 h31n04 42 h31n05 42 h31n06 42 h31n07 42 h31n08 42 h31n09 42 h31n10 42 h31n11 42 h31n12 42 h31n13 42 h31n14 42 h31n15 42
+cfgs_milc is d.200 ncases is 1 njobs is 1
+Removing any leftover correlators
+Purging corrs for d000200
+Creating directories on all SSDs
+ERROR: Error loading the parameter file ../scripts/params-allHISQ-plus.yaml
+Exiting because of errors in job
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@batch5>
+Subject: Job 371174: <allHISQ> in cluster <summit> Exited
+
+Job <allHISQ> was submitted from host <login3> by user <detar> in cluster <summit> at Sat May 11 19:07:13 2019
+Job was executed on host(s) <1*batch5>, in queue <batch>, as user <detar> in cluster <summit> at Mon May 13 03:25:34 2019
+                            <42*h30n10>
+                            <42*h30n11>
+                            <42*h30n12>
+                            <42*h30n13>
+                            <42*h30n14>
+                            <42*h30n15>
+                            <42*h30n16>
+                            <42*h30n17>
+                            <42*h30n18>
+                            <42*h31n01>
+                            <42*h31n02>
+                            <42*h31n03>
+                            <42*h31n04>
+                            <42*h31n05>
+                            <42*h31n06>
+                            <42*h31n07>
+                            <42*h31n08>
+                            <42*h31n09>
+                            <42*h31n10>
+                            <42*h31n11>
+                            <42*h31n12>
+                            <42*h31n13>
+                            <42*h31n14>
+                            <42*h31n15>
+</ccs/home/detar> was used as the home directory.
+</ccs/home/detar/allHISQ/l64144f211b672m0024m024m286> was used as the working directory.
+Started at Mon May 13 03:25:34 2019
+Terminated at Mon May 13 03:25:41 2019
+Results reported at Mon May 13 03:25:41 2019
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <allHISQErr.371174> for stderr output of this job.
+

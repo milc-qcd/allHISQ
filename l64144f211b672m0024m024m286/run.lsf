@@ -1,0 +1,92 @@
+#! /bin/bash
+
+#BSUB -P PHY131
+##### -W walltime (command line in spawnmultijob.py)
+##### -nnodes nodes (command line in spawnmultijob.py)
+##### -J jobname (command line in spawnmultijob.py) 
+##### -cn_cu 'maxcus=4'
+#BSUB -o allHISQOut.%J
+#BSUB -e allHISQErr.%J
+#BSUB -alloc_flags "nvme"
+
+# Submission command must define environment variables LATS, NCASES
+# bsub -P PHY131 -nnodes nodes -W walltime -J jobname
+# --env LATS=LATS:NCASES=NCASES:NJOBS=NJOBS:NP=NP jobScript ]
+
+# LATS    list of cfg numbers, separated by /
+# NCASES  number of cfgs to run
+# NJOBS   number of concurrent cases to run
+# NP      number of processors
+
+umask 0022
+
+nodes=16
+
+echo "Running with LATS $LATS and NCASES $NCASES"
+
+cd /gpfs/alpine/proj-shared/phy131/detar/allHISQ/l64144f211b672m0024m024m286/
+pwd
+
+export PYTHONPATH=$PYTHONPATH:/gpfs/alpine/proj-shared/phy131/detar/python_modules
+
+# Take predefined parameters from qsub command line:
+if [ -n "${LSB_JOBID}" ]
+then
+  echo "Running on nodes" ${LSB_MCPU_HOSTS}
+  # Get job-dependent variables
+  # Unpack lists
+  cfgs_milc=${LATS}
+  ncases=${NCASES}
+  njobs=${NJOBS}
+  echo cfgs_milc is ${cfgs_milc} ncases is ${ncases} njobs is ${njobs}
+  jobid=${LSB_JOBID}
+  if [ -z "${jobid}" ]
+  then
+    jobid=none
+  fi
+  testing=0
+  prompt=0
+else
+  echo "Not an LSF job.  Running in test mode."
+  cfgs_milc="x.08/x.99"
+  ncases=2
+  njobs=2
+  jobid=test
+  testing=1
+  prompt=2
+fi
+
+#export KMP_AFFINITY="compact,granularity=fine,verbose"
+#export KMP_PLACE_THREADS=54C,1T
+export OMP_NUM_THREADS=7
+#export CRAY_OMP_CHECK_AFFINITY=TRUE
+# export OMP_PROC_BIND=spread
+# export OMP_PLACES=threads
+#export THREADS_PER_CORE=1
+
+export QUDA_ENABLE_GDR=1
+
+argList="${cfgs_milc} ${ncases} ${njobs}"
+scriptList="../scripts/params-allHISQ-plus.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml"
+
+echo "Removing any leftover correlators"
+./purge_corrs.sh ${LATS} ${NCASES}
+
+if [ $testing -eq 0 ]
+then
+   echo "Creating directories on all SSDs"
+   jsrun -n ${nodes}  -r 1 -g 1 -a 1 -c 1 ./make_ssd_dirs.sh ${LATS} ${NCASES}
+   jsrun -n ${nodes}  -r 1 -g 1 -a 1 -c 1 ls -l /mnt/bb/detar/rand
+   jsrun -n ${nodes}  -r 1 -g 1 -a 1 -c 1 ls -l /mnt/bb/detar/prop
+fi
+
+export QUDA_RESOURCE_PATH=`pwd`
+
+python ../scripts/make-allHISQ-prompts.py ${argList} ${scriptList}
+
+if [ $? -eq 1 ]
+then
+    echo "Exiting because of errors in job"
+    exit 1
+fi
+

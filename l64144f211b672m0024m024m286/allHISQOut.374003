@@ -1,0 +1,37 @@
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@batch4>
+Subject: Job 374003: <allHISQ> in cluster <summit> Exited
+
+Job <allHISQ> was submitted from host <login5> by user <detar> in cluster <summit> at Tue May 14 11:43:43 2019
+Job was executed on host(s) <1*batch4>, in queue <batch>, as user <detar> in cluster <summit> at Tue May 14 11:43:53 2019
+                            <42*c09n05>
+                            <42*c09n06>
+                            <42*c09n07>
+                            <42*c09n08>
+                            <42*c09n09>
+                            <42*c09n10>
+                            <42*c09n11>
+                            <42*c09n12>
+                            <42*c09n13>
+                            <42*c09n14>
+                            <42*c09n15>
+                            <42*c09n16>
+                            <42*c09n17>
+                            <42*c09n18>
+                            <42*c35n01>
+                            <42*c35n02>
+</ccs/home/detar> was used as the home directory.
+</ccs/home/detar/allHISQ/l64144f211b672m0024m024m286> was used as the working directory.
+Started at Tue May 14 11:43:53 2019
+Terminated at Tue May 14 11:43:55 2019
+Results reported at Tue May 14 11:43:55 2019
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <allHISQErr.374003> for stderr output of this job.
+

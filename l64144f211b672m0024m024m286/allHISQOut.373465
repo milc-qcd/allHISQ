@@ -1,0 +1,429 @@
+Running with LATS a.150 and NCASES 1
+/gpfs/alpine/proj-shared/phy131/detar/allHISQ/l64144f211b672m0024m024m286
+Running on nodes batch3 1 a30n14 42 a30n15 42 a30n16 42 c28n16 42 f25n09 42 f25n10 42 f27n11 42 f28n05 42 f28n06 42 f28n07 42 f28n08 42 f28n09 42 f28n10 42 f28n11 42 f28n12 42 f28n13 42
+cfgs_milc is a.150 ncases is 1 njobs is 1
+Removing any leftover correlators
+Purging corrs for a000150
+Creating directories on all SSDs
+Creating /mnt/bb/detar/prop/a000150
+Creating /mnt/bb/detar/prop/a000150
+Creating /mnt/bb/detar/prop/a000150
+Creating /mnt/bb/detar/prop/a000150
+Creating /mnt/bb/detar/rand/a000150
+Creating /mnt/bb/detar/rand/a000150
+Creating /mnt/bb/detar/rand/a000150
+Creating /mnt/bb/detar/rand/a000150
+Creating /mnt/bb/detar/prop/a000150
+Creating /mnt/bb/detar/prop/a000150
+Creating /mnt/bb/detar/rand/a000150
+Creating /mnt/bb/detar/rand/a000150
+Creating /mnt/bb/detar/prop/a000150
+Creating /mnt/bb/detar/rand/a000150
+Creating /mnt/bb/detar/prop/a000150
+Creating /mnt/bb/detar/rand/a000150
+Creating /mnt/bb/detar/prop/a000150
+Creating /mnt/bb/detar/rand/a000150
+Creating /mnt/bb/detar/prop/a000150
+Creating /mnt/bb/detar/rand/a000150
+Creating /mnt/bb/detar/prop/a000150
+Creating /mnt/bb/detar/rand/a000150
+Creating /mnt/bb/detar/prop/a000150
+Creating /mnt/bb/detar/rand/a000150
+Creating /mnt/bb/detar/prop/a000150
+Creating /mnt/bb/detar/prop/a000150
+Creating /mnt/bb/detar/rand/a000150
+Creating /mnt/bb/detar/rand/a000150
+Creating /mnt/bb/detar/prop/a000150
+Creating /mnt/bb/detar/rand/a000150
+Creating /mnt/bb/detar/prop/a000150
+Creating /mnt/bb/detar/rand/a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+total 0
+drwxr-xr-x 2 detar detar 6 May 13 23:45 a000150
+Scanning with the parameter set ../scripts/params-allHISQ-plus.yaml
+Processing KSscan ['a.150'] for step 0 tsrc 12
+WARNING: Can't create directories /mnt/bb/detar/rand/a000150
+WARNING: Can't create directories /mnt/bb/detar/rand/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+Processing KSscan ['a.150'] for step 1 tsrc 12
+WARNING: Can't create directories /mnt/bb/detar/rand/a000150
+WARNING: Can't create directories /mnt/bb/detar/rand/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+Processing KSscan ['a.150'] for step 2 tsrc 12
+WARNING: Can't create directories /mnt/bb/detar/rand/a000150
+WARNING: Can't create directories /mnt/bb/detar/rand/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+Processing KSscan ['a.150'] for step 0 tsrc 36
+WARNING: Can't create directories /mnt/bb/detar/rand/a000150
+WARNING: Can't create directories /mnt/bb/detar/rand/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+Processing KSscan ['a.150'] for step 1 tsrc 36
+WARNING: Can't create directories /mnt/bb/detar/rand/a000150
+WARNING: Can't create directories /mnt/bb/detar/rand/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+Processing KSscan ['a.150'] for step 2 tsrc 36
+WARNING: Can't create directories /mnt/bb/detar/rand/a000150
+WARNING: Can't create directories /mnt/bb/detar/rand/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+['d', 'q', '0,0,0', '0.0024', '0.', 'qlight']
+['d', 'q', '0,0,0', '0.024', '0.', 'qstrange']
+['d', 'q', '0,0,0', '0.257', '-0.0433', 'qheavy']
+['d', 'q', '0,0,0', '0.286', '-0.0533', 'qheavy']
+['d', 'q', '0,0,0', '0.572', '-0.1918', 'qheavy']
+['d', 'q', '0,0,0', '0.858', '-0.3673', 'qheavy']
+['d', 'q', '0,0,0', '1.144', '-0.5683', 'qheavy']
+['d', 'q', '1,0,0', '0.0024', '0.', 'qlight']
+['d', 'q', '1,0,0', '0.024', '0.', 'qstrange']
+['d', 'q', '1,0,0', '0.257', '-0.0433', 'qheavy']
+['d', 'q', '1,0,0', '0.286', '-0.0533', 'qheavy']
+['d', 'q', '1,0,0', '0.572', '-0.1918', 'qheavy']
+['d', 'q', '1,0,0', '0.858', '-0.3673', 'qheavy']
+['d', 'q', '1,0,0', '1.144', '-0.5683', 'qheavy']
+['d', 'q', '1,1,0', '0.0024', '0.', 'qlight']
+['d', 'q', '1,1,0', '0.024', '0.', 'qstrange']
+['d', 'q', '1,1,0', '0.257', '-0.0433', 'qheavy']
+['d', 'q', '1,1,0', '0.286', '-0.0533', 'qheavy']
+['d', 'q', '1,1,0', '0.572', '-0.1918', 'qheavy']
+['d', 'q', '1,1,0', '0.858', '-0.3673', 'qheavy']
+['d', 'q', '1,1,0', '1.144', '-0.5683', 'qheavy']
+['d', 'q', '2,0,0', '0.0024', '0.', 'qlight']
+['d', 'q', '2,0,0', '0.024', '0.', 'qstrange']
+['d', 'q', '2,0,0', '0.257', '-0.0433', 'qheavy']
+['d', 'q', '2,0,0', '0.286', '-0.0533', 'qheavy']
+['d', 'q', '2,0,0', '0.572', '-0.1918', 'qheavy']
+['d', 'q', '2,0,0', '0.858', '-0.3673', 'qheavy']
+['d', 'q', '2,0,0', '1.144', '-0.5683', 'qheavy']
+['d', 'q', '2,1,1', '0.0024', '0.', 'qlight']
+['d', 'q', '2,1,1', '0.024', '0.', 'qstrange']
+['d', 'q', '2,1,1', '0.257', '-0.0433', 'qheavy']
+['d', 'q', '2,1,1', '0.286', '-0.0533', 'qheavy']
+['d', 'q', '2,1,1', '0.572', '-0.1918', 'qheavy']
+['d', 'q', '2,1,1', '0.858', '-0.3673', 'qheavy']
+['d', 'q', '2,1,1', '1.144', '-0.5683', 'qheavy']
+['d', 'q', '2,2,2', '0.0024', '0.', 'qlight']
+['d', 'q', '2,2,2', '0.024', '0.', 'qstrange']
+['d', 'q', '2,2,2', '0.257', '-0.0433', 'qheavy']
+['d', 'q', '2,2,2', '0.286', '-0.0533', 'qheavy']
+['d', 'q', '2,2,2', '0.572', '-0.1918', 'qheavy']
+['d', 'q', '2,2,2', '0.858', '-0.3673', 'qheavy']
+['d', 'q', '2,2,2', '1.144', '-0.5683', 'qheavy']
+['d', 'q', '3,0,0', '0.0024', '0.', 'qlight']
+['d', 'q', '3,0,0', '0.024', '0.', 'qstrange']
+['d', 'q', '3,0,0', '0.257', '-0.0433', 'qheavy']
+['d', 'q', '3,0,0', '0.286', '-0.0533', 'qheavy']
+['d', 'q', '3,0,0', '0.572', '-0.1918', 'qheavy']
+['d', 'q', '3,0,0', '0.858', '-0.3673', 'qheavy']
+['d', 'q', '3,0,0', '1.144', '-0.5683', 'qheavy']
+['d', 'q', '4,0,0', '0.0024', '0.', 'qlight']
+['d', 'q', '4,0,0', '0.024', '0.', 'qstrange']
+['d', 'q', '4,0,0', '0.257', '-0.0433', 'qheavy']
+['d', 'q', '4,0,0', '0.286', '-0.0533', 'qheavy']
+['d', 'q', '4,0,0', '0.572', '-0.1918', 'qheavy']
+['d', 'q', '4,0,0', '0.858', '-0.3673', 'qheavy']
+['d', 'q', '4,0,0', '1.144', '-0.5683', 'qheavy']
+#############################################
+Running with the parameter set ../scripts/params-allHISQ-plus.yaml
+Processing KSproduction ['a.150'] for step 0 tsrc 12
+WARNING: Can't create directories /mnt/bb/detar/rand/a000150
+WARNING: Can't create directories /mnt/bb/detar/rand/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+Launching set ['a.150'] for step 0 tsrc 12
+# jsrun --smpiargs="-gpu" -n 16 -r 1 -g 6 -a 6 -c 42 -dpacked -b packed:7 -l gpu-cpu   /gpfs/alpine/proj-shared/phy131/detar/allHISQ/bin/ks_spectrum_hisq  -qmp-geom 1 1 8 12  /gpfs/alpine/proj-shared/phy131/detar/allHISQ/a0.06/l64144f211b672m0024m024m286/run0/logs/loose/inJob373465_step0_t12.a000150 /gpfs/alpine/proj-shared/phy131/detar/allHISQ/a0.06/l64144f211b672m0024m024m286/run0/logs/loose/outJob373465_step0_t12.a000150 /gpfs/alpine/proj-shared/phy131/detar/allHISQ/a0.06/l64144f211b672m0024m024m286/run0/logs/loose/errJob373465_step0_t12.a000150
+Processing KSproduction ['a.150'] for step 1 tsrc 12
+WARNING: Can't create directories /mnt/bb/detar/rand/a000150
+WARNING: Can't create directories /mnt/bb/detar/rand/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+WARNING: Can't create directories /mnt/bb/detar/prop/a000150
+Launching set ['a.150'] for step 1 tsrc 12
+# jsrun --smpiargs="-gpu" -n 16 -r 1 -g 6 -a 6 -c 42 -dpacked -b packed:7 -l gpu-cpu   /gpfs/alpine/proj-shared/phy131/detar/allHISQ/bin/ks_spectrum_hisq  -qmp-geom 1 1 8 12  /gpfs/alpine/proj-shared/phy131/detar/allHISQ/a0.06/l64144f211b672m0024m024m286/run0/logs/loose/inJob373465_step1_t12.a000150 /gpfs/alpine/proj-shared/phy131/detar/allHISQ/a0.06/l64144f211b672m0024m024m286/run0/logs/loose/outJob373465_step1_t12.a000150 /gpfs/alpine/proj-shared/phy131/detar/allHISQ/a0.06/l64144f211b672m0024m024m286/run0/logs/loose/errJob373465_step1_t12.a000150
+ERROR:  jsrun exited with code 1 .
+Quitting due to errors
+Exiting because of errors in job
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@batch3>
+Subject: Job 373465: <allHISQ> in cluster <summit> Exited
+
+Job <allHISQ> was submitted from host <login1> by user <detar> in cluster <summit> at Mon May 13 23:45:11 2019
+Job was executed on host(s) <1*batch3>, in queue <batch>, as user <detar> in cluster <summit> at Mon May 13 23:45:21 2019
+                            <42*a30n14>
+                            <42*a30n15>
+                            <42*a30n16>
+                            <42*c28n16>
+                            <42*f25n09>
+                            <42*f25n10>
+                            <42*f27n11>
+                            <42*f28n05>
+                            <42*f28n06>
+                            <42*f28n07>
+                            <42*f28n08>
+                            <42*f28n09>
+                            <42*f28n10>
+                            <42*f28n11>
+                            <42*f28n12>
+                            <42*f28n13>
+</ccs/home/detar> was used as the home directory.
+</ccs/home/detar/allHISQ/l64144f211b672m0024m024m286> was used as the working directory.
+Started at Mon May 13 23:45:21 2019
+Terminated at Mon May 13 23:55:07 2019
+Results reported at Mon May 13 23:55:07 2019
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <allHISQErr.373465> for stderr output of this job.
+

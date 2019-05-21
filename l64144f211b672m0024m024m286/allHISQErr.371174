@@ -1,0 +1,6 @@
+find: 'run?/data': No such file or directory
+mkdir: cannot create directory '/local': Permission denied
+mkdir: cannot create directory '/local': Permission denied
+mkdir: cannot create directory '/local': Permission denied
+ls: cannot access /mnt/bb/detar/rand: No such file or directory
+ls: cannot access /mnt/bb/detar/prop: No such file or directory
