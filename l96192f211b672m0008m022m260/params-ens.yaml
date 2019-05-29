@@ -1,15 +1,23 @@
 ensemble:
-  run: 4864f211b600m001907m05252m6382
-  dim: [ 48, 48, 48, 64 ]
+  run: 96192f211b672m0008m022m260
+  dim: [ 96, 96, 96, 192 ]
   u0: 1               # Simone 10/21/2015 (MILC code forces u0 = 1 for HISQ)
-  atrue: 0.12121      # Decay constant paper arXiv 1407.3772 (In case of smearing)
-  afm: '0.12'         # Subdirectory label
+  atrue: 0.05676      # charm decay constant paper NEEDS MEASURING
+  afm: '0.06'         # Subdirectory label
 
 tsrcRange:
   start: 0
-  stop:  64 
-  step:  2
-  precess: 3          # For precessing the source times, based on the cfg number
+#  stop:  192
+  stop:  6
+  step:  6
+  precess: 5          # For precessing the source times, based on the cfg number
+
+tSnkHtopi: &ref_tSnkHtopi [ 32, 35, 37, 40 ]
+tSnkHtoH: &ref_tSnkHtoH [ 24, 25, 27, 30 ] 
+
+apelink:              # Applies only to links in point-split operators
+  weight: 0.1
+  iter: 64
 
 eigen:
   Nvecs: 0
@@ -22,40 +30,40 @@ stream: run0
 quarks:
   qlight:
     type: KS
-    mass: ['0.001907']
+    mass: ['0.0008']
     naik_epsilon: ['0.']
     residual_loose:
-      L2: 1e-3
+      L2: 2e-3
       R2: 0.
     residual_fine:
-      L2: 1e-8
+      L2: 1e-7
       R2: 0.
     maxCG: 
       iters: 4000
       restarts: 5
-    precision: 1
+    precision: 2
     deflate: 'yes'
 
   qstrange:
     type: KS
-    mass: ['0.05252']
+    mass: ['0.022']
     naik_epsilon: ['0.']
     residual_loose:
-      L2: 1e-3
+      L2: 2e-3
       R2: 0.
     residual_fine:
-      L2: 1e-8
+      L2: 1e-7
       R2: 0.
     maxCG:
       iters: 2000
       restarts: 5
-    precision: 1
+    precision: 2
     deflate: 'no'
 
   qheavy:
     type: KS
-    mass: ['0.5744','0.6382' ]   # 0.9 and 1.0 ms
-    naik_epsilon: ['-0.1932', '-0.2309']
+    mass: ['0.257','0.286','0.572','0.858','1.144' ]  # 0.9, 1.0, 2.0, 3.0, 4.0 mc
+    naik_epsilon: ['-0.0433', '-0.0533', '-0.1918', '-0.3673', '-0.5683']
     residual_loose:
       L2: 0.
       R2: 1e-5
@@ -65,13 +73,13 @@ quarks:
     maxCG:
       iters: 400
       restarts: 5
-    precision: 1
+    precision: 2
     deflate: 'no'
 
 tarCheck:             # For checking that the output tarball is complete
-# Values for the TSM tuning runs -- one source time per loose and fine
-  tarEntries: 1730
-  tarbzip2Size: 1636000
-  tarDataLines: 242576
-  tarDataWords: 682688
+# Values for production running 32 time sources
+  tarEntries: 6485
+  tarbzip2Size: 213260551
+  tarDataLines: 27128844 
+  tarDataWords: 78498904
 
