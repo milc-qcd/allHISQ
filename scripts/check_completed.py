@@ -52,7 +52,7 @@ def jobStillQueued(param,jobid):
     if len(reply) > 0:
         a = reply.split()
         if scheduler == 'LSF':
-            time = a[5]  # Actually the start time
+            time = a[5] + " " +  a[6] + " " + a[7]  # Actually the start time
             field = "start"
             jobstat = a[2]
         elif scheduler == 'PBS':

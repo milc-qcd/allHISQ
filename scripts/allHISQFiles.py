@@ -54,7 +54,7 @@ def makePath(path):
             os.makedirs(path)
         except OSError:
             print "WARNING: Can't create directories", path
-            subprocess.call("ls -l /local/scratch", shell = True)
+            subprocess.call("ls -l /mnt/bb/detar", shell = True)
             # sys.exit(1)
         
 #####################################################################

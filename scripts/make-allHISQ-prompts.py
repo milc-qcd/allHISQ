@@ -392,7 +392,7 @@ def setUpJobIOFiles(param, nstep, tsrcConfigId, kjob, njobs):
     # that might be needed in case the job fails.
     subDirs = [stream, io['subdir'], residQuality]
     stdlog = StageFile(None, None, localpath, subDirs, name, 'w', multiJobName, True)
-    # Redirect script stdout and stderr to the log file
+#    # Redirect script stdout and stderr to the log file
 #    if param['scriptDebug'] != 'debug':
 #        redirectStdoutStderr(stdlog.path())
 
@@ -584,7 +584,10 @@ def startKSSolveSet(param, qk, thisSrc):
     maxCG = quark['maxCG']
     check = 'yes'
     twist = [0, 0, 0]
-    precision = quark['precision']
+    if param['residQuality'] == 'fine':
+        precision = 2
+    else:
+        precision = quark['precision']
 
     thisSet = KSsolveSet(thisSrc, twist, check, maxCG, precision)
 
@@ -1149,7 +1152,7 @@ def doJobSteps(param, tsrcBase, njobs, seriesCfgsrep, asciiIOFileSets, binIOFile
             # Resolve symlinks and store all result files, propagators, sources, etc.
             for seriesCfgSrc in sorted(asciiIOFileSets.keys()):
                 series, cfg, tsrca = decodeSeriesCfgSrc(seriesCfgSrc)
-                print "Storing files for", series, cfg
+#                print "Storing files for", series, cfg
                 storeFiles(param, asciiIOFileSets[seriesCfgSrc], binIOFileSets[seriesCfgSrc])
                 purgeProps(binIOFileSets[seriesCfgSrc])  # TEMPORARY
             
@@ -1189,19 +1192,40 @@ def runParam(seriesCfgs, ncases, njobs, param):
         for tsrcBase in trange:
             doJobSteps(param, tsrcBase, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
 
-        # Fine calculation -- only one source time per job
-        param['residQuality'] = 'fine'
-        # Fine solve times precess over the loose times, based on the first cfg number in this group
-        suffix, cfg = decodeSeriesCfg(seriesCfgsrep[0])
-        tFineShift = int(cfg)*tsrcRange['step']
-        tsrcBase = ( tsrcRange['start'] + tFineShift ) % param['ensemble']['dim'][3]
-        doJobSteps(param, tsrcBase, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
+        # Fine calculation -- only one source time per lattice
+        # If we are running partial t ranges with multijob, one job per lattice, we want
+        # all job components to do their fine solves together or not at all.
+        # We assume that 0 is always done once per lattice
+        if 0 in trange:
+            param['residQuality'] = 'fine'
+            # Fine solve times precess over the loose times, based on the first cfg number in this group
+            suffix, cfg = decodeSeriesCfg(seriesCfgsrep[0])
+            tFineShift = int(cfg)*tsrcRange['step']
+            tsrcBase = ( tsrcRange['start'] + tFineShift ) % param['ensemble']['dim'][3]
+            doJobSteps(param, tsrcBase, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
 
         if param['scriptMode'] != 'KSscan':
             # Create and store tar files, one for each cfg
             for seriesCfg in seriesCfgsrep:
                 print "Storing tar files for", seriesCfg
                 storeTarFile(param, seriesCfg, tarFileSets[seriesCfg])
+
+############################################################
+def loadParamsJoin(YAMLEns, YAMLAll):
+    """Concatenate two YAML parameter files and load
+    We need this because YAMLEns defines a reference needed
+    by YAMLAll"""
+    
+    # Initial parameter file
+    try:
+        ens = open(YAMLEns,'r').readlines()
+        all = open(YAMLAll,'r').readlines()
+        param = yaml.load("".join(ens+all))
+    except:
+        print "ERROR: Error loading the parameter files", YAMLEns, YAMLAll
+        sys.exit(1)
+
+    return param
 
 ############################################################
 def loadParam(YAML):
@@ -1265,23 +1289,15 @@ def updateParam(param, paramUpdate):
     return param
 
 ############################################################
-def loadParams(YAML, YAMLLaunch, YAMLEns, YAMLMachine):
+def loadParams(YAMLAll, YAMLLaunch, YAMLEns, YAMLMachine):
     """Load a set of YAML parameter files into a single dictionary"""
 
     # Initial parameter file
-    try:
-        param = yaml.load(open(YAML,'r'))
-    except:
-        print "ERROR: Error loading the parameter file", YAML
-        sys.exit(1)
+    param = loadParamsJoin(YAMLEns, YAMLAll)
         
     # Load parameters defining the launch environment for various locales
     paramLaunch = loadParam(YAMLLaunch)
     param = updateParam(param, paramLaunch)
-
-    # Load parameters specific to the ensemble and add to the dictionary
-    paramEns = loadParam(YAMLEns)
-    param = updateParam(param, paramEns)
 
     # Load parameters specific to the machine and installation
     paramMachine = loadParam(YAMLMachine)

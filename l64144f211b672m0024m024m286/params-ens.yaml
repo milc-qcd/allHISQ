@@ -1,0 +1,93 @@
+ensemble:
+  run: 64144f211b672m0024m024m286
+  dim: [ 64, 64, 64, 144 ]
+  u0: 1               # Simone 10/21/2015 (MILC code forces u0 = 1 for HISQ)
+  atrue: 0.05676      # charm decay constant paper NEEDS MEASURING
+  afm: '0.06'         # Subdirectory label
+
+tsrcRange:
+  start: 0
+#  stop:  144
+  stop:  4
+  step:  4
+  precess: 2          # For precessing the source times, based on the cfg number
+
+tSnkHtopi: &ref_tSnkHtopi [ 13, 14, 15, 16 ]
+tSnkHtoH: &ref_tSnkHtoH [ 13, 14, 15, 16 ] 
+
+#tSnkHtopi: &ref_tSnkHtopi [ 32, 35, 37, 40 ]
+#tSnkHtoH: &ref_tSnkHtoH [ 24, 25, 27, 30 ] 
+
+apelink:              # Applies only to links in point-split operators
+  weight: 0.1
+  iter: 64
+
+eigen:
+  Nvecs: 0
+
+stream: run0
+
+######################################################################
+# Quark parameters
+######################################################################
+quarks:
+  qlight:
+    type: KS
+    mass: ['0.0024']
+    naik_epsilon: ['0.']
+    residual_loose:
+      L2: 2e-3
+      R2: 0.
+    residual_fine:
+      L2: 1e-7
+      R2: 0.
+    maxCG: 
+      iters: 4000
+      restarts: 5
+    precision: 2
+    deflate: 'yes'
+
+  qstrange:
+    type: KS
+    mass: ['0.024']
+    naik_epsilon: ['0.']
+    residual_loose:
+      L2: 2e-3
+      R2: 0.
+    residual_fine:
+      L2: 1e-7
+      R2: 0.
+    maxCG:
+      iters: 2000
+      restarts: 5
+    precision: 2
+    deflate: 'no'
+
+  qheavy:
+    type: KS
+    mass: ['0.257','0.286','0.572','0.858','1.144' ]  # 0.9, 1.0, 2.0, 3.0, 4.0 mc
+    naik_epsilon: ['-0.0433', '-0.0533', '-0.1918', '-0.3673', '-0.5683']
+    residual_loose:
+      L2: 0.
+      R2: 1e-7
+    residual_fine:
+      L2: 0.
+      R2: 1e-7
+    maxCG:
+      iters: 400
+      restarts: 5
+    precision: 2
+    deflate: 'no'
+
+tarCheck:             # For checking that the output tarball is complete
+# Values for the TSM tuning runs -- one source time per loose and fine
+#  tarEntries: 1130
+#  tarbzip2Size: 2630582
+#  tarDataLines:  309864
+#  tarDataWords:  900304
+# Values for production running 36 time sources
+  tarEntries: 6485
+  tarbzip2Size: 213260551
+  tarDataLines: 27128844 
+  tarDataWords: 78498904
+ 

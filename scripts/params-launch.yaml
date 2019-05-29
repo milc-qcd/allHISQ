@@ -47,7 +47,7 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
     scheduler: Cobalt
 #    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 --mapping /gpfs/mira-home/detar/mapfiles/n4096c32s448162g16161632.map :'
     # 32 ranks per node
-    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 :'
+    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 --mapping BACDET :'
 #    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 :'
 #    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 --mapping /gpfs/mira-home/detar/mapfiles/n512c32g161688.map :'
 #    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 :'
@@ -69,11 +69,10 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
 
   summit:
     scheduler: LSF
-    mpiparam: '-n NP -r 1 -g 6 -a 6 -c 42 -b none'
+    mpiparam: '--smpiargs="-gpu" -n NP -r 1 -g 6 -a 6 -c 42 -dpacked -b packed:7 -l gpu-cpu'
     mpirun: 'jsrun'
     numa: ''
     jobidName: 'LSB_JOBID'
-    launchScript: './cdg_launcher.sh'
 
   bnl-skylake:
     scheduler: SLURM
