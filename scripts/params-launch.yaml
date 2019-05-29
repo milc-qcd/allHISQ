@@ -61,6 +61,7 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
 # Note: -N must match the ppn value in the run.cobalt script
 #    mpiparam: '-N 64 -n NP -cc depth -d 1 -j 2'
     mpiparam: '-N 32 -n NP -cc depth -d 2 -j 2 --env "OMP_NUM_THREADS=2"'
+#    mpiparam: '-N 32 -n NP -cc depth -d 4 -j 2 --env "OMP_NUM_THREADS=4"'
 #    mpiparam: '-N 16 -n NP -cc depth -d 4 -j 4 --env "OMP_NUM_THREADS=4"'
     mpirun: 'aprun'
     numa: ''
