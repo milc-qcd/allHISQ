@@ -2,23 +2,23 @@
 # Job submission parameters
 ######################################################################
 submit:
-  jobname: allHISQ
-  jobScript: run.slurm
-  locale: bnl-ic
-  walltime: "24:00:00"
+  jobname: allHISQ  
+  jobScript: run.cobalt
+  locale: alcf_theta
+  walltime: "12:00:00"
   layout:
-    njobs: &refNjobs 1  # Number of concurrent subjobs within a job (not supported)
-    basenodes: 2        # Number of nodes in one concurrent subjob
-    ppn: 4              # MPI ranks per node
+    njobs: &refNjobs 4  # Number of concurrent subjobs within a job (not supported)
+    basenodes: 256      # Number of nodes in one concurrent subjob
+    ppn: 32             # MPI ranks per node
     layoutSciDAC:       # Node and I/O geometry
-      node: [1, 2, 2, 2]
-      io: [1, 2, 2, 2]
-    jobGeom: [ 1, 1, 1, 1]  # Not supported, yet
+      node: [32, 8, 8, 16]
+      io: [1, 8, 8, 16]
+    jobGeom: [ *refNjobs, 1, 1, 1]  # Not supported, yet
 
 nanny:
   todofile: todo  # Ensemble series letter is included with cfg number
-  maxcases: 1     # Number of cfgs to run in a single job submission
-  maxqueue: 32    # Number of jobs to keep in the queue at one time
+  maxcases: 4     # Number of cfgs to run in a single job submission
+  maxqueue: 2     # Number of jobs to keep in the queue at one time
   wait: 30        # Seconds between nanny job checks
 
 ######################################################################
@@ -32,16 +32,16 @@ nanny:
 
 # (2) remote: Large remote files: lattices, propagators, random source files
 #     etc.  The ensemble name is appended as a subdirectory.
-remoteRoot: '/hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ'
+remoteRoot: '/projects/Semileptonic/allHISQ/scratch'
 
 # (3) archive: Smaller result files: Output correlators, logs
-archiveRoot: '/hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project'
+archiveRoot: '/projects/Semileptonic/allHISQ'
 
 # (4) local: Staging location for run-time files.  See files/root/local below.
 
 files:
   root:
-    project: '/sdcc/u/detar/allHISQ'
+    project: '/home/detar/allHISQ_theta'
 #    local: '/scratch' # If empty, we do not stage files
     local: # If empty, we do not stage files
     # member 'remote:' is added by the ensemble script, since it depends on the ensemble ID
@@ -95,3 +95,6 @@ files:
     root: 'archive'
     subdir: 
     list: [ 'data', 'logs' ]
+  ssdlist:
+    root: 'archive'
+    subdir:
