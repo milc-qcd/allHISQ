@@ -58,6 +58,11 @@ def makePath(path):
             # sys.exit(1)
         
 #####################################################################
+def checkSSDList(path):
+    """See if 'path' is in the list of files presumably on the SSD"""
+    return False
+
+#####################################################################
 # Class for staging files from the remote path to a local path for MPP execution
 # Also used to archive (store) result files
 # For multijob running for stdin, stdout, stdeff we use symlinks to map the
@@ -118,14 +123,20 @@ class StageFile:
                 if verbose:
                     print "Using existing",self.pathLocal
                 self.staged = True
+
             # Perhaps it is in partfile format locally
             # We check only vol0000 and assume all other parts are in place
             elif os.access(self.pathLocal+'.vol0000', os.R_OK):
                 if verbose:
                     print "Using existing partfile",self.pathLocal
                 self.staged = True
-            # If not local, then fetch it
+                
+            elif checkSSDList(self.pathLocal):
+                if verbose:
+                    print "SSD list has",self.pathLocal
+                self.staged = True
 
+            # If not local, then fetch it
             elif os.access(self.pathRemote, os.R_OK):
                 cmd = ' '.join(('/usr/bin/rsync -auv', self.pathRemote, self.pathLocal))
                 if verbose:
