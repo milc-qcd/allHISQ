@@ -1229,19 +1229,6 @@ def loadParamsJoin(YAMLEns, YAMLAll):
     return param
 
 ############################################################
-def loadParam(YAML):
-    """Load a YAML parameter file"""
-
-    # Initial parameter file
-    try:
-        param = yaml.load(open(YAML,'r'))
-    except:
-        print "ERROR: Error loading the parameter file", YAML
-        sys.exit(1)
-
-    return param
-
-############################################################
 def initParam(param):
     """Set some initial values of params"""
 
@@ -1265,29 +1252,6 @@ def initParam(param):
         job['id'] = 'debug'
         param['scriptDebug'] = 'debug'
         print "WARNING: JOBID not found.  Changed to debug mode. Will not launch job."
-
-
-############################################################
-def updateParam(param, paramUpdate):
-    """Update the param dictionary according to terms in paramUpdate"""
-
-    # Updating is recursive in the tree so we can update selected branches
-    # leaving the remainder untouched
-    for b in paramUpdate.keys():
-        try:
-            k = paramUpdate[b].keys()
-            n = len(k)
-        except AttributeError:
-            n = 0
-
-        if b in param.keys() and n > 0:
-            # Keep descending until we run out of branches
-            updateParam(param[b], paramUpdate[b])
-        else:
-            # Then stop, replacing just the last branch or creating a new one
-            param[b] = paramUpdate[b]
-
-    return param
 
 ############################################################
 def loadParams(YAMLAll, YAMLLaunch, YAMLEns, YAMLMachine):

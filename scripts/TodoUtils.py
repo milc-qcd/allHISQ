@@ -47,15 +47,15 @@ def updateParam(param, paramUpdate):
 
     return param
 
-######################################################################
-def loadParam(file):
-    """Read the YAML parameter file"""
+############################################################
+def loadParam(YAML):
+    """Load a YAML parameter file"""
 
+    # Initial parameter file
     try:
-        param = yaml.load(open(file,'r'))
-    except subprocess.CalledProcessError as e:
-        print "WARNING: loadParam failed for", e.cmd
-        print "return code", e.returncode
+        param = yaml.load(open(YAML,'r'))
+    except:
+        print "ERROR: Error loading the parameter file", YAML
         sys.exit(1)
 
     return param
