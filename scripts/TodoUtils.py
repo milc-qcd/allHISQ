@@ -2,6 +2,7 @@
 # spawnjob.py and check_completed.py
 
 import sys, os, yaml, subprocess
+from StringIO import StringIO
 
 ######################################################################
 def lockFileName(todoFile):
@@ -123,3 +124,21 @@ def writeTodo(todoFile, lockFile, todoList):
     todo.close()
 
     removeTodoLock(lockFile)
+
+######################################################################
+def concatenate(files):
+    """Concatenate a list of files into a StringIO object."""
+    out = StringIO()
+    for file in files:
+        with open(file, 'r') as f:
+            out.writelines(f.readlines())
+            out.write('\n')
+    out.seek(0)
+    return out
+
+######################################################################
+def readParams(files):
+    """Load a set of YAML parameter files into a single dictionary.
+    First file in list should contain global YAML references."""
+    filestring = concatenate(files)
+    return yaml.load(filestring)

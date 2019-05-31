@@ -3,6 +3,7 @@ import sys, os, yaml, re, subprocess
 from MILCprompts import *
 from allHISQKeys import *
 from allHISQFiles import *
+from TodoUtils import *
 from Cheetah.Template import Template
 
 ######################################################################
@@ -1338,7 +1339,11 @@ def main():
         sys.exit(1)
 
     # Load the basic parameter set
-    param = loadParams(YAML, YAMLLaunch, YAMLEns, YAMLMachine)
+    # YAMLEns must be read first and must contain global yaml references
+    param = readParams([YAMLEns, YAML, YAMLLaunch, YAMLMachine])
+
+    # Add further initial values to the parameters
+    initParam(param)
 
     # We generate the non-extended staggered propagators first.  So we
     # need to collect a shopping list of propagators.  The list is
@@ -1361,7 +1366,7 @@ def main():
     # and three-points based on the shopping list "hisqProps"
 
     # Restore the initial parameter set
-    param = loadParams(YAML, YAMLLaunch, YAMLEns, YAMLMachine)
+    param = readParams([YAMLEns, YAML, YAMLLaunch, YAMLMachine])
 
     # Switch from KSscan to KSproduction mode
     param['scriptMode'] = 'KSproduction'

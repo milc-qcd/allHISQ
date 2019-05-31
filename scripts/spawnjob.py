@@ -195,17 +195,14 @@ def markQueuedTodoEntries(cfgnos, jobid, todoList):
         todoList[cfg] = [ cfg, "Q", jobid ]
 
 ######################################################################
-def nannyLoop(YAML, YAMLLaunch):
+def nannyLoop(YAMLEns, YAMLMachine, YAMLLaunch):
     """Check job periodically and submit to the queue"""
     
     date = subprocess.check_output("date",shell=True).rstrip("\n")
     hostname = subprocess.check_output("hostname",shell=True).rstrip("\n")
     print date, "Spawn job process", os.getpid(), "started on", hostname
 
-    param = loadParam(YAML)
-
-    paramLaunch = loadParam(YAMLLaunch)
-    param = updateParam(param, paramLaunch)
+    param = readParams([YAMLEns, YAMLMachine, YAMLLaunch])
 
     # Keep going until
     #   we see a file called "STOP" OR
@@ -266,19 +263,16 @@ def nannyLoop(YAML, YAMLLaunch):
         subprocess.call(["sleep", str( param['nanny']['wait'] ) ])
 
         # Reload parameters in case of changes
-        param = loadParam(YAML)
-
-        paramLaunch = loadParam(YAMLLaunch)
-        param = updateParam(param, paramLaunch)
-
+        param = readParams([YAMLEns, YAMLMachine, YAMLLaunch])
 
 ############################################################
 def main():
 
     # Parameter file
-    YAML = "params-machine.yaml"
+    YAMLEns = "params-ens.yaml"
+    YAMLMachine = "params-machine.yaml"
     YAMLLaunch = "../scripts/params-launch.yaml"
-    nannyLoop(YAML, YAMLLaunch)
+    nannyLoop(YAMLEns, YAMLMachine, YAMLLaunch)
 
 
 ############################################################
