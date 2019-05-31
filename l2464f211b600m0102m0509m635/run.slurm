@@ -55,7 +55,7 @@ else
 fi
 
 argList="${cfgs_milc} ${ncases} 1"
-scriptList="../scripts/params-allHISQ-plus.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml"
+scriptList="../scripts/params-allHISQ.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml"
 
 /usr/local/python2/bin/python2.7  ../scripts/make-allHISQ-prompts.py ${argList} ${scriptList}
 

@@ -17,7 +17,7 @@ KSaction:
 job:
   steprange:
     low: 0
-    high: 3
+    high: 4
 
 ######################################################################
 # 2pt correlators.  Their "steps" must precede the 3pts.
@@ -70,7 +70,6 @@ corr2pts:
 # [ quark, source-smearing ]
 # The correlator list values are
 # [ phase, gammaDaughter, gammaCurrent, momentum ]
-
 corr3pts:
   # Vector and tensor-current H-to-pi
   HV2pi:
@@ -102,7 +101,31 @@ corr3pts:
       [  1, GXT-GT, [2, 2, 2] ],
       [ -1, GYT-GT, [2, 2, 2] ],
       [  1, GZT-GT, [2, 2, 2] ],
-      [  1, GXT-GT, [4, 0, 0] ]
+      [  1, GXT-GT, [4, 0, 0] ],
+    ]
+
+  # One-link vector H-to-pi
+  HVx2pi:
+    step: 1
+    spinTasteParent: 'G5-G5'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qlight', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qlight', ['d'] ]
+    select: all
+    correlators: &ref_corrHLVx3ptPS [
+      [ -1, GX-G1,  [1, 0, 0] ],
+      [ -1, GX-G1,  [1, 1, 0] ],
+      [  1, GY-G1,  [1, 1, 0] ],
+      [ -1, GX-G1,  [2, 0, 0] ],
+      [ -1, GX-G1,  [2, 1, 1] ],
+      [  1, GY-G1,  [2, 1, 1] ],
+      [ -1, GZ-G1,  [2, 1, 1] ],
+      [ -1, GX-G1,  [3, 0, 0] ],
+      [ -1, GX-G1,  [2, 2, 2] ],
+      [  1, GY-G1,  [2, 2, 2] ],
+      [ -1, GZ-G1,  [2, 2, 2] ],
+      [ -1, GX-G1,  [4, 0, 0] ],
     ]
 
   # Scalar density H-to-pi
@@ -122,7 +145,7 @@ corr3pts:
       [  1, G1-G1,  [2, 1, 1] ],
       [  1, G1-G1,  [3, 0, 0] ],
       [  1, G1-G1,  [2, 2, 2] ],
-      [  1, G1-G1,  [4, 0, 0] ]
+      [  1, G1-G1,  [4, 0, 0] ],
     ]
 
   # Vector and tensor-current H-to-K
@@ -135,6 +158,17 @@ corr3pts:
     Sq: [ 'qlight', ['d'] ]
     select: all
     correlators: *ref_corrHLV3ptPS
+
+  # One-link vector current H-to-K
+  HVx2K:
+    step: 2
+    spinTasteParent: 'G5-G5'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qstrange', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qlight', ['d'] ]
+    select: all
+    correlators: *ref_corrHLVx3ptPS
 
   # Scalar density H-to-K
   HS2K:
@@ -149,7 +183,7 @@ corr3pts:
 
   # Vector and tensor-current Hs-to-K
   HsV2K:
-    step: 2
+    step: 3
     spinTasteParent: 'G5T-G5T'
     extT: *ref_tSnkHtopi
     Dq: [ 'qlight', ['d'] ]
@@ -158,9 +192,20 @@ corr3pts:
     select: all
     correlators: *ref_corrHLV3ptPS
 
+  # One-link vector Hs-to-K
+  HsVx2K:
+    step: 3
+    spinTasteParent: 'G5-G5'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qlight', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qstrange', ['d'] ]
+    select: all
+    correlators: *ref_corrHLVx3ptPS
+
   # Scalar density Hs-to-K
   HsS2K:
-    step: 2
+    step: 3
     spinTasteParent: 'G5-G5'
     extT: *ref_tSnkHtopi
     Dq: [ 'qlight', ['d'] ]
@@ -191,7 +236,7 @@ corr3pts:
 
   # Vector current Hs-to-Hs
   HsV2Hs:
-    step: 2
+    step: 3
     spinTasteParent: 'G5T-G5T'
     extT: *ref_tSnkHtoH
     Dq: [ 'qheavy', ['d'] ]
@@ -245,3 +290,4 @@ fileCmd:
     save: 'save_partfile_scidac_ks_source'
   corr:
     save: 'save_corr_fnal'
+
