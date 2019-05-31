@@ -1,10 +1,14 @@
 #! /bin/bash
-
-#SBATCH --gres=gpu:2
-#SBATCH -N 2
-#SBATCH -p long
-#SBATCH -C pascal
-#SBATCH -A semibdff-18-19
+# shell script for submitting to PBS
+#
+#SBATCH -p pigpu
+#SBATCH --gres=gpu:4
+####### -M zgelzer@illinois.edu
+####### -m abe
+####### -t (command line in spawnmultijob.py)
+####### -N (command line in spawnmultijob.py)
+####### -J (command line in spawnmultijob.py)
+#SBATCH -A heavylight
 #SBATCH -V
 
 # Submission command must define environment variables LATS, NCASES
@@ -15,15 +19,16 @@
 
 umask 0022
 
+module list
+
 echo "Running on nodes"
 echo $SLURM_JOB_NODELIST
 
-# Job environment
-source ${HOME}/bin/load_modules.sh
-
 cd $HOME/allHISQ/l2464f211b600m0102m0509m635/
 
-# Take predefined parameters from qsub command line:
+export QUDA_RESOURCE_PATH=`pwd`
+export QUDA_ENABLE_P2P=0   #Turn off P2P
+
 if [ -n "${SLURM_SUBMIT_DIR}" ]
 then
   cd ${SLURM_SUBMIT_DIR}
@@ -44,25 +49,23 @@ else
   t0s=(0)
   jobids=("grp")
   ncases=1
-  njobs=0
   pbsjobid=test
   testing=1
   prompt=2
 fi
 
-# location of QUDA tunecache file
-export QUDA_RESOURCE_PATH=${SLURM_SUBMIT_DIR}
-
 argList="${cfgs_milc} ${ncases} 1"
 scriptList="../scripts/params-allHISQ-plus.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml"
 
-python ../scripts/make-allHISQ-prompts.py ${argList} ${scriptList}
+/usr/local/python2/bin/python2.7  ../scripts/make-allHISQ-prompts.py ${argList} ${scriptList}
 
 if [ $? -ne 0 ]
 then
     echo "Exiting because of errors in job"
+    mv slurm-$SLURM_JOB_ID.out slurm-$SLURM_JOB_ID.fail
     exit 1
 else
+    rm slurm-$SLURM_JOB_ID.out
     exit 0
 fi
 
