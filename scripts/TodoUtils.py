@@ -1,8 +1,10 @@
 # Scripts supporting job queue management
 # spawnjob.py and check_completed.py
 
-import sys, os, yaml, subprocess
+import sys, os, yaml, re, subprocess
 from StringIO import StringIO
+from yaml.constructor import ConstructorError
+from yaml.nodes import MappingNode
 
 ######################################################################
 def lockFileName(todoFile):
@@ -136,9 +138,46 @@ def concatenate(files):
     out.seek(0)
     return out
 
+############################################################
+class UniqueKeyLoader(yaml.Loader):
+    """YAML loader class that checks for duplicate keys."""
+    # copy of PyYAML:constructor.construct_mapping until next comment
+    def construct_mapping(self, node, deep=False):
+        if not isinstance(node, MappingNode):
+            raise ConstructorError(None, None,
+                    "expected a mapping node, but found %s" % node.id,
+                    node.start_mark)
+        mapping = {}
+        for key_node, value_node in node.value:
+            key = self.construct_object(key_node, deep=deep)
+            try:
+                hash(key)
+            except TypeError, exc:
+                raise ConstructorError("while constructing a mapping", node.start_mark,
+                       "found unacceptable key (%s)" % exc, key_node.start_mark)
+            # check for duplicate keys
+            if key in mapping:
+                raise ConstructorError("while constructing a mapping", node.start_mark,
+                       "found duplicate key", key_node.start_mark)
+            value = self.construct_object(value_node, deep=deep)
+            mapping[key] = value
+        return mapping
+
 ######################################################################
-def readParams(files):
+def readParams(files, errParse=True, unique=True):
     """Load a set of YAML parameter files into a single dictionary.
     First file in list should contain global YAML references."""
     filestring = concatenate(files)
-    return yaml.load(filestring)
+    if not unique:
+        return yaml.load(filestring)
+    try:
+        return yaml.load(filestring, UniqueKeyLoader)
+    except ConstructorError, error:
+        if not errParse:
+            raise error
+        else: # parse output error to better accommodate traceback
+            duplicates = [int(i.split()[-1]) for i in re.findall(re.compile(r'line \d+'), str(error))]
+            filestring.seek(0)
+            duplicate = filestring.readlines()[duplicates[-1] - 1].strip()
+            raise ValueError('yaml references taken from ' + files[0] +
+                             '.\nFound duplicate key:\n' + duplicate)
