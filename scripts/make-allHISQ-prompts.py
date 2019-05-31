@@ -1331,6 +1331,7 @@ def main():
 
     # Restore the initial parameter set
     param = readParams([YAMLEns, YAML, YAMLLaunch, YAMLMachine])
+    initParam(param)
 
     # Switch from KSscan to KSproduction mode
     param['scriptMode'] = 'KSproduction'
