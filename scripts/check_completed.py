@@ -102,7 +102,8 @@ def purgeProps(param,cfg):
     suffix, cfg = decodeSeriesCfg(cfg)
     configID = codeCfg(suffix, cfg)
     prop = param['files']['prop']
-    subdirs = prop['subdirs'] + [ configID ]
+    subdir = param['files']['root'][prop['root']]
+    subdirs = [ subdir ] + prop['subdirs'] + [ configID ]
     remotePath = os.path.join(*subdirs)
     cmd = ' '.join([ "nohup", "/bin/rm -r", remotePath, "> /dev/null 2> /dev/null &"])
     print cmd
@@ -119,7 +120,8 @@ def purgeRands(param,cfg):
     suffix, cfg = decodeSeriesCfg(cfg)
     configID = codeCfg(suffix, cfg)
     rand = param['files']['rand']
-    subdirs = rand['subdirs'] + [ configID ]
+    subdir = param['files']['root'][rand['root']]
+    subdirs = [ subdir ] + rand['subdirs'] + [ configID ]
     remotePath = os.path.join(*subdirs)
     cmd = ' '.join([ "nohup", "/bin/rm -r", remotePath, "> /dev/null 2> /dev/null &"])
     print cmd
@@ -140,6 +142,25 @@ def purgeSymLinks(param,jobid):
         subprocess.call(cmd, shell=True)
     except subprocess.CalledProcessError as e:
         print "ERROR: rmdir exited with code", e.returncode, "."
+
+######################################################################
+def purgeFiles(param, cfg, filetypes):
+    """Purge files of a given type for the specified jobid"""
+
+    print "Purging files for cfg", cfg
+    suffix, cfg = decodeSeriesCfg(cfg)
+    configID = codeCfg(suffix, cfg)
+    for filetype in filetypes:
+        if filetype not in ['corr', 'out']:
+            raise ValueError('deleting {} files not supported'.format(filetype))
+        io = param['files'][filetype]
+        subdirs = os.path.join(param['files']['root'][io['root']],param['stream'],io['subdir'])
+        cmd = ' '.join([ "find", subdirs, "-name", '?*' + configID, "-exec /bin/rm '{}' \;"])
+        print cmd
+        try:
+            subprocess.call(cmd, shell=True)
+        except subprocess.CalledProcessError as e:
+            print "ERROR: rmdir exited with code", e.returncode, "."
 
 ######################################################################
 def resetTodoEntry(cfg, todoList):
@@ -342,7 +363,8 @@ def checkPendingJobs(YAMLMachine,YAMLEns,YAMLLaunch):
         # Cleanup from complete and incomplete runs
         purgeProps(param,cfg)
         purgeRands(param,cfg)
-        purgeSymLinks(param,jobid)
+        #purgeSymLinks(param,jobid)
+        purgeFiles(param, cfg, ['corr', 'out'])
 
         # Take a cat nap (avoids hammering the login node)
         subprocess.check_call(["sleep", "1"])
