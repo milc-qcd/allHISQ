@@ -1,0 +1,96 @@
+######################################################################
+# Job submission parameters
+######################################################################
+submit:
+  jobname: allHISQ
+  jobScript: run.slurm
+  locale: fnal_pi0g_openmpi
+  walltime: "20:00:00"
+  layout:
+    njobs: &refNjobs 1  # Number of concurrent subjobs within a job (not supported)
+    basenodes: 2        # Number of nodes in one concurrent subjob
+    ppn: 4              # MPI ranks per node
+    layoutSciDAC:       # Node and I/O geometry
+      node: [1, 1, 2, 4]
+      io: [1, 1, 1, 2]
+    jobGeom: [ 1, 1, 1, 1]  # Not supported, yet
+
+nanny:
+  todofile: todo  # Ensemble series letter is included with cfg number
+  maxcases: 1     # Number of cfgs to run in a single job submission
+  maxqueue: 125   # Number of jobs to keep in the queue at one time
+  wait: 60        # Seconds between nanny job checks
+
+######################################################################
+# File system
+######################################################################
+# The file system has four parts
+# These are defined by files/root below
+
+# (1) project: Persistent files common to the entire project (usually the home file system):
+#     See files.root.project below
+
+# (2) remote: Large remote files: lattices, propagators, random source files
+#     etc.  The ensemble name is appended as a subdirectory.
+remoteRoot: '/lqcdproj/diskCache/HISQ'
+
+# (3) archive: Smaller result files: Output correlators, logs
+archiveRoot: '/lqcdproj/heavylight/zgelzer/allHISQ'
+
+# (4) local: Staging location for run-time files.  See files/root/local below.
+
+files:
+  root:
+    project: '/home/zgelzer/allHISQ'
+    local: #'/scratch' # If empty, we do not stage files
+    # member 'remote:' is added by the ensemble script, since it depends on the ensemble ID
+    # member 'archive:' is added by the ensemble script, since it depends on the ensemble ID
+  wavefunction:   # Probably won't use in this project
+    root: 'project'
+    subdirs: ['wavefunction']
+    1S: Richardson_cc_1S.ascii
+  exec:
+    root: 'project'
+    subdirs: ['bin']
+    name: 'ks_spectrum_hisq'
+  latMILCv5:
+    root: 'remote'
+    subdirs: [ 'v5' ]
+  latCoul:
+    root: 'archive' # forces use of v5
+    subdirs: [ 'Coulomb' ]
+  eigen:
+    root: 'archive'
+    subdirs: [ 'eigen' ]
+  rand:
+    root: 'archive'
+    subdirs: [ 'rand' ]
+       # With coherent sources we distinguish the random source file for the spectator
+       # from the file for the daughter. This is done with "spectRnd".
+       # We are not using coherent sources in this project.
+    coherent: 'no'
+  prop:
+    root: 'archive'
+    subdirs: [ 'prop' ]
+  # The subdirectory "stream" is included automatically in the subdirectories listed below
+  corr:
+    root: 'archive'
+    subdir: 'data'
+  in:
+    root: 'archive'
+    subdir: 'logs'
+  out:
+    root: 'archive'
+    subdir: 'logs'
+  err:
+    root: 'archive'
+    subdir: 'logs'
+  log:
+    # The log captures script stdout and stderr
+    # Not working at present, so commented out in the script.
+    root: 'archive'
+    subdir: 'logs'
+  tar:
+    root: 'archive'
+    subdir: 
+    list: [ 'data', 'logs' ]

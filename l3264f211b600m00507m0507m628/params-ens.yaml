@@ -1,0 +1,76 @@
+ensemble:
+  run: 3264f211b600m00507m0507m628
+  dim: [ 32, 32, 32, 64 ]
+  u0: 1               # MILC code forces u0 = 1 for HISQ
+  atrue: 0.12121      # Decay constant paper arXiv 1407.3772 (In case of smearing)
+  afm: '0.12'         # Subdirectory label
+
+tsrcRange:
+  start: 0
+  stop:  64
+  step:  2
+  precess: 3
+
+tSnkHtopi: &ref_tSnkHtopi [ 13, 14, 16, 17 ]
+tSnkHtoH: &ref_tSnkHtoH [ 12, 13, 14, 15 ] 
+
+apelink:
+  weight: 0.05
+  iter: 32
+
+eigen:
+  Nvecs: 0
+
+stream: run1
+
+quarks:
+  qlight:
+    type: KS
+    mass: ['0.005252']
+    naik_epsilon: ['0.']
+    residual_loose:
+      L2: 1e-5
+      R2: 0.
+    residual_fine:
+      L2: 1e-9
+      R2: 0.
+    maxCG: 
+      iters: 4000
+      restarts: 5
+    precision: 2
+
+  qstrange:
+    type: KS
+    mass: ['0.05252']
+    naik_epsilon: ['0.']
+    residual_loose:
+      L2: 1e-5
+      R2: 0.
+    residual_fine:
+      L2: 1e-9
+      R2: 0.
+    maxCG:
+      iters: 2000
+      restarts: 50
+    precision: 2
+
+  qheavy:
+    type: KS
+    mass: ['0.5744','0.6382','0.8935'] # {0.9, 1.0, 1.4} mc
+    naik_epsilon: ['-0.1932308', '-0.2309298', '-0.3899342']
+    residual_loose:
+      L2: 0.
+      R2: 1e-3
+    residual_fine:
+      L2: 0.
+      R2: 1e-5
+    maxCG:
+      iters: 400
+      restarts: 5
+    precision: 2
+
+tarCheck:
+  tarEntries: 3332
+  tarbzip2Size: 43534000
+  tarDataLines: 6668772
+  tarDataWords: 18749544
