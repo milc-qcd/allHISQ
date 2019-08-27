@@ -92,3 +92,13 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
     numa: ''
     jobidName: 'SLURM_JOBID'
     launchScript: ''
+
+  frontera-clx:
+    scheduler: SLURM
+    numa: ''
+#    mpiparam: '-n NP -cpus-per-rank 2'
+    mpiparam: ''
+    mpirun: 'ibrun'
+    jobidName: 'SLURM_JOBID'
+    launchScript: ''
+
