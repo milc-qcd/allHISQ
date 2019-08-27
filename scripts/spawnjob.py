@@ -31,6 +31,16 @@ def countQueue( scheduler,  myjobname ):
     user = os.environ['USER']
 
     if scheduler == 'LSF':
+        # Should sync files before submission
+        cmd = "./setup_rsync.sh"
+        print cmd
+        reply = ""
+        try:
+            reply = subprocess.check_output(cmd, shell=True).splitlines()
+        except subprocess.CalledProcessError as e:
+            print reply
+            print "Job rsync error.  Return code", e.returncode
+            sys.exit(1)
         cmd = ' '.join(["bjobs -u", user, "| grep", user, "| grep -w", myjobname, "| wc -l"])
     elif scheduler == 'PBS':
         cmd = ' '.join(["qstat -u", user, "| grep", user, "| grep -w", myjobname, "| wc -l"])
