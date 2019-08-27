@@ -49,7 +49,8 @@ def stageLattice(param, suffix, cfg):
     # we need the Coulomb gauge-fixed file and the random number source
     # that go with the saved propagator
     name = latFileCoul( run, suffix, cfg )
-    latCoul = StageFile( localRoot, None, root[lat['root']], lat['subdirs'], name, 'r', None, False )
+    latCoul = StageFile( localRoot, None, root[lat['root']], 
+                         lat['subdirs'], name, 'r', None, False )
     inLat = latCoul
     loadLat = (fileCmd['lat']['load'], inLat.path())
     saveLat = ('forget',)
@@ -58,7 +59,8 @@ def stageLattice(param, suffix, cfg):
     if not latCoul.exist():
         name = latFileMILCv5( run, suffix, cfg)
         lat = param['files']['latMILCv5']
-        latMILCv5 = StageFile( localRoot, None, root[lat['root']], lat['subdirs'], name, 'r', None, False )
+        latMILCv5 = StageFile( localRoot, None, root[lat['root']], 
+                               lat['subdirs'], name, 'r', None, False )
         inLat = latMILCv5
         loadLat = (fileCmd['lat']['load'], inLat.path())
 #        See explanation above.
@@ -85,7 +87,8 @@ def stageEigen(param, suffix, cfg):
     localRoot = root['local']
 
     name = latFileEig( run, suffix, cfg )
-    inEigen = StageFile( localRoot, None, root[eig['root']], eig['subdirs'], name, 'r', None, False )
+    inEigen = StageFile( localRoot, None, root[eig['root']], eig['subdirs'], 
+                         name, 'r', None, False )
 
     fileCmd = param['fileCmd']
     loadEigen = (fileCmd['eig']['load'], inEigen.path())
@@ -100,7 +103,8 @@ def fetchWF(param):
     name = wf['1S']
     root = param['files']['root']
     localRoot = root['local']
-    wf1S = StageFile( localRoot, None, root[wf['root']], wf['subdirs'], name, 'r', None, False )
+    wf1S = StageFile( localRoot, None, root[wf['root']], wf['subdirs'], 
+                      name, 'r', None, False )
     if not wf1S.exist():
         if param['scriptDebug'] != 'debug':
             print "ERROR: Can't get wavefunction file."
@@ -124,9 +128,11 @@ def prepareRandomSource(param, tsrcConfigId):
     if rand['coherent'] == 'yes':
         # Files must exist
         name = rndFile('', run, tsrcConfigId)
-        rndDq = StageFile( localRoot, None, root[rand['root']], rand['subdirs'], name, 'r', None, False )
+        rndDq = StageFile( localRoot, None, root[rand['root']], rand['subdirs'], 
+                           name, 'r', None, False )
         name = rndFile('Sq', run, tsrcConfigId)
-        rndSq = StageFile( localRoot, None, root[rand['root']], rand['subdirs'], name, 'r', None, False )
+        rndSq = StageFile( localRoot, None, root[rand['root']], rand['subdirs'], 
+                           name, 'r', None, False )
         if not rndDq.exist() or not rndSq.exist():
             print "ERROR: with coherent random sources",rndDq.name(),"and",rndSq.name(),"must exist"
             if param['scriptDebug'] != 'debug':
@@ -139,8 +145,10 @@ def prepareRandomSource(param, tsrcConfigId):
 
 #        rndDq = StageFile( localRoot, None, root[rand['root']], rand['subdirs'], name, 'x', None, False )
 #        rndSq = StageFile( localRoot, None, root[rand['root']], rand['subdirs'], name, 'x', None, False )
-        rndDq = StageFile( localRoot, None, root[rand['root']], remotePath, name, 'r', None, False )
-        rndSq = StageFile( localRoot, None, root[rand['root']], remotePath, name, 'r', None, False )
+        rndDq = StageFile( localRoot, None, root[rand['root']], remotePath, 
+                           name, 'r', None, False )
+        rndSq = StageFile( localRoot, None, root[rand['root']], remotePath, 
+                           name, 'r', None, False )
     
     # With coherent sources we must distinguish the spectator and daughter random sources
     # Equivalent to antiquark and quark random sources
@@ -326,7 +334,8 @@ def compile3ptCorrelators(param, correlators, quarkKeys, rndQ, rndAq, nstep, tsr
                                     mQkDLab = massLabel(param['quarks'][qkD], mQkD)
                                     massMomDir = massSubdir3pt(mQkPLab, mQkSLab, mQkDLab, mom)
                                     subDirs = [stream, corr['subdir'], residQuality, nptKey, massMomDir]
-                                    corrFile = StageFile(localRoot, subDirs, root[corr['root']], subDirs, name, 'w', None, False)
+                                    corrFile = StageFile(localRoot, subDirs, root[corr['root']], 
+                                                         subDirs, name, 'w', None, False)
                                     correlators.append([corrFile, daughterKey, parentKey, mom, corrAttrsTable[momKey]])
 
     
@@ -362,15 +371,14 @@ def setUpJobTarFile(param, configId):
     name = tarFileName(configId, jobid, tag)
     localpath = os.path.join( root[io['root']] )
     subDirs = [stream]
-    tar = StageFile(localRoot, subDirs, localpath, subDirs, name, 'w', None, False)
+    tar = StageFile(localRoot, subDirs, localpath, subDirs, 
+                    name, 'w', None, False)
 
     return tar
     
 ######################################################################
-def setUpJobIOFiles(param, nstep, tsrcConfigId, kjob, njobs):
+def setUpJobIOFiles(param, nstep, tsrcConfigId, tsrcConfigIdSym, kjob, njobs):
     """Define and open the stdin file, define stdout and stderr and redirect the script stdout, stderr"""
-
-    (tsrc, suffix, cfg) = tsrcConfigId
 
     root = param['files']['root']
     localRoot = root['local']
@@ -386,7 +394,7 @@ def setUpJobIOFiles(param, nstep, tsrcConfigId, kjob, njobs):
 
     io = param['files']['log']
     name = logFileName(run, tsrcConfigId, jobid, tag, step)
-    multiJobName = logFileSymLink(run, tsrcConfigId, jobid, tag, step, kjob, njobs)
+    multiJobName = logFileSymLink(run, tsrcConfigIdSym, jobid, tag, step, kjob, njobs)
     localpath = os.path.join( root[io['root']] )
     # Don't stage the log file.  It contains script information
     # that might be needed in case the job fails.
@@ -398,24 +406,27 @@ def setUpJobIOFiles(param, nstep, tsrcConfigId, kjob, njobs):
 
     io = param['files']['in']
     name = inFileName(run, tsrcConfigId, jobid, tag, step)
-    multiJobName = inFileSymLink(run, tsrcConfigId, jobid, tag, step, kjob, njobs)
+    multiJobName = inFileSymLink(run, tsrcConfigIdSym, jobid, tag, step, kjob, njobs)
     localpath = os.path.join( root[io['root']] )
     subDirs = [stream, io['subdir'], residQuality]
-    stdin = StageFile(localRoot, subDirs, localpath, subDirs, name, 'w', multiJobName, True)
+    stdin = StageFile(localRoot, subDirs, localpath, subDirs, name, 
+                      'w', multiJobName, True)
 
     io = param['files']['out']
     name = outFileName(run, tsrcConfigId, jobid, tag, step)
-    multiJobName = outFileSymLink(run, tsrcConfigId, jobid, tag, step, kjob, njobs)
+    multiJobName = outFileSymLink(run, tsrcConfigIdSym, jobid, tag, step, kjob, njobs)
     localpath = os.path.join( root[io['root']] )
     subDirs = [stream, io['subdir'], residQuality]
-    stdout = StageFile(localRoot, subDirs, localpath, subDirs, name, 'w', multiJobName, True)
+    stdout = StageFile(localRoot, subDirs, localpath, subDirs, name, 
+                       'w', multiJobName, True)
     
     io = param['files']['err']
     name = errFileName(run, tsrcConfigId, jobid, tag, step)
-    multiJobName = errFileSymLink(run, tsrcConfigId, jobid, tag, step, kjob, njobs)
+    multiJobName = errFileSymLink(run, tsrcConfigIdSym, jobid, tag, step, kjob, njobs)
     localpath = os.path.join( root[io['root']] )
     subDirs = [stream, io['subdir'], residQuality]
-    stderr = StageFile(localRoot, subDirs, localpath, subDirs, name, 'w', multiJobName, True)
+    stderr = StageFile(localRoot, subDirs, localpath, subDirs, name, 'w', 
+                       multiJobName, True)
 
     return (stdin, stdout, stderr, stdlog)
     
@@ -435,10 +446,9 @@ def initializePrompts(param, tsrcConfigId):
     return work
 
 ######################################################################
-def startGauge(param, work, loadLat, saveLat, gFix, tsrc):
+def startGauge(param, work, loadLat, saveLat, gFix):
     """Start input parameter set"""
 
-#    uOrigin = [ 0, 0, 0, tsrc ]
     uOrigin = [ 0, 0, 0, 0 ]
     bc = param['KSaction']['bc']
     u0 = param['ensemble']['u0']
@@ -453,6 +463,35 @@ def addEigen(param, work, loadEigen, saveEigen):
 
     eigs = Eigen(loadEigen, Nvecs, saveEigen)
     work.newEigen(eigs)
+
+######################################################################
+def updateSSDList(fileName, jobid):
+    """HACK for Summit and Theta: Add a new file name to the SSDList"""
+
+    cmd = ['echo', fileName, ">> SSDList." + jobid]
+    cmd = ' '.join(cmd)
+    print "#", cmd
+    try:
+        subprocess.check_output(cmd, shell = True)
+    except subprocess.CalledProcessError as e:
+        print "ERROR adding", fileName, "to SSDlist"
+    return
+    
+######################################################################
+def checkSSDList(fileName, jobid):
+    """HACK for Summit and Theta because of its invisible SSD: Check
+    theoretical SSDList to see if a file should now exist"""
+
+    cmd = ['grep', fileName, "SSDList." + jobid, "> /dev/null"]
+    cmd = ' '.join(cmd)
+    print "#", cmd
+    try:
+        lines = subprocess.check_output(cmd, shell = True).splitlines()
+    except subprocess.CalledProcessError as e:
+        print "Not FOUND in SSDlist", fileName
+        return False
+    print "FOUND in SSDlist", fileName
+    return True
 
 ######################################################################
 def createRandomSource(param, work, rndSq, rndDq, tsrcConfigId):
@@ -476,8 +515,12 @@ def createRandomSource(param, work, rndSq, rndDq, tsrcConfigId):
     # Table of source objects for each source key
     sources = dict()
 
-    # If we don't already have the random source, generate it
-    if rndSq.exist():
+    # Theta SSD hack - maintain SSDList to track what is on the invisible SSD
+    jobid = param['job']['id']
+    path = rndSq.path()
+
+    # If we already have the random source, we don't generate it
+    if rndSq.exist() or checkSSDList(path, jobid):
         return (sources, rwParams)
 
     # First create the zero-momentum random_wall source
@@ -485,13 +528,18 @@ def createRandomSource(param, work, rndSq, rndDq, tsrcConfigId):
     save = (fileCmd['src']['save'], rndSq.path())
     src = RandomColorWallSource(tsrc, rwNcolor, rwSubset, rwMom, scaleFactor, rwLabel, save )
     rwSrcDum = work.addBaseSource(src)
-    
+
     # Next create reloaded random wall source for zero momentum
     loadRnd = (fileCmd['src']['load'], rndSq.path())
     saveRnd = ('forget_source',)
 #    saveRnd = ('save_serial_scidac_ks_source', rndSq.pathremote())
-    src = VectorFieldSource(loadRnd, [0,0,0,tsrc], rwNcolor, rwSubset, rwMom, scaleFactor, rwLabel, saveRnd )
+    src = VectorFieldSource(loadRnd, [0,0,0,tsrc], rwNcolor, rwSubset, 
+                            rwMom, scaleFactor, rwLabel, saveRnd )
     sources[makeSrcKey(('d',makeMomKey(rwMom)))] = work.addBaseSource(src)
+    
+    # Summit, Theta SSD hack
+    if param['scriptMode'] != 'KSscan':
+        updateSSDList(path, jobid)
     
     # Do dummy propagator
     # Any quark will do here
@@ -629,13 +677,20 @@ def solveKSProp(param, work, thisSet, propFiles, quarks, quarkKeys,
     remotePath = prop['subdirs'] + [configID]
     propFiles[qkKeyBase] = StageFile(localRoot, None, root[prop['root']], 
                                      remotePath, name, 'r', None, False)
-    if propFiles[qkKeyBase].exist():
+    # Theta and Summit hack
+    jobid = param['job']['id']
+    path = propFiles[qkKeyBase].path()
+    if propFiles[qkKeyBase].exist() or checkSSDList(path, jobid):
         load = (fileCmd['propKS']['load'],propFiles[qkKeyBase].path())
         save = ('forget_ksprop',)
 #        save = (fileCmd['propKS']['save'], propFiles[qkKeyBase].path())
     else:
         load = ('fresh_ksprop',)
         save = (fileCmd['propKS']['save'], propFiles[qkKeyBase].path())
+        # Summit, Theta SSD hack
+        if param['scriptMode'] != 'KSscan':
+            updateSSDList(propFiles[qkKeyBase].path(), param['job']['id'])
+    
     deflate = None
     if param['eigen']['Nvecs'] > 0:
         deflate = quark['deflate'] 
@@ -797,7 +852,7 @@ def createCorrelators(param, work, quarks, correlators, rwParams, fileCmd, tsrc)
         spectSave = ( fileCmd['corr']['save'], corrFile.path() )
         spect = MesonSpectrum(quarks[aQKey], quarks[QKey], rOffset, npts, spectSave)
 
-        if param['scriptMode'] != 'KSScan':
+        if param['scriptMode'] != 'KSscan':
             work.addMeson(spect)
 
 ######################################################################
@@ -835,14 +890,18 @@ def rebuildKSQuarkKeys(param, quarkKeys):
         appendUnique(quarkKeys, qkKeyMod)
 
 ######################################################################
-def createMILCprompts(param, nstep, tsrc, kjob, seriesCfg, njobs):
+def createMILCprompts(param, nstep, tsrc, tsrc0, kjob, seriesCfg, njobs):
     """Create MILC prompts based on YAML file.  Do this for this cfg, tsrc, and nstep"""
 
     suffix, cfg = decodeSeriesCfg(seriesCfg)
     tsrcConfigId = (tsrc, suffix, int(cfg))
+    # In case of multijob,we create symlinks with a base name followed by .jnn
+    # We use tsrc0 in the base name
+    tsrcConfigIdSym = (tsrc0, suffix, int(cfg))
     
     # Construct job stdio, stdout, stderr, log file
-    (stdin, stdout, stderr, stdlog) = setUpJobIOFiles(param, nstep, tsrcConfigId, kjob, njobs )
+    (stdin, stdout, stderr, stdlog) = setUpJobIOFiles(param, nstep, tsrcConfigId,
+                                                      tsrcConfigIdSym, kjob, njobs )
     
     # Stage lattice file
     (latCoul, loadLat, saveLat, gFix) = stageLattice(param, suffix, cfg)
@@ -877,16 +936,18 @@ def createMILCprompts(param, nstep, tsrc, kjob, seriesCfg, njobs):
                 print qK
 
     # Add gauge load and gauge-fix stanzas
-    startGauge(param, work, loadLat, saveLat, gFix, tsrc)
+    startGauge(param, work, loadLat, saveLat, gFix)
 
     # Add eigenpair specification
     addEigen(param, work, loadEigen, saveEigen)
 
     # Generate commands for creating the random sources
-    (sources, rwParams) = createRandomSource(param, work, rndSq, rndDq, tsrcConfigId)
+    (sources, rwParams) = createRandomSource(param, work, rndSq, rndDq, 
+                                             tsrcConfigId)
     
     # Construct quark propagators (including extended ones) from the quark key list
-    (quarks, propFiles) = createKSQuarks(param, work, sources, quarkKeys, rwParams, rndSq, wf1S, tsrcConfigId)
+    (quarks, propFiles) = createKSQuarks(param, work, sources, quarkKeys, 
+                                         rwParams, rndSq, wf1S, tsrcConfigId)
     
     # Create correlators
     createCorrelators(param, work, quarks, correlators, rwParams, param['fileCmd'], tsrc)
@@ -940,7 +1001,8 @@ def launchJob(param, asciiIOFileSet, njobs):
     root = param['files']['root']
     # We don't stage the executable on the localRoot directory because it must be
     # visible to all nodes
-    binFile = StageFile( None, None, root[bin['root']], bin['subdirs'], name, 'r', None, False)
+    binFile = StageFile( None, None, root[bin['root']], bin['subdirs'], 
+                         name, 'r', None, False)
     execFile = binFile.path()
     # qmp parameters
     qmpgeom = " -qmp-geom %d %d %d %d" % tuple(param['submit']['layout']['layoutSciDAC']['node'])
@@ -1104,42 +1166,35 @@ def purgeProps(binFileList):
         propFiles[p].delete_staged()
     
 ############################################################
-def doJobSteps(param, tsrcBase, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets):
+def doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets, 
+               binIOFileSets):
     """Do the job steps for the given base source time"""
 
-    # Compute the precession shift for the source times, based on the first cfg number in this group
-    tsrcRange = param['tsrcRange']
-    suffix, cfg = decodeSeriesCfg(seriesCfgsrep[0])
-    tShift = int(cfg)*tsrcRange['precess']
-
-    # Add precession shift mod nt
-    nt = param['ensemble']['dim'][3]
-    tsrc = (tsrcBase + tShift) % nt
-
     # FOR TSM TUNING ONLY!!
-    # tsrc = 0
+    # tsrcs = [ 0 ] * njobs
 
     # Job steps for all cfgs in this group
     steprange = param['job']['steprange']
     for nstep in range(steprange['low'], steprange['high']):
 
-        print "Processing", param['scriptMode'], seriesCfgsrep, "for step", nstep, "tsrc", tsrc
+        print "Processing", param['scriptMode'], seriesCfgsrep, "for step", nstep, "tsrc", tsrcs
 
         # Create MILC prompts and filenames for all cfgs in
-        # this group for this tsrc and all steps
+        # this group for these tsrcs and all steps
         for kjob in range(njobs):
             seriesCfg = seriesCfgsrep[kjob]
-            a, b = createMILCprompts(param, nstep, tsrc, kjob, seriesCfg, njobs)
-            seriesCfgSrc = encodeSeriesCfgSrc(seriesCfg,str(tsrc))
+            # For multijob compatiblity, the base name is based on the first tsrc
+            a, b = createMILCprompts(param, nstep, tsrcs[kjob], tsrcs[0], kjob, seriesCfg, njobs)
+            seriesCfgSrc = encodeSeriesCfgSrc(seriesCfg,str(tsrcs[kjob]))
             asciiIOFileSets[seriesCfgSrc] = a
             binIOFileSets[seriesCfgSrc] = b
 
         # Launch the job for this group (unless we are just scanning)
         # For multijob compatibility, use the first entry in the list for stdin, stdout, stderr
         if param['scriptMode'] != 'KSscan':
-            print "Launching set", seriesCfgsrep, "for step", nstep, "tsrc", tsrc
+            print "Launching set", seriesCfgsrep, "for step", nstep, "tsrcs", tsrcs
             status = launchJob(param, 
-                               asciiIOFileSets[encodeSeriesCfgSrc(seriesCfgsrep[0],str(tsrc))], njobs)
+                               asciiIOFileSets[encodeSeriesCfgSrc(seriesCfgsrep[0],str(tsrcs[0]))], njobs)
 
             # List files created
             if param['files']['root']['local'] != None:
@@ -1184,25 +1239,49 @@ def runParam(seriesCfgs, ncases, njobs, param):
         for seriesCfg in seriesCfgsrep:
             tarFileSets[seriesCfg] = defineTarFile(param, seriesCfg)
 
-        # Loose calculation
-        param['residQuality'] = 'loose'
-        # Iterate over source times for all cfgs in this group
-        tsrcRange = param['tsrcRange']
+        tsrcRange = param['tsrcRange']['loose']
         trange = range(tsrcRange['start'], tsrcRange['stop'], tsrcRange['step'])
-        for tsrcBase in trange:
-            doJobSteps(param, tsrcBase, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
+        if 1:
+            # Loose calculation -- Iterate over all source times
+            param['residQuality'] = 'loose'
+            for tsrcBase in trange:
+                tsrcs = [ tsrcBase ] * njobs
+                nt = param['ensemble']['dim'][3]
+                for kjob in range(njobs):
+                    # Compute the precession shift for the source times, 
+                    # based on the cfg number in this group
+                    suffix, cfg = decodeSeriesCfg(seriesCfgsrep[kjob])
+                    if len(suffix) == 0:
+                        suffix = 'a'
+                    cfgSep = param['cfgsep'][suffix]
+                    tShift = int(cfg)/cfgSep*tsrcRange['precess']
+                    
+                    # Add precession shift mod nt
+                    tsrcs[kjob] = (tsrcBase + tShift) % nt
+
+                print "Loose calculation with tsrcs", tsrcs
+                doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
 
         # Fine calculation -- only one source time per lattice
-        # If we are running partial t ranges with multijob, one job per lattice, we want
-        # all job components to do their fine solves together or not at all.
-        # We assume that 0 is always done once per lattice
-        if 0 in trange:
+        # If we are running partial t ranges with multijob, 
+        # one job per lattice, we want all job components to do 
+        # their fine solves together or not at all.
+        tsrcRange = param['tsrcRange']['fine']
+        trange = range(tsrcRange['start'], tsrcRange['stop'], tsrcRange['step'])
+        for tsrcBase in trange:
             param['residQuality'] = 'fine'
-            # Fine solve times precess over the loose times, based on the first cfg number in this group
-            suffix, cfg = decodeSeriesCfg(seriesCfgsrep[0])
-            tFineShift = int(cfg)*tsrcRange['step']
-            tsrcBase = ( tsrcRange['start'] + tFineShift ) % param['ensemble']['dim'][3]
-            doJobSteps(param, tsrcBase, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
+            tsrcs = [ tsrcBase ] * njobs
+            nt = param['ensemble']['dim'][3]
+            for kjob in range(njobs):
+                suffix, cfg = decodeSeriesCfg(seriesCfgsrep[kjob])
+                if len(suffix) == 0:
+                    suffix = 'a'
+                cfgSep = param['cfgsep'][suffix]
+                # Fine solve times precess over times ranging from 0 to nt by the loose step
+                tFineShift = int(cfg)/cfgSep*tsrcRange['precess']*param['tsrcRange']['loose']['step']
+                tsrcs[kjob] = ( tsrcRange['start'] + tFineShift ) % nt
+            print "Fine calculation with tsrcBase", tsrcs
+            doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
 
         if param['scriptMode'] != 'KSscan':
             # Create and store tar files, one for each cfg
