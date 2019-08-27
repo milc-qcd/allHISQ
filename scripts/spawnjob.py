@@ -157,9 +157,9 @@ def submitJob(param, cfgnos, jobScript):
     elif scheduler == 'PBS':
         cmd = [ "qsub", "-l", ",".join(["nodes="+str(nodes), "walltime="+walltime]), "-N", jobname, jobScript ]
     elif scheduler == 'SLURM':
-        cmd = [ "sbatch", "-N", str(nodes), "-t", walltime, "-J", jobname, archflags, jobScript ]
+        cmd = [ "sbatch", "-N", str(nodes), "-n", NP, "-t", walltime, "-J", jobname, archflags, jobScript ]
     elif scheduler == 'Cobalt':
-        cmd = [ "qsub", "-A Semileptonic", "-n", str(nodes), "-t", walltime, "--jobname", jobname, archflags, "--mode script", "--env LATS="+LATS+":NCASES="+NCASES+":NJOBS="+NJOBS+":NP="+NP, jobScript ]
+        cmd = [ "qsub", "-A LatticeQCD_3", "-n", str(nodes), "-t", walltime, "--jobname", jobname, archflags, "--mode script", "--env LATS="+LATS+":NCASES="+NCASES+":NJOBS="+NJOBS+":NP="+NP, jobScript ]
     else:
         print "Don't recognize scheduler", scheduler
         print "Quitting"
@@ -186,7 +186,7 @@ def submitJob(param, cfgnos, jobScript):
         jobid = reply[0].split(".")[0]
     elif scheduler == 'SLURM':
         # Submitted batch job 10059729
-        jobid = reply[0].split()[3]
+        jobid = reply[len(reply)-1].split()[3]
     elif scheduler == 'Cobalt':
         # ** Project 'semileptonic'; job rerouted to queue 'prod-short'
         # ['1607897']
