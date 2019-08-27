@@ -73,7 +73,8 @@ def checkSSDList(path):
 # 'r' in "mode" means must fetch.  Store if it doesn't exist.
 class StageFile:
     """Staging and saving files"""
-    def __init__(self, localDir, localSubdirs, remoteDir, remoteSubdirs, name, mode, multiJobName, createLink):
+    def __init__(self, localDir, localSubdirs, remoteDir, remoteSubdirs, name, mode, 
+                 multiJobName, createLink):
         self.localDir = localDir
         self.remoteDir = remoteDir
         self.localSubdirs = localSubdirs
