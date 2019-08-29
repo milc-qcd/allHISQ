@@ -299,7 +299,7 @@ corr3pts:
     extT: *ref_tSnkHtoH
     Dq: [ 'qheavy', ['d'] ]
     Pq: [ 'qheavy' ]
-    Sq: [ 'qlight', ['d'] ]
+    Sq: [ 'qstrange', ['d'] ]
     select: all
     correlators: *ref_corrHHS3ptPS
 
