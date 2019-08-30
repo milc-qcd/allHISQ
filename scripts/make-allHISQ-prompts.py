@@ -69,7 +69,7 @@ def stageLattice(param, suffix, cfg):
         gFix = 'no_gauge_fix'  # Force use of the v5 lattice
         saveLat = ('forget',) # and don't save a copy.
         if not latMILCv5.exist():
-            print "ERROR: No lattice found"
+            print "ERROR: lattice", inLat.path(), "not found"
             if param['scriptDebug'] != 'debug':
                 sys.exit(1)
 
@@ -519,21 +519,21 @@ def createRandomSource(param, work, rndSq, rndDq, tsrcConfigId):
     jobid = param['job']['id']
     path = rndSq.path()
 
-    # If we already have the random source, we don't generate it
+    # If we don't already have the random source, generate it
     if rndSq.exist() or checkSSDList(path, jobid):
         return (sources, rwParams)
 
     # First create the zero-momentum random_wall source
     rwMom = [0, 0, 0]
     save = (fileCmd['src']['save'], rndSq.path())
-    src = RandomColorWallSource(tsrc, rwNcolor, rwSubset, rwMom, scaleFactor, rwLabel, save )
+    src = RandomColorWallSource(tsrc, rwNcolor, "KS", rwSubset, rwMom, scaleFactor, rwLabel, save )
     rwSrcDum = work.addBaseSource(src)
 
     # Next create reloaded random wall source for zero momentum
     loadRnd = (fileCmd['src']['load'], rndSq.path())
     saveRnd = ('forget_source',)
 #    saveRnd = ('save_serial_scidac_ks_source', rndSq.pathremote())
-    src = VectorFieldSource(loadRnd, [0,0,0,tsrc], rwNcolor, rwSubset, 
+    src = VectorFieldSource(loadRnd, [0,0,0,tsrc], rwNcolor, "KS", rwSubset, 
                             rwMom, scaleFactor, rwLabel, saveRnd )
     sources[makeSrcKey(('d',makeMomKey(rwMom)))] = work.addBaseSource(src)
     
@@ -580,7 +580,7 @@ def makeBaseSource(work, sources, srcKeyBase, rwParams, fileCmd, rndSq, tsrc):
         load = (fileCmd['src']['load'], rndSq.path())
         save =('forget_source',)
         rwMom = splitMomKey(momKey)
-        src = VectorFieldSource(load, [0,0,0,tsrc], rwNcolor, rwSubset, rwMom, scaleFactor, rwLabel, save )
+        src = VectorFieldSource(load, [0,0,0,tsrc], rwNcolor, "KS", rwSubset, rwMom, scaleFactor, rwLabel, save )
         ptSrc = sources[srcKeyBase] = work.addBaseSource(src)
 
     return ptSrc
@@ -1389,7 +1389,7 @@ def loadParams(YAMLAll, YAMLLaunch, YAMLEns, YAMLMachine):
 
 ############################################################
 def main():
-    
+
     # Set permissions
     os.system("umask 022")
 
@@ -1411,6 +1411,8 @@ def main():
     seriesCfgs = cfgList.split("/")    
     ncases = int(ncases)
     njobs = int(njobs)         
+
+    print "Have args", cfgList, ncases, njobs, YAML, YAMLLaunch, YAMLEns, YAMLMachine
 
     if ncases % njobs != 0:
         print "ERROR: Number of cases", ncases, "must be divisible by the number of jobs", njobs
