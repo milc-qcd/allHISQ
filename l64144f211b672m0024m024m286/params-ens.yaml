@@ -19,8 +19,8 @@ tSnkHtoH: &ref_tSnkHtoH [ 13, 14, 15, 16 ]
 #tSnkHtoH: &ref_tSnkHtoH [ 24, 25, 27, 30 ] 
 
 apelink:              # Applies only to links in point-split operators
-  weight: 0.1
-  iter: 64
+  weight: 0.05
+  iter: 20
 
 eigen:
   Nvecs: 0
