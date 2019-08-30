@@ -519,7 +519,7 @@ def createRandomSource(param, work, rndSq, rndDq, tsrcConfigId):
     jobid = param['job']['id']
     path = rndSq.path()
 
-    # If we don't already have the random source, generate it
+    # If we already have the random source, we don't generate it
     if rndSq.exist() or checkSSDList(path, jobid):
         return (sources, rwParams)
 
