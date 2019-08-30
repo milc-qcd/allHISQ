@@ -8,10 +8,6 @@ KSaction:
   stride: 2           # In case we want smearing
   bc: 'antiperiodic'  # Applies to all propagators
 
-apelink:              # Applies only to links in point-split operators
-  weight: 0.05
-  iter: 20
-
 ######################################################################
 # Correlators
 ######################################################################
