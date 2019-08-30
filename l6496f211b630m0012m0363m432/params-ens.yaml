@@ -32,6 +32,10 @@ cfgsep:
 tSnkHtopi: &ref_tSnkHtopi  [ 16, 17, 19, 22, 25 ]
 tSnkHtoH: &ref_tSnkHtoH    [ 14, 15, 17, 20, 21 ]
 
+apelink:              # Applies only to links in point-split operators
+  weight: 0.05
+  iter: 20
+
 eigen:
   Nvecs: 0
 
