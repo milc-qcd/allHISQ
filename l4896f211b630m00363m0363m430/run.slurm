@@ -65,7 +65,7 @@ scriptList="../scripts/params-allHISQ-plus3.yaml ../scripts/params-launch.yaml p
 echo "Removing any leftover correlators"
 ./purge_corrs.sh ${LATS} ${NCASES}
 
-python ../scripts/make-allHISQ-prompts.py ${argList} ${scriptList}
+python ../scripts/make-allHISQ-prompts-NoHiddenSSD.py ${argList} ${scriptList}
 
 if [ $? -ne 0 ]
 then
