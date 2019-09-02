@@ -8,8 +8,7 @@ ensemble:
 tsrcRange:
   loose:
     start: 0
-#    stop:  192
-    stop:  12
+    stop:  96
     step:  6
     precess: 5
   fine:
@@ -23,8 +22,8 @@ cfgsep:
   a: 6
   x: 4    # For testing
 
-tSnkHtopi: &ref_tSnkHtopi [ 23, 30, 34, 37 ]
-tSnkHtoH: &ref_tSnkHtoH   [ 20, 23, 27, 30 ]
+tSnkHtopi: &ref_tSnkHtopi [ 25, 28, 30, 34, 37 ]
+tSnkHtoH: &ref_tSnkHtoH   [ 22, 23, 26, 29, 32 ]
 #tSnkHtopi: &ref_tSnkHtopi [ 13, 14, 15, 16 ]
 #tSnkHtoH: &ref_tSnkHtoH [ 13, 14, 15, 16 ]
 
@@ -35,7 +34,7 @@ apelink:              # Applies only to links in point-split operators
 eigen:
   Nvecs: 0
 
-stream: run0
+stream: run1a
 
 ######################################################################
 # Quark parameters
