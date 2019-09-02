@@ -60,7 +60,7 @@ export OMP_NUM_THREADS=8
 export OMPI_MCA_btl_openib_connect_udcm_max_retry=1000
 
 argList="${LATS} ${ncases} 1"
-scriptList="../scripts/params-allHISQ-plus3.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml"
+scriptList="../scripts/params-allHISQ-plus4.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml"
 
 echo "Removing any leftover correlators"
 ./purge_corrs.sh ${LATS} ${NCASES}
