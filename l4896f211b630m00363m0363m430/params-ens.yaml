@@ -1,0 +1,128 @@
+ensemble:
+  run: 4896f211b630m00363m0363m430
+  dim: [ 48, 48, 48, 96 ]
+  u0: 1               # Simone 10/21/2015 (MILC code forces u0 = 1 for HISQ)
+  atrue: 0.08791      # Decay constant paper arXiv 1407.3772 (In case of smearing)
+  afm: '0.09'         # Subdirectory label
+
+tsrcRange:
+  loose:
+    start: 0
+#    stop:  48
+    stop:  4
+    step:  4
+    precess: 2
+  fine:
+    start: 0
+    stop: 96
+    step: 96
+    precess: 3
+
+# Intervals between configuration numbers
+cfgsep:
+  a: 6
+  x: 4    # For testing
+
+# run1
+#tSnkHtopi: &ref_tSnkHtopi [ 13, 14, 15, 16 ]
+#tSnkHtoH: &ref_tSnkHtoH [ 13, 14, 15, 16 ]
+
+# run2
+#tSnkHtopi: &ref_tSnkHtopi [ 19, 22, 25 ]
+#tSnkHtoH: &ref_tSnkHtoH [ 17, 20, 21 ]
+
+# run2
+tSnkHtopi: &ref_tSnkHtopi [ 16, 19, 22, 25 ]
+tSnkHtoH: &ref_tSnkHtoH [ 14, 17, 20, 21 ]
+
+apelink:              # Applies only to links in point-split operators
+  weight: 0.05
+  iter: 20
+
+eigen:
+  Nvecs: 0
+
+stream: run0
+
+######################################################################
+# Quark parameters
+######################################################################
+quarks:
+  qlight:
+    type: KS
+    mass: ['0.00363']
+    naik_epsilon: ['0.']
+    residual_loose:
+      L2: 4e-3
+      R2: 0.
+    residual_fine:
+      L2: 1e-7
+      R2: 0.
+    maxCG: 
+      iters: 4000
+      restarts: 5
+    precision: 2
+    deflate: 'yes'
+
+  qstrange:
+    type: KS
+    mass: ['0.0363']
+    naik_epsilon: ['0.']
+    residual_loose:
+      L2: 4e-3
+      R2: 0.
+    residual_fine:
+      L2: 1e-7
+      R2: 0.
+    maxCG:
+      iters: 2000
+      restarts: 5
+    precision: 2
+    deflate: 'no'
+
+  qheavy:
+    type: KS
+    mass: ['0.389','0.432','0.648','0.864','1.080' ]   # 0.9, 1.0, 1.5, 2.0, 2.5 mc (match phys ensemble values)
+    naik_epsilon: ['-0.0957', '-0.1162', '-0.2368', '-0.3711', '-0.5168']
+    residual_loose:
+      L2: 0.
+      R2: 1e-5
+    residual_fine:
+      L2: 0.
+      R2: 1e-5
+    maxCG:
+      iters: 400
+      restarts: 5
+    precision: 2
+    deflate: 'no'
+
+tarCheck:             # For checking that the output tarball is complete
+# For extended run with 3 T values
+#  tarEntries: 4815
+#  tarbzip2Size: 50217442
+#  tarDataLines: 6894333
+#  tarDataWords: 19682226
+
+# For initial run with 4 T values and 24 source times
+#  tarEntries: 6377
+#  tarbzip2Size: 95704371
+#  tarDataLines: 13415100
+#  tarDataWords: 38294200
+
+# For initial run with 4 T values and 12 source times
+
+#  tarEntries: 6269
+#  tarbzip2Size: 50000000
+#  tarDataLines: 6975852
+#  tarDataWords: 19912984
+
+# For initial run with 4 T values and 12 source times, but no fine solves
+
+  tarEntries: 3184
+  tarbzip2Size: 46000000
+  tarDataLines: 6439248
+  tarDataWords: 18381216
+
+
+
+

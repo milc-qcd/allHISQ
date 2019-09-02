@@ -54,8 +54,6 @@ def makePath(path):
             os.makedirs(path)
         except OSError:
             print "WARNING: Can't create directories", path
-            subprocess.call("ls -l /local/scratch", shell = True)
-            # sys.exit(1)
 
 #####################################################################
 def checkSSDList(path):
