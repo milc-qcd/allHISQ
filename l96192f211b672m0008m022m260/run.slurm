@@ -69,7 +69,7 @@ export OMPI_MCA_btl_openib_connect_udcm_max_retry=1000
 #export I_MPI_STATS_FILE=mpi_profile_N2n2t56
 
 argList="${cfgs_milc} ${ncases} ${njobs}"
-scriptList="../scripts/params-allHISQ-plus3.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml"
+scriptList="../scripts/params-allHISQ-plus4.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml"
 
 echo "Removing any leftover correlators"
 ./purge_corrs.sh ${LATS} ${NCASES}
@@ -78,7 +78,6 @@ if [ $testing -eq 0 ]
 then
     echo "Creating directories on all SSDs"
     ibrun ./make_ssd_dirs.sh ${LATS} ${NCASES}
-    ibrun ls -l /tmp/rand /tmp/prop
 fi
 
 python ../scripts/make-allHISQ-prompts-NoHiddenSSD.py ${argList} ${scriptList}
