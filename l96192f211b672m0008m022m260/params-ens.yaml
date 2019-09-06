@@ -27,10 +27,6 @@ tSnkHtoH: &ref_tSnkHtoH   [ 22, 23, 26, 29, 32 ]
 #tSnkHtopi: &ref_tSnkHtopi [ 13, 14, 15, 16 ]
 #tSnkHtoH: &ref_tSnkHtoH [ 13, 14, 15, 16 ]
 
-apelink:              # Applies only to links in point-split operators
-  weight: 0.05
-  iter: 20
-
 eigen:
   Nvecs: 0
 
