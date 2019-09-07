@@ -28,6 +28,10 @@ def addRootPaths(param):
     archiveRoot = archiveRootDir(param['archiveRoot'], afm, lrun)
     # Add to the parameter dictionary
     root['remote'] = remoteRoot
+    try:
+        root['remoteSSD'] = os.environ['DW_JOB_STRIPED']
+    except KeyError:
+        print "Warning, DW_JOB_STRIPED not defined"
     root['archive'] = archiveRoot
 
 ######################################################################

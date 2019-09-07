@@ -43,6 +43,13 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
     numa: '--distribution=cyclic:cyclic --cpu_bind=sockets --mem_bind=no'
     jobidName: 'SLURM_JOBID'
 
+  nersc_cori:
+    scheduler: SLURM
+    mpiparam: '-n NP -c 16 --cpu_bind=cores'
+    mpirun: 'srun'
+    numa: 'numactl -m 0'
+    jobidName: 'SLURM_JOBID'
+
   alcf_bgq:
     scheduler: Cobalt
 #    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 --mapping /gpfs/mira-home/detar/mapfiles/n4096c32s448162g16161632.map :'
