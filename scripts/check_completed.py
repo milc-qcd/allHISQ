@@ -248,6 +248,24 @@ def checkComplete(param, tarFile):
         print "ERROR: missing entries: tar file", tarFile, "entry count", entries
         return False
 
+    # We check for the correct number of data lines and words                   
+    try:
+        reply = subprocess.check_output("tar -Oxjf " + tarFile + " data | wc",
+shell = True)
+    except subprocess.CalledProcessError as e:
+        print "Error checking for data-line count", tarFile
+        return False
+    lines = int(reply.split()[0])
+    words = int(reply.split()[1])
+
+    if lines != param['tarCheck']['tarDataLines']:
+        print "ERROR: data lines", lines, "do not match", param['tarCheck']['tarDataLines'], "in tar file", tarFile
+        return False
+
+    if words != param['tarCheck']['tarDataWords']:
+        print "ERROR: data words", words, "do not match", param['tarCheck']['tarDataWords'], "in tar file", tarFile
+        return False
+
     # We check for nonconvergence, signaled by lines with "NOT"
     try:
         reply = subprocess.check_output("tar -Oxjf " + tarFile + " logs | grep NOT | wc -l", shell = True)
