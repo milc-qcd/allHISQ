@@ -169,13 +169,15 @@ def submitJob(param, cfgnos, jobScript):
     print cmd
     reply = ""
     try:
-        reply = subprocess.check_output(cmd, shell=True).splitlines()
+        reply = subprocess.check_output(cmd, shell=True)
     except subprocess.CalledProcessError as e:
         print reply
         print "Job submission error.  Return code", e.returncode
         sys.exit(1)
 
     print reply
+
+    reply = reply.splitlines()
 
     # Get job ID
     if scheduler == 'LSF':
