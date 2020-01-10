@@ -2,27 +2,24 @@
 # Job submission parameters
 ######################################################################
 submit:
-  jobname: allHISQ
-  jobScript: run.lsf
-  locale: summit
-#  walltime: "12:00"
-  walltime: "2:00"
+  jobname: allHISQsky
+  jobScript: run.slurm
+  locale: bnl-skylake
+  walltime: "12:00"
   layout:
-#    njobs: &refNjobs 24  # Number of concurrent subjobs within a job (not supported)
     njobs: &refNjobs 1  # Number of concurrent subjobs within a job (not supported)
-    basenodes: 4        # Number of nodes in one concurrent subjob
-    ppn: 1              # MPI ranks per node
+    basenodes: 32       # Number of nodes in one concurrent subjob
+    ppn: 32             # MPI ranks per node
     layoutSciDAC:       # Node and I/O geometry
-#      node: [1, 1, 2, 288]
-      node: [1, 1, 2, 12]
-      io: [1, 1, 2, 12]
-    jobGeom: [ 1, 1, 1, *refNjobs ]
+      node: [ 4, 8, 4, 8]
+      io: [4, 8, 8, 8]
+    jobGeom: [ *refNjobs, 1, 1, 1]
 
 nanny:
   todofile: todo  # Ensemble series letter is included with cfg number
 #  maxcases: 24    # Number of cfgs to run in a single job submission
-  maxcases: 1    # Number of cfgs to run in a single job submission
-  maxqueue: 20    # Number of jobs to keep in the queue at one time
+  maxcases: 1     # Number of cfgs to run in a single job submission
+  maxqueue: 1     # Number of jobs to keep in the queue at one time
   wait: 30        # Seconds between nanny job checks
 
 ######################################################################
@@ -36,18 +33,18 @@ nanny:
 
 # (2) remote: Large remote files: lattices, propagators, random source files
 #     etc.  The ensemble name is appended as a subdirectory.
-remoteRoot: '/gpfs/alpine/proj-shared/phy131/detar/allHISQ/scratch'
+remoteRoot: '/hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ'
 
 # (3) archive: Smaller result files: Output correlators, logs
-archiveRoot: '/gpfs/alpine/proj-shared/phy131/detar/allHISQ'
+archiveRoot: '/hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project'
 
 # (4) local: Staging location for run-time files.  See files/root/local below.
 
 files:
   root:
-    project: '/gpfs/alpine/proj-shared/phy131/detar/allHISQ'
+    project: '/sdcc/u/detar/allHISQ-skx'
     local: # If empty, we do not stage files
-    remoteSSD: '/mnt/bb/detar'
+    # remoteSSD: '/local/scratch'
     # member 'remote:' is added by the ensemble script, since it depends on the ensemble ID
     # member 'archive:' is added by the ensemble script, since it depends on the ensemble ID
   wavefunction:   # Probably won't use in this project
@@ -68,14 +65,14 @@ files:
     root: 'remote'
     subdirs: [ 'eigen' ]
   rand:
-    root: 'remoteSSD'
+    root: 'remote'
     subdirs: [ 'rand' ]
        # With coherent sources we distinguish the random source file for the spectator
        # from the file for the daughter. This is done with "spectRnd".
        # We are not using coherent sources in this project.
     coherent: 'no'
   prop:
-    root: 'remoteSSD'
+    root: 'remote'
     subdirs: [ 'prop' ]
   # The subdirectory "stream" is included automatically in the subdirectories listed below
   corr:
