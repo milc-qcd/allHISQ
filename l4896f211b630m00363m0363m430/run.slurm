@@ -4,7 +4,7 @@
 #SBATCH -N 4
 #SBATCH -p long
 ####### -C pascal
-#SBATCH -A semibdff-19-20
+#SBATCH -A semibdff-sky-2-19-20
 #SBATCH -e stderrJob%jnode%n
 #SBATCH -o stdoutJob%jnode%n
 #SBATCH -V
