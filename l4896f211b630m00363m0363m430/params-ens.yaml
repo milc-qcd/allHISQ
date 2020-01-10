@@ -7,13 +7,12 @@ ensemble:
 
 tsrcRange:
   loose:
-    start: 0
-#    stop:  48
-    stop:  4
+    start: 32
+    stop:  64
     step:  4
     precess: 2
   fine:
-    start: 0
+    start: 96
     stop: 96
     step: 96
     precess: 3
@@ -42,7 +41,7 @@ apelink:              # Applies only to links in point-split operators
 eigen:
   Nvecs: 0
 
-stream: run0
+stream: run3b
 
 ######################################################################
 # Quark parameters
@@ -85,10 +84,10 @@ quarks:
     mass: ['0.389','0.432','0.648','0.864','1.080' ]   # 0.9, 1.0, 1.5, 2.0, 2.5 mc (match phys ensemble values)
     naik_epsilon: ['-0.0957', '-0.1162', '-0.2368', '-0.3711', '-0.5168']
     residual_loose:
-      L2: 0.
+      L2: 1e-16
       R2: 1e-5
     residual_fine:
-      L2: 0.
+      L2: 1e-16
       R2: 1e-5
     maxCG:
       iters: 400
@@ -116,13 +115,16 @@ tarCheck:             # For checking that the output tarball is complete
 #  tarDataLines: 6975852
 #  tarDataWords: 19912984
 
-# For initial run with 4 T values and 12 source times, but no fine solves
+# For initial run with 4 T values and 12 source times, plus 1 fine solve
 
-  tarEntries: 3184
-  tarbzip2Size: 46000000
-  tarDataLines: 6439248
-  tarDataWords: 18381216
+#   tarEntries: 8753
+#   tarbzip2Size: 88000000
+#   tarDataLines: 11211696
+#   tarDataWords: 32302512
 
+# For initial run with 4 T values and 12 source times, plus 0 fine solves
 
-
-
+   tarEntries: 4408
+   tarbzip2Size: 79800000
+   tarDataLines:  9965952
+   tarDataWords: 28713344
