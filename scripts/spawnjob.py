@@ -210,8 +210,8 @@ def markQueuedTodoEntries(cfgnos, jobid, todoList):
 def nannyLoop(YAML, YAMLLaunch):
     """Check job periodically and submit to the queue"""
     
-    date = subprocess.check_output("date",shell=True).rstrip("\n")
-    hostname = subprocess.check_output("hostname",shell=True).rstrip("\n")
+    date = subprocess.check_output("date",shell=True).rstrip().decode()
+    hostname = subprocess.check_output("hostname",shell=True).rstrip().decode()
     print(date, "Spawn job process", os.getpid(), "started on", hostname)
 
     param = loadParam(YAML)
