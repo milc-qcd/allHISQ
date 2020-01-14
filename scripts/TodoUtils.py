@@ -119,16 +119,16 @@ def writeTodo(todoFile, lockFile, todoList):
         print("Can't open", todoFile, "for writing")
         sys.exit(1)
             
-    for line in sorted(todoList, cmpToDoEntries):
+    for line in sorted(todoList, key=keyToDoEntries):
         a = tuple(todoList[line])
         if len(a) == 4:
-            print("{0:s} {1:s} {2:s} {3:s}".format(*a),file="todo")
+            print("{0:s} {1:s} {2:s} {3:s}".format(*a),file=todo)
         elif len(a) == 3:
-            print("{0:s} {1:s} {2:s}".format(*a),file="todo")
+            print("{0:s} {1:s} {2:s}".format(*a),file=todo)
         elif len(a) == 2:
-            print("{0:s} {1:s}".format(*a),file="todo")
+            print("{0:s} {1:s}".format(*a),file=todo)
         elif len(a) == 1:
-            print("{0:s}".format(*a),file="todo")
+            print("{0:s}".format(*a),file=todo)
 
     todo.close()
 
