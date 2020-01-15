@@ -2,24 +2,23 @@
 # Job submission parameters
 ######################################################################
 submit:
-  jobname: allHISQsky
+  jobname: allHISQ
   jobScript: run.slurm
-  locale: bnl-skylake
-  walltime: "12:00"
+  locale: nersc_cori
+  walltime: "24:00:00"
   layout:
-    njobs: &refNjobs 1  # Number of concurrent subjobs within a job (not supported)
+    njobs: &refNjobs 8  # Number of concurrent subjobs within a job (not supported)
     basenodes: 32       # Number of nodes in one concurrent subjob
-    ppn: 32             # MPI ranks per node
+    ppn: 16             # MPI ranks per node
     layoutSciDAC:       # Node and I/O geometry
-      node: [ 4, 8, 4, 8]
-      io: [4, 8, 8, 8]
-    jobGeom: [ *refNjobs, 1, 1, 1]
+      node: [2, 4, 8, 64]
+      io: [1, 2, 8, 8]
+    jobGeom: [ 1, 1, 1, *refNjobs ]
 
 nanny:
   todofile: todo  # Ensemble series letter is included with cfg number
-#  maxcases: 24    # Number of cfgs to run in a single job submission
-  maxcases: 1     # Number of cfgs to run in a single job submission
-  maxqueue: 1     # Number of jobs to keep in the queue at one time
+  maxcases: 8     # Number of cfgs to run in a single job submission
+  maxqueue: 8     # Number of jobs to keep in the queue at one time
   wait: 30        # Seconds between nanny job checks
 
 ######################################################################
@@ -33,18 +32,20 @@ nanny:
 
 # (2) remote: Large remote files: lattices, propagators, random source files
 #     etc.  The ensemble name is appended as a subdirectory.
-remoteRoot: '/hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ'
+remoteRoot: '/global/cscratch1/sd/detar/allHISQ/scratch'
 
 # (3) archive: Smaller result files: Output correlators, logs
-archiveRoot: '/hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project'
+archiveRoot: '/project/projectdirs/m3414/allHISQ'
 
 # (4) local: Staging location for run-time files.  See files/root/local below.
 
 files:
   root:
-    project: '/sdcc/u/detar/allHISQ-skx'
+    project: '/global/homes/d/detar/allHISQ'
     local: # If empty, we do not stage files
-    # remoteSSD: '/local/scratch'
+    tmp: '/tmp'
+    # member 'remoteSSD:' is added by the ensemble script, since it depends on the ensemble ID
+    remoteSSD: ''
     # member 'remote:' is added by the ensemble script, since it depends on the ensemble ID
     # member 'archive:' is added by the ensemble script, since it depends on the ensemble ID
   wavefunction:   # Probably won't use in this project
@@ -52,8 +53,8 @@ files:
     subdirs: ['wavefunction']
     1S: Richardson_cc_1S.ascii
   exec:
-    root: 'project'
-    subdirs: ['bin']
+    root: 'tmp'
+    subdirs: ['.']
     name: 'ks_spectrum_hisq'
   latMILCv5:
     root: 'remote'
@@ -65,14 +66,16 @@ files:
     root: 'remote'
     subdirs: [ 'eigen' ]
   rand:
-    root: 'remote'
+    root: 'remoteSSD'
+#    root: 'remote'
     subdirs: [ 'rand' ]
        # With coherent sources we distinguish the random source file for the spectator
        # from the file for the daughter. This is done with "spectRnd".
        # We are not using coherent sources in this project.
     coherent: 'no'
   prop:
-    root: 'remote'
+    root: 'remoteSSD'
+#    root: 'remote'
     subdirs: [ 'prop' ]
   # The subdirectory "stream" is included automatically in the subdirectories listed below
   corr:
