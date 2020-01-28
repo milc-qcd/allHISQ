@@ -1105,17 +1105,18 @@ def storeTarFile(param, seriesCfg, tar):
     # Get a list of paths in the directories tardirs with matching configuration number
     tListPath = tarList( param['scriptDebug'], tarbase, tardirs, suffix, cfg )
 
-    # Create the tarball and check it for completeness
-    cmd = ['/bin/tar', '-C', tarbase, '--remove-files', '-cjf', tar.path(), '-T', tListPath]
-    cmd = ' '.join(cmd)
-    print("#", cmd)
-    if param['scriptDebug'] != 'debug':
-        subprocess.check_output(cmd, shell = True)
-        if checkComplete(param, tar.path()):
-            tar.store()
-        else:
-            tar.store()
-            print("WARNING:", tar.path(), "INCOMPLETE.")
+    if 0:
+    	# Create the tarball and check it for completeness
+    	cmd = ['/bin/tar', '-C', tarbase, '--remove-files', '-cjf', tar.path(), '-T', tListPath]
+    	cmd = ' '.join(cmd)
+    	print("#", cmd)
+    	if param['scriptDebug'] != 'debug':
+    	    subprocess.check_output(cmd, shell = True)
+    	    if checkComplete(param, tar.path()):
+    	        tar.store()
+    	    else:
+    	        tar.store()
+    	        print("WARNING:", tar.path(), "INCOMPLETE.")
 
 ############################################################
 def purgeProps(binFileList):
@@ -1180,7 +1181,7 @@ def runParam(seriesCfgs, ncases, njobs, param):
 
     # Configurations are processed in groups of njob independent parallel computations (multijob)
     # There are nreps such groups
-    nreps = int(ncases/njobs)
+    nreps = ncases // njobs
 
     # For each configuration we run several source times and do the work in nstep steps
 
@@ -1237,7 +1238,7 @@ def runParam(seriesCfgs, ncases, njobs, param):
                     suffix = 'a'
                 cfgSep = param['cfgsep'][suffix]
                 # Fine solve times precess over times ranging from 0 to nt by the loose step
-                tFineShift = int(cfg)/cfgSep*tsrcRange['precess']*param['tsrcRange']['loose']['step']
+                tFineShift = int(cfg)//cfgSep*tsrcRange['precess']*param['tsrcRange']['loose']['step']
                 tsrcs[kjob] = ( tsrcRange['start'] + tFineShift ) % nt
             print("Fine calculation with tsrcBase", tsrcs)
             doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
@@ -1258,7 +1259,7 @@ def loadParamsJoin(YAMLEns, YAMLAll):
     try:
         ens = open(YAMLEns,'r').readlines()
         all = open(YAMLAll,'r').readlines()
-        param = yaml.load("".join(ens+all))
+        param = yaml.safe_load("".join(ens+all))
     except:
         print("ERROR: Error loading the parameter files", YAMLEns, YAMLAll)
         sys.exit(1)
@@ -1271,7 +1272,7 @@ def loadParam(YAML):
 
     # Initial parameter file
     try:
-        param = yaml.load(open(YAML,'r'))
+        param = yaml.safe_load(open(YAML,'r'))
     except:
         print("ERROR: Error loading the parameter file", YAML)
         sys.exit(1)
