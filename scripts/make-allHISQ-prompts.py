@@ -1302,7 +1302,7 @@ def loadParamsJoin(YAMLEns, YAMLAll):
     try:
         ens = open(YAMLEns,'r').readlines()
         all = open(YAMLAll,'r').readlines()
-        param = yaml.load("".join(ens+all))
+        param = yaml.safe_load("".join(ens+all))
     except:
         print("ERROR: Error loading the parameter files", YAMLEns, YAMLAll)
         sys.exit(1)
@@ -1315,7 +1315,7 @@ def loadParam(YAML):
 
     # Initial parameter file
     try:
-        param = yaml.load(open(YAML,'r'))
+        param = yaml.safe_load(open(YAML,'r'))
     except:
         print("ERROR: Error loading the parameter file", YAML)
         sys.exit(1)
