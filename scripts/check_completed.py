@@ -250,6 +250,23 @@ def checkComplete(param, tarFile):
         print("ERROR: missing entries: tar file", tarFile, "entry count", entries)
         return False
 
+    # We check for the correct number of data lines and words
+    try:
+        reply = subprocess.check_output("tar -Oxjf " + tarFile + " data | wc", shell = True)
+    except subprocess.CalledProcessError as e:
+        print("Error checking for data-line count", tarFile)
+        return False
+    lines = int(reply.split()[0])
+    words = int(reply.split()[1])
+
+    if lines != param['tarCheck']['tarDataLines']:
+        print("ERROR: data lines", lines, "do not match", param['tarCheck']['tarDataLines'], "in tar file", tarFile)
+        return False
+
+    if words != param['tarCheck']['tarDataWords']:
+        print("ERROR: data words", words, "do not match", param['tarCheck']['tarDataWords'], "in tar file", tarFile)
+        return False
+
     # We check for nonconvergence, signaled by lines with "NOT"
     try:
         reply = subprocess.check_output("tar -Oxjf " + tarFile + " logs | grep NOT | wc -l", shell = True)
@@ -290,10 +307,6 @@ def checkPendingJobs(YAMLMachine,YAMLEns,YAMLLaunch):
     lockFile = lockFileName(todoFile)
     todoList = readTodo(todoFile, lockFile)
 
-    # Create parameter sets for all job steps
-#    params = makeParamSets(param)
-    params = [param]
-
     changed = False
     for todoEntry in sorted(todoList,key=keyToDoEntries):
         a = todoList[todoEntry]
@@ -317,29 +330,39 @@ def checkPendingJobs(YAMLMachine,YAMLEns,YAMLLaunch):
 
         changed = True
 
-        tarFiles = list()
+        # Create tar file for this job from entries in the data and logs tree
+
+        cmd = " ".join(["../scripts/makeTar.py", cfg, jobid])
+        try:
+            reply = subprocess.check_output(cmd, shell = True).decode("ASCII")
+            print(reply)
+        except subprocess.CalledProcessError as e:
+            status = e.returncode
+
+            # If status is other than 0 or 1, something went wrong
+            # Treat job as unfinished
+            
+            if status != 1:
+                print(reply)
+                print("Error", status, "in makeTar.py. Couldn't create the tar file.")
         # Check tar balls for all job steps
         complete = True
-        for p in params:
-            tarFailPath = getTarFailPath(p, jobid, cfg)
-            tarGoodPath = getTarGoodPath(p, jobid, cfg)
-            tarFile = fullTarFileName(p, jobid, cfg)
-            tarFiles.append(tarFile)
-            if not checkComplete(p, tarFile):
-                complete = False
+        tarFailPath = getTarFailPath(param, jobid, cfg)
+        tarGoodPath = getTarGoodPath(param, jobid, cfg)
+        tarFile = fullTarFileName(param, jobid, cfg)
+        if not checkComplete(param, tarFile):
+            complete = False
 
         if complete:
             # Mark the todo entry completed
             markCompletedTodoEntry(cfg, todoList)
             # Move all tar balls to the good directory
-            for tarFile in tarFiles:
-                moveGoodFiles(tarFile, tarGoodPath)
+            moveGoodFiles(tarFile, tarGoodPath)
         else:
             # If not complete, reset the todo entry and move all tar
             # balls to the failure directory
             resetTodoEntry(cfg, todoList)
-            for tarFile in tarFiles:
-                moveFailureFiles(tarFile, tarFailPath)
+            moveFailureFiles(tarFile, tarFailPath)
 
         # Cleanup from complete and incomplete runs
         purgeProps(param,cfg)
