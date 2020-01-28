@@ -53,7 +53,7 @@ def loadParam(file):
     """Read the YAML parameter file"""
 
     try:
-        param = yaml.load(open(file,'r'))
+        param = yaml.safe_load(open(file,'r'))
     except subprocess.CalledProcessError as e:
         print("WARNING: loadParam failed for", e.cmd)
         print("return code", e.returncode)
@@ -78,6 +78,9 @@ def readTodo(todoFile, lockFile):
         if len(line) == 1:
             continue
         a = line.split()
+        for i in range(len(a)):
+            if type(a[i]) is bytes:
+                a[i] = a[i].decode('ASCII')
         todoList[a[0]] = a
 
     todo.close()
@@ -122,13 +125,13 @@ def writeTodo(todoFile, lockFile, todoList):
     for line in sorted(todoList, key=keyToDoEntries):
         a = tuple(todoList[line])
         if len(a) == 4:
-            print("{0:s} {1:s} {2:s} {3:s}".format(*a),file=todo)
+            print("{0} {1} {2} {3}".format(*a),file=todo)
         elif len(a) == 3:
-            print("{0:s} {1:s} {2:s}".format(*a),file=todo)
+            print("{0} {1} {2}".format(*a),file=todo)
         elif len(a) == 2:
-            print("{0:s} {1:s}".format(*a),file=todo)
+            print("{0} {1}".format(*a),file=todo)
         elif len(a) == 1:
-            print("{0:s}".format(*a),file=todo)
+            print("{0}".format(*a),file=todo)
 
     todo.close()
 
