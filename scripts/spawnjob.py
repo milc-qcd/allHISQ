@@ -183,6 +183,7 @@ def submitJob(param, cfgnos, jobScript):
     if scheduler == 'LSF':
         # a.2100 Q Job <99173> is submitted to default queue <batch>
         jobid = reply[0].split()[1].split("<")[1].split(">")[0]
+        jobid = jobid.decode()
     elif scheduler == 'PBS':
         # 3314170.kaon2.fnal.gov submitted
         jobid = reply[0].split(".")[0]
@@ -194,7 +195,10 @@ def submitJob(param, cfgnos, jobScript):
         # ['1607897']
         jobid = reply[-1]
 
-    date = subprocess.check_output("date",shell=True).rstrip("\n")
+    if type(jobid) is bytes:
+        jobid = jobid.decode('ASCII')
+
+    date = subprocess.check_output("date",shell=True).rstrip().decode()
     print(date, "Submitted job", jobid, "for cfgs", cfgnos)
 
     return (0, jobid)
