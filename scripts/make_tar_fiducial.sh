@@ -32,6 +32,6 @@ cat /dev/null > $tarfid  # Start with a clean file
 for f in `tar -tjf $tarfile data/loose`
 do
     # Replace configuration number with "CFG"
-    g=`echo $f | sed 's/'${cfg}'/CFG/'`
+    g=`echo $f | sed 's/'${cfg}'/CFG/' | sed 's|/data/loose||'`
     echo $g `wc -l $f | awk '{print $1/'${n}'}'` >> $tarfid
 done
