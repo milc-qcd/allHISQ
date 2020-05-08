@@ -8,7 +8,7 @@
 #SBATCH -S 4
 #SBATCH -A m3414
 #SBATCH -V
-#######DW jobdw capacity=16000GB access_mode=striped type=scratch
+#DW jobdw capacity=16000GB access_mode=striped type=scratch
 
 # Submission command must define environment variables LATS, NCASES
 # sbatch -N ${NODES} -t ${walltime} -J ${jobname} ${slurm_script}
@@ -26,7 +26,9 @@ echo "Running with LATS $LATS, NCASES $NCASES, and NJOBS $NJOBS"
 # Take predefined parameters from qsub command line:
 if [ -n "${SLURM_SUBMIT_DIR}" ]
 then
-  cd ${SLURM_SUBMIT_DIR}
+  # Run production jobs out of $CSCRATCH
+  ./setup_rsync.sh    
+  cd $CSCRATCH/allHISQ/scratch/l6496f211b630m0012m0363m432
   pbsjobid=${SLURM_JOBID}
   if [ -z "${pbsjobid}" ]
   then
@@ -50,6 +52,7 @@ njobs=${NJOBS}
 export OMP_NUM_THREADS=4
 #export OMPI_MCA_btl=self,vader,tcp
 export OMPI_MCA_btl_openib_connect_udcm_max_retry=1000
+export PMI_MMAP_SYNC_WAIT_TIME=300
 
 argList="${cfgs_milc} ${ncases} ${njobs}"
 scriptList="../scripts/params-allHISQ-plus4.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml"
