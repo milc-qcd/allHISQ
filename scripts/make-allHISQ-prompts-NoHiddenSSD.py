@@ -765,9 +765,19 @@ def createKSQuarks(param, work, sources, quarkKeys, rwParams, rndSq, wf1S, tsrcC
         residQuality = param['residQuality']
         qkKeyBase = makeQuarkKey((residQuality, qk, mass, naik_epsilon, rndId, srcKeyMod, 'd'))
     
-        # Build the solve set
-        if srcKeyMod != srcKeyModLast:
-            # When the source changes, add the previous solve set
+        if 0:
+            # Build the solve set (multimass version)
+
+            if srcKeyMod != srcKeyModLast:
+                # When the source changes, add the previous solve set
+
+                if len(srcKeyModLast) > 0:
+                    work.addPropSet(thisSet)
+                thisSet = startKSSolveSet(param, qk, thisSrc)
+                srcKeyModLast = srcKeyMod
+        else:
+            # Build the solve set (single-mass version)
+
             if len(srcKeyModLast) > 0:
                 work.addPropSet(thisSet)
             thisSet = startKSSolveSet(param, qk, thisSrc)
@@ -1197,6 +1207,7 @@ def runParam(seriesCfgs, ncases, njobs, param):
 
         tsrcRange = param['tsrcRange']['loose']
         trange = range(tsrcRange['start'], tsrcRange['stop'], tsrcRange['step'])
+        tShift = [ 0 ] * njobs
         if 1:
             # Loose calculation -- Iterate over all source times
             param['residQuality'] = 'loose'
@@ -1210,10 +1221,10 @@ def runParam(seriesCfgs, ncases, njobs, param):
                     if len(suffix) == 0:
                         suffix = 'a'
                     cfgSep = param['cfgsep'][suffix]
-                    tShift = int(cfg)/cfgSep*tsrcRange['precess']
+                    tShift[kjob] = int(cfg)/cfgSep*tsrcRange['precess']
                     
                     # Add precession shift mod nt
-                    tsrcs[kjob] = (tsrcBase + tShift) % nt
+                    tsrcs[kjob] = (tsrcBase + tShift[kjob]) % nt
 
                 print "Loose calculation with tsrcs", tsrcs
                 doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
@@ -1235,7 +1246,7 @@ def runParam(seriesCfgs, ncases, njobs, param):
                 cfgSep = param['cfgsep'][suffix]
                 # Fine solve times precess over times ranging from 0 to nt by the loose step
                 tFineShift = int(cfg)/cfgSep*tsrcRange['precess']*param['tsrcRange']['loose']['step']
-                tsrcs[kjob] = ( tsrcRange['start'] + tFineShift ) % nt
+                tsrcs[kjob] = ( tsrcBase + tShift[kjob] + tFineShift ) % nt
             print "Fine calculation with tsrcBase", tsrcs
             doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
 
