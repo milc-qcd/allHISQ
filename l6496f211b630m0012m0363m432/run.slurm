@@ -6,9 +6,9 @@
 ####### -J (command line in spawnmultijob.py)
 #SBATCH -C knl
 #SBATCH -S 4
-#SBATCH -A m3414
+#SBATCH -A mp3414
 #SBATCH -V
-#######DW jobdw capacity=16000GB access_mode=striped type=scratch
+#DW jobdw capacity=16000GB access_mode=striped type=scratch
 
 # Submission command must define environment variables LATS, NCASES
 # sbatch -N ${NODES} -t ${walltime} -J ${jobname} ${slurm_script}
