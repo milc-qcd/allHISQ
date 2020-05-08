@@ -31,16 +31,6 @@ def countQueue( scheduler,  myjobname ):
     user = os.environ['USER']
 
     if scheduler == 'LSF':
-        # Should sync files before submission
-        cmd = "./setup_rsync.sh"
-        print cmd
-        reply = ""
-        try:
-            reply = subprocess.check_output(cmd, shell=True).splitlines()
-        except subprocess.CalledProcessError as e:
-            print reply
-            print "Job rsync error.  Return code", e.returncode
-            sys.exit(1)
         cmd = ' '.join(["bjobs -u", user, "| grep", user, "| grep -w", myjobname, "| wc -l"])
     elif scheduler == 'PBS':
         cmd = ' '.join(["qstat -u", user, "| grep", user, "| grep -w", myjobname, "| wc -l"])
@@ -69,7 +59,7 @@ def nextCfgnos( maxCases, todoList ):
     cfgnos = []
     for line in sorted(todoList,cmpToDoEntries):
         a = todoList[line]
-        if len(a) == 1 or a[1] != "Q" and a[1] != "X" and a[1] != "XX":
+        if len(a) == 1 or a[1] != "Q" and not "X" in a[1]:
             cfgnos.append(a[0])
             if len(cfgnos) >= maxCases:
                 break
