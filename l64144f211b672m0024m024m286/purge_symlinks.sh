@@ -7,6 +7,6 @@
 JobID=$1
 
 echo "Purging symlinks for JobID = $JobID"
-find -P run?/logs -lname '?*Job'${JobID}'*' -exec /bin/rm '{}' \;
+find -P run??/logs -lname '?*Job'${JobID}'*' -exec /bin/rm '{}' \;
 
 
