@@ -38,7 +38,7 @@ def countQueue( scheduler,  myjobname ):
         print(cmd)
         reply = ""
         try:
-            reply = subprocess.check_output(cmd, shell=True).splitlines()
+            reply = subprocess.check_output(cmd, shell=True).decode().splitlines()
         except subprocess.CalledProcessError as e:
             print(reply)
             print("Job rsync error.  Return code", e.returncode)
@@ -71,7 +71,7 @@ def nextCfgnos( maxCases, todoList ):
     cfgnos = []
     for line in sorted(todoList,key=keyToDoEntries):
         a = todoList[line]
-        if len(a) == 1 or a[1] != "Q" and a[1] != "X" and a[1] != "XX":
+        if len(a) == 1 or a[1] != "Q" and not "X" in a[1]:
             cfgnos.append(a[0])
             if len(cfgnos) >= maxCases:
                 break
@@ -150,7 +150,7 @@ def submitJob(param, cfgnos, jobScript):
         print(cmd)
         reply = ""
         try:
-            reply = subprocess.check_output(cmd, shell=True).splitlines()
+            reply = subprocess.check_output(cmd, shell=True).decode().splitlines()
         except subprocess.CalledProcessError as e:
             print(reply)
             print("Job rsync error.  Return code", e.returncode)
@@ -171,7 +171,7 @@ def submitJob(param, cfgnos, jobScript):
     print(cmd)
     reply = ""
     try:
-        reply = subprocess.check_output(cmd, shell=True).splitlines()
+        reply = subprocess.check_output(cmd, shell=True).decode().splitlines()
     except subprocess.CalledProcessError as e:
         print(reply)
         print("Job submission error.  Return code", e.returncode)
