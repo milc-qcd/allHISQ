@@ -402,7 +402,7 @@ def checkPendingJobs(YAMLMachine,YAMLEns,YAMLLaunch):
         if checkData(param, cfg):
             # Job appears to be complete
             # Create tar file for this job from entries in the data and logs tree
-
+            status = 1
             cmd = " ".join(["../scripts/makeTar.py", cfg, jobid])
             try:
                 reply = subprocess.check_output(cmd, shell = True).decode("ASCII")
@@ -413,22 +413,22 @@ def checkPendingJobs(YAMLMachine,YAMLEns,YAMLLaunch):
                 # If status is other than 0 or 1, something went wrong
                 # Treat job as unfinished
             
-                if status != 1:
-                    print(reply)
-                    print("Error", status, "in makeTar.py. Couldn't create the tar file.")
-                    resetTodoEntry(cfg, todoList)
-                else:
-                    # Check tar balls for all job steps
-                    tarFailPath = getTarFailPath(param, jobid, cfg)
-                    tarGoodPath = getTarGoodPath(param, jobid, cfg)
-                    tarFile = fullTarFileName(param, jobid, cfg)
-                    #                if not checkComplete(param, tarFile):
-                    #                    complete = False
+            if status != 1:
+                print(reply)
+                print("Error", status, "in makeTar.py. Couldn't create the tar file.")
+                resetTodoEntry(cfg, todoList)
+            else:
+                # Check tar balls for all job steps
+                tarFailPath = getTarFailPath(param, jobid, cfg)
+                tarGoodPath = getTarGoodPath(param, jobid, cfg)
+                tarFile = fullTarFileName(param, jobid, cfg)
+                #                if not checkComplete(param, tarFile):
+                #                    complete = False
 
-                    # Mark the todo entry completed
-                    markCompletedTodoEntry(cfg, todoList)
-                    # Move all tar balls to the good directory
-                    moveGoodFiles(tarFile, tarGoodPath)
+                # Mark the todo entry completed
+                markCompletedTodoEntry(cfg, todoList)
+                # Move all tar balls to the good directory
+                moveGoodFiles(tarFile, tarGoodPath)
         else:
             # If not complete, reset the todo entry and move all tar
             # balls to the failure directory
