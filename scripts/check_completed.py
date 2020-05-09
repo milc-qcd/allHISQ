@@ -264,9 +264,8 @@ def checkData(param, seriesCfg):
         return False
 
     # We check for nonconvergence, signaled by lines with "NOT"
-    path = os.path.join(param['stream'], "logs")
-    find = "find " + path + " -name \'*" + configID + "\'"
-    cmd = find + " -print | wc -l"
+    path = os.path.join(param['stream'], "logs", "*", "*"+configID)
+    cmd = "grep -w NOT " + path + "| wc -l"
     print(cmd)
     try:
         reply = subprocess.check_output(cmd, shell = True)
@@ -280,7 +279,7 @@ def checkData(param, seriesCfg):
         return False
     
     # Passed these tests
-    print("COMPLETE: Output tar file", tarFile)
+    print("COMPLETE")
 
     return True
 
@@ -417,17 +416,19 @@ def checkPendingJobs(YAMLMachine,YAMLEns,YAMLLaunch):
                 if status != 1:
                     print(reply)
                     print("Error", status, "in makeTar.py. Couldn't create the tar file.")
-                # Check tar balls for all job steps
-                tarFailPath = getTarFailPath(param, jobid, cfg)
-                tarGoodPath = getTarGoodPath(param, jobid, cfg)
-                tarFile = fullTarFileName(param, jobid, cfg)
-#                if not checkComplete(param, tarFile):
-#                    complete = False
+                    resetTodoEntry(cfg, todoList)
+                else:
+                    # Check tar balls for all job steps
+                    tarFailPath = getTarFailPath(param, jobid, cfg)
+                    tarGoodPath = getTarGoodPath(param, jobid, cfg)
+                    tarFile = fullTarFileName(param, jobid, cfg)
+                    #                if not checkComplete(param, tarFile):
+                    #                    complete = False
 
-            # Mark the todo entry completed
-            markCompletedTodoEntry(cfg, todoList)
-            # Move all tar balls to the good directory
-            moveGoodFiles(tarFile, tarGoodPath)
+                    # Mark the todo entry completed
+                    markCompletedTodoEntry(cfg, todoList)
+                    # Move all tar balls to the good directory
+                    moveGoodFiles(tarFile, tarGoodPath)
         else:
             # If not complete, reset the todo entry and move all tar
             # balls to the failure directory
