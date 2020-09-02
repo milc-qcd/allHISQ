@@ -29,13 +29,13 @@ def jobStillQueued(param,jobid):
     
     user = os.environ['USER']
     if scheduler == 'LSF':
-        cmd = " ".join(["bjobs", "-u", user, "|", "grep", jobid])
+        cmd = " ".join(["bjobs", "-u", user, "|", "grep -w", jobid])
     elif scheduler == 'PBS':
-        cmd = " ".join(["qstat", "-u", user, "|", "grep", jobid])
+        cmd = " ".join(["qstat", "-u", user, "|", "grep -w", jobid])
     elif scheduler == 'SLURM':
-        cmd = " ".join(["squeue", "-u", user, "|", "grep", jobid])
+        cmd = " ".join(["squeue", "-u", user, "|", "grep -w", jobid])
     elif scheduler == 'Cobalt':
-        cmd = " ".join(["qstat", "-fu", user, "|", "grep", jobid])
+        cmd = " ".join(["qstat", "-fu", user, "|", "grep -w", jobid])
     else:
         print("Don't recognize scheduler", scheduler)
         print("Quitting")
@@ -335,9 +335,26 @@ def checkComplete(param, tarFile):
         print("ERROR: data words", words, "do not match", param['tarCheck']['tarDataWords'], "in tar file", tarFile)
         return False
 
+    # We check for the correct number of data lines and words                                                          
+    try:
+        reply = subprocess.check_output("tar -Oxjf " + tarFile + " data | wc", shell = True)
+    except subprocess.CalledProcessError as e:
+        print "Error checking for data-line count", tarFile
+        return False
+    lines = int(reply.split()[0])
+    words = int(reply.split()[1])
+
+    if lines != param['tarCheck']['tarDataLines']:
+        print "ERROR: data lines", lines, "do not match", param['tarCheck']['tarDataLines'], "in tar file", tarFile
+        return False
+
+    if words != param['tarCheck']['tarDataWords']:
+        print "ERROR: data words", words, "do not match", param['tarCheck']['tarDataWords'], "in tar file", tarFile
+        return False
+
     # We check for nonconvergence, signaled by lines with "NOT"
     try:
-        reply = subprocess.check_output("tar -Oxjf " + tarFile + " logs | grep NOT | wc -l", shell = True)
+        reply = subprocess.check_output("tar -Oxjf " + tarFile + " logs | grep -w NOT | wc -l", shell = True)
     except subprocess.CalledProcessError as e:
         print("Error checking for bad convergence", tarFile)
         return False
