@@ -34,6 +34,7 @@ def addRootPaths(param):
         root['remoteSSD'] = os.environ['DW_JOB_STRIPED']
     except KeyError:
         print("Warning, DW_JOB_STRIPED not defined")
+        root['remoteSSD'] = "DW_JOB_STRIPED"
     root['archive'] = archiveRoot
 
 ######################################################################
