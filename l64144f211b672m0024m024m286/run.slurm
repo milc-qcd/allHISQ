@@ -18,7 +18,7 @@
 
 umask 0022
 
-echo "Running on nodes"
+echo "`date` Running on nodes"
 echo $SLURM_JOB_NODELIST
 
 echo "Running with LATS $LATS, NCASES $NCASES, and NJOBS $NJOBS"
@@ -29,6 +29,7 @@ then
   # Run production jobs out of $CSCRATCH
   ./setup_rsync.sh    
   cd $CSCRATCH/allHISQ/scratch/l64144f211b672m0024m024m286
+  export PYTHONPATH="../scripts/:${PYTHONPATH}"
   pbsjobid=${SLURM_JOBID}
   if [ -z "${pbsjobid}" ]
   then
@@ -38,9 +39,9 @@ then
   prompt=0
 else
   echo "Not a SLURM job.  Running in test mode."
-  LATS="x.08/x.99"
-  NCASES=2
-  NJOBS=2
+  LATS="x.8/x.10/x.12/x.14/x.16/x.18"
+  NCASES=6
+  NJOBS=6
   pbsjobid=test
   testing=1
   prompt=2
@@ -57,28 +58,28 @@ export PMI_MMAP_SYNC_WAIT_TIME=600
 argList="${cfgs_milc} ${ncases} ${njobs}"
 scriptList="../scripts/params-allHISQ-plus4.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml"
 
-echo "Removing any leftover correlators"
-./purge_corrs.sh ${LATS} ${NCASES}
+echo "`date` Removing any leftover correlators"
+#./purge_corrs2.sh ${LATS} ${NCASES} run3c
 
 if [ $testing -ne 1 ]
 then
-    echo "Broadcasting the executable"
+    echo "`date` Broadcasting the executable"
     sbcast ../bin/ks_spectrum_hisq /tmp/ks_spectrum_hisq
     ls -l /tmp/ks_spectrum_hisq
 fi
 
-echo "Running the job script:"
+echo "`date` Running the job script:"
 echo "python ../scripts/make-allHISQ-prompts-NoHiddenSSD.py ${argList} ${scriptList}"
 
 python ../scripts/make-allHISQ-prompts-NoHiddenSSD.py ${argList} ${scriptList}
 
 if [ $? -ne 0 ]
 then
-    echo "Exiting because of errors in job"
+    echo "`date` Exiting because of errors in job"
     exit 1
 else
-    echo "Cleaning up symlinks."
-    ./purge_symlinks.sh ${pbsjobid}
+#    echo "Cleaning up symlinks."
+#    ./purge_symlinks.sh ${pbsjobid}
     exit 0
 fi
 
