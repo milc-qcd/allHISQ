@@ -6,17 +6,27 @@ ensemble:
   afm: '0.06'         # Subdirectory label
 
 tsrcRange:
-  start: 0
-#  stop:  144
-  stop:  4
-  step:  4
-  precess: 2          # For precessing the source times, based on the cfg number
+  loose:
+    start: 24
+    stop:  48
+    step:  4
+    precess: 2
+  fine:
+    start: 0
+    stop: 144
+    step: 144
+    precess: 3
 
-tSnkHtopi: &ref_tSnkHtopi [ 13, 14, 15, 16 ]
-tSnkHtoH: &ref_tSnkHtoH [ 13, 14, 15, 16 ] 
+# Intervals between configuration numbers
+cfgsep:
+  a: 6
+  b: 6
+  c: 4
+  d: 4
+  x: 4    # For testing
 
-#tSnkHtopi: &ref_tSnkHtopi [ 32, 35, 37, 40 ]
-#tSnkHtoH: &ref_tSnkHtoH [ 24, 25, 27, 30 ] 
+tSnkHtopi: &ref_tSnkHtopi [ 23, 30, 34, 37 ]
+tSnkHtoH: &ref_tSnkHtoH   [ 20, 23, 27, 30 ] 
 
 apelink:              # Applies only to links in point-split operators
   weight: 0.05
@@ -25,7 +35,7 @@ apelink:              # Applies only to links in point-split operators
 eigen:
   Nvecs: 0
 
-stream: run0
+stream: run3a
 
 ######################################################################
 # Quark parameters
@@ -68,11 +78,11 @@ quarks:
     mass: ['0.257','0.286','0.572','0.858','1.144' ]  # 0.9, 1.0, 2.0, 3.0, 4.0 mc
     naik_epsilon: ['-0.0433', '-0.0533', '-0.1918', '-0.3673', '-0.5683']
     residual_loose:
-      L2: 0.
-      R2: 1e-7
+      L2: 1e-16
+      R2: 1e-6
     residual_fine:
-      L2: 0.
-      R2: 1e-7
+      L2: 1e-16
+      R2: 1e-6
     maxCG:
       iters: 400
       restarts: 5
@@ -80,14 +90,20 @@ quarks:
     deflate: 'no'
 
 tarCheck:             # For checking that the output tarball is complete
-# Values for the TSM tuning runs -- one source time per loose and fine
-#  tarEntries: 1130
-#  tarbzip2Size: 2630582
-#  tarDataLines:  309864
-#  tarDataWords:  900304
-# Values for production running 36 time sources
-  tarEntries: 6485
-  tarbzip2Size: 213260551
-  tarDataLines: 27128844 
-  tarDataWords: 78498904
- 
+# Values for production running 12 loose time sources plus one fine
+  tarEntries: 8791
+  tarbzip2Size: 196000000
+  tarDataLines: 22794096 
+  tarDataWords: 66457456
+  
+# loose data 21040704 61345344 
+# fine data   1753392  5112112
+
+# Values for production running 12 loose time sources and no fine
+#  tarEntries: 4445
+#  tarbzip2Size: 181000000
+#  tarDataLines: 21040704 
+#  tarDataWords: 61345344
+
+
+
