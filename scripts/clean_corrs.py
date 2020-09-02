@@ -147,6 +147,7 @@ def scanData(run, precisionLabel, s06Cfg, tarList):
 
     tRemove = set()
     tFinished = set()
+    tFinishedStart = True
     tSurplusData = set()
     nDataFinish = None
     nExtra = 0
@@ -162,11 +163,14 @@ def scanData(run, precisionLabel, s06Cfg, tarList):
         try:
             stat = os.stat(corrFilePath)
         except OSError:
-            if not first:
+            if first:
                 print("ERROR: can't find required file", corrFilePath)
+                print("Listing of any other missing files will be suppressed")
+                first = False
             nMissing += 1
+            tFinished = set()
+            tFinishedStart = False
             continue
-        first = False
 
         # Get stanza count from the number of lines in the file
         cmd = ' '.join(["wc -l", corrFilePath, "| awk '{print $1}'"])
@@ -209,10 +213,11 @@ def scanData(run, precisionLabel, s06Cfg, tarList):
             sys.exit(1)
 
         # tFinished will be a list of all times common to all correlators
-        if len(tFinished) > 0:
-            tFinished = tFinished.intersection(tFound)
-        else:
+        if tFinishedStart:
             tFinished = tFound
+            tFinishedStart = False
+        else:
+            tFinished = tFinished.intersection(tFound)
 
         # tRemove will be a list of all times not common to all correlators
         tSpare = tFound.difference(tFinished)
@@ -348,7 +353,7 @@ def main():
                 print("There were", nMissing, "missing fine correlstors.  Recommend rerunning the job.")
 
             # Rewrite all correlator files, keeping only those with tFinished
-            if filterTimeCorrs(run, tarList, s06Cfg, tFinished):
+            if filterTimeCorrs(run, "fine", tarList, s06Cfg, tFinished):
                 print("Quitting")
                 sys.exit(1)
 
