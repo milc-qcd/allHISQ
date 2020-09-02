@@ -1,4 +1,6 @@
-#! /usr/bin/env python2.7
+#! /usr/bin/env python
+
+# Python 3 version
 
 import sys, os, yaml, re, subprocess, copy
 from TodoUtils import *
@@ -35,8 +37,8 @@ def jobStillQueued(param,jobid):
     elif scheduler == 'Cobalt':
         cmd = " ".join(["qstat", "-fu", user, "|", "grep", jobid])
     else:
-        print "Don't recognize scheduler", scheduler
-        print "Quitting"
+        print("Don't recognize scheduler", scheduler)
+        print("Quitting")
         sys.exit(1)
     reply = ""
     try:
@@ -46,7 +48,7 @@ def jobStillQueued(param,jobid):
         # If status is other than 0 or 1, we have a qstat problem
         # Treat job as unfinished
         if status != 1:
-            print "Error", status, "Can't get the job status.  Skipping."
+            print("Error", status, "Can't get the job status.  Skipping.")
             return True
 
     if len(reply) > 0:
@@ -68,11 +70,11 @@ def jobStillQueued(param,jobid):
             field = "run"
             jobstat = a[8]
         else:
-            print "Don't recognize scheduler", scheduler
-            print "Quitting"
+            print("Don't recognize scheduler", scheduler)
+            print("Quitting")
             sys.exit(1)
 
-        print "Job status", jobstat, field, "time", time
+        print("Job status", jobstat.decode(), field, "time", time.decode())
         # If job is being canceled, jobstat = C (PBS).  Treat as finished.
         if jobstat == "C":
             return False
@@ -86,7 +88,7 @@ def markCompletedTodoEntry(cfg, todoList):
     """Update the todoList, change status to X"""
 
     todoList[cfg] = [ cfg, "X" ]
-    print "Marked cfg", cfg, "completed"
+    print("Marked cfg", cfg, "completed")
 
 
 #######################################################################
@@ -98,55 +100,55 @@ def decodeSeriesCfg(seriesCfg):
 def purgeProps(param,cfg):
     """Purge propagators for the specified configuration"""
 
-    print "Purging props for", cfg
+    print("Purging props for", cfg)
     suffix, cfg = decodeSeriesCfg(cfg)
     configID = codeCfg(suffix, cfg)
     prop = param['files']['prop']
     subdirs = prop['subdirs'] + [ configID ]
     remotePath = os.path.join(*subdirs)
     cmd = ' '.join([ "nohup", "/bin/rm -r", remotePath, "> /dev/null 2> /dev/null &"])
-    print cmd
+    print(cmd)
     try:
         subprocess.call(cmd, shell=True)
     except subprocess.CalledProcessError as e:
-        print "ERROR: can't remove props.  Error code", e.returncode, "."
+        print("ERROR: can't remove props.  Error code", e.returncode, ".")
 
 ######################################################################
 def purgeRands(param,cfg):
     """Purge random sources for the specified configuration"""
 
-    print "Purging rands for", cfg
+    print("Purging rands for", cfg)
     suffix, cfg = decodeSeriesCfg(cfg)
     configID = codeCfg(suffix, cfg)
     rand = param['files']['rand']
     subdirs = rand['subdirs'] + [ configID ]
     remotePath = os.path.join(*subdirs)
     cmd = ' '.join([ "nohup", "/bin/rm -r", remotePath, "> /dev/null 2> /dev/null &"])
-    print cmd
+    print(cmd)
     try:
         subprocess.call(cmd, shell=True)
     except subprocess.CalledProcessError as e:
-        print "ERROR: can't remove rands.  Error code", e.returncode, "."
+        print("ERROR: can't remove rands.  Error code", e.returncode, ".")
 
 ######################################################################
 def purgeSymLinks(param,jobid):
     """Purge symlinks for the specified jobid"""
 
-    print "Purging symlinks for job", jobid
+    print("Purging symlinks for job", jobid)
     io = param['files']['out']
     cmd = ' '.join([ "find -P", os.path.join(param['stream'],io['subdir']), "-lname '?*Job'"+ jobid + "'*' -exec /bin/rm '{}' \;"])
-    print cmd
+    print(cmd)
     try:
         subprocess.call(cmd, shell=True)
     except subprocess.CalledProcessError as e:
-        print "ERROR: rmdir exited with code", e.returncode, "."
+        print("ERROR: rmdir exited with code", e.returncode, ".")
 
 ######################################################################
 def resetTodoEntry(cfg, todoList):
-    """Reset the todo entry for a job that did not complete"""
+    """Mark the todo entry for a job that did not complete"""
 
-    print "Resetting", cfg, "for a retry."
-    todoList[cfg] = [ cfg ]
+    print("Marking", cfg, "for repairs.")
+    todoList[cfg] = [ cfg, "XXfix" ]
 
 ######################################################################
 def getTarPath(param, jobid, cfg):
@@ -191,7 +193,7 @@ def moveFailureFiles(tarFile, tarFailPath):
         try:
             subprocess.check_output(["mv", tarFile, tarFailPath])
         except subprocess.CalledProcessError as e:
-            print "Error", e.returncode, "moving", tarFile, "to", tarFailPath
+            print("Error", e.returncode, "moving", tarFile, "to", tarFailPath)
 
 ######################################################################
 def getTarGoodPath(param, jobid, cfg):
@@ -211,7 +213,75 @@ def moveGoodFiles(tarFile, tarGoodPath):
         try:
             subprocess.check_output(["mv", tarFile, tarGoodPath])
         except subprocess.CalledProcessError as e:
-            print "Error", e.returncode, "moving", tarFile, "to", tarGoodPath
+            print("Error", e.returncode, "moving", tarFile, "to", tarGoodPath)
+
+######################################################################
+def checkData(param, seriesCfg):
+    """Check that the data are complete"""
+
+    suffix, cfg = decodeSeriesCfg(seriesCfg)
+    configID = codeCfg(suffix, cfg)
+
+    path = param['stream']+ "/"
+    find = "find " + path + " -name \'*" + configID + "\'"
+    cmd = find + " -print | wc -l"
+    print(cmd)
+    # Check the number of entries 
+    try:
+        reply = subprocess.check_output(cmd, shell = True)
+    except subprocess.CalledProcessError as e:
+        print("Error tar-listing", tarFile)
+        return False
+    
+    # Entry count is first field
+    entries = int(reply.split()[0])
+    entriesGood = param['tarCheck']['tarEntries']
+    
+    if entries < entriesGood:
+        print("ERROR: missing entries: entry count", entries, "wanted > ", entriesGood)
+        return False
+
+    # We check for the correct number of data lines and words
+    path = os.path.join(param['stream'], "data")
+    find = "find " + path + " -name \'*" + configID + "\'"
+    cmd = find + " -exec /bin/cat \{\} \;| wc"
+    print(cmd)
+    find = "find " + path + " -name \'*" + configID + "\'"
+    try:
+        reply = subprocess.check_output(cmd, shell = True)
+    except subprocess.CalledProcessError as e:
+        print("Error checking for data-line count")
+        return False
+    lines = int(reply.split()[0])
+    words = int(reply.split()[1])
+
+    if lines != param['tarCheck']['tarDataLines']:
+        print("ERROR: data lines", lines, "do not match the required", param['tarCheck']['tarDataLines'])
+        return False
+
+    if words != param['tarCheck']['tarDataWords']:
+        print("ERROR: data words", words, "do not match the required", param['tarCheck']['tarDataWords'])
+        return False
+
+    # We check for nonconvergence, signaled by lines with "NOT"
+    path = os.path.join(param['stream'], "logs", "*", "*"+configID)
+    cmd = "grep -w NOT " + path + "| wc -l"
+    print(cmd)
+    try:
+        reply = subprocess.check_output(cmd, shell = True)
+    except subprocess.CalledProcessError as e:
+        print("Error checking for bad convergence")
+        return False
+
+    entries = int(reply.split()[0])
+    if entries > 0:
+        print("ERROR: ", entries, "lines with 'NOT'")
+        return False
+    
+    # Passed these tests
+    print("COMPLETE")
+
+    return True
 
 ######################################################################
 def checkComplete(param, tarFile):
@@ -221,7 +291,7 @@ def checkComplete(param, tarFile):
     try:
         reply = subprocess.check_output(["ls", "-l", tarFile])
     except subprocess.CalledProcessError as e:
-        print "Error", e.returncode, "stat'ing output tar file", tarFile
+        print("Error", e.returncode, "stat'ing output tar file", tarFile)
         return False
 
     # File size in bytes is the 5th field in ls -l
@@ -230,14 +300,14 @@ def checkComplete(param, tarFile):
     # Allow for a 5% variation
     
     if tarFileSize*1.05 < tarFileGood:
-        print "ERROR: too small:", tarFile, "size", tarFileSize
+        print("ERROR: too small:", tarFile, "size", tarFileSize)
         return False
 
     # We check the number of entries in the tar file
     try:
         reply = subprocess.check_output("tar -tjf " + tarFile + "| wc -l", shell = True)
     except subprocess.CalledProcessError as e:
-        print "Error tar-listing", tarFile
+        print("Error tar-listing", tarFile)
         return False
     
     # Entry count is first field
@@ -245,25 +315,42 @@ def checkComplete(param, tarFile):
     entriesGood = param['tarCheck']['tarEntries']
     
     if entries < param['tarCheck']['tarEntries']:
-        print "ERROR: missing entries: tar file", tarFile, "entry count", entries
+        print("ERROR: missing entries: tar file", tarFile, "entry count", entries)
+        return False
+
+    # We check for the correct number of data lines and words
+    try:
+        reply = subprocess.check_output("tar -Oxjf " + tarFile + " data | wc", shell = True)
+    except subprocess.CalledProcessError as e:
+        print("Error checking for data-line count", tarFile)
+        return False
+    lines = int(reply.split()[0])
+    words = int(reply.split()[1])
+
+    if lines != param['tarCheck']['tarDataLines']:
+        print("ERROR: data lines", lines, "do not match", param['tarCheck']['tarDataLines'], "in tar file", tarFile)
+        return False
+
+    if words != param['tarCheck']['tarDataWords']:
+        print("ERROR: data words", words, "do not match", param['tarCheck']['tarDataWords'], "in tar file", tarFile)
         return False
 
     # We check for nonconvergence, signaled by lines with "NOT"
     try:
         reply = subprocess.check_output("tar -Oxjf " + tarFile + " logs | grep NOT | wc -l", shell = True)
     except subprocess.CalledProcessError as e:
-        print "Error checking for bad convergence", tarFile
+        print("Error checking for bad convergence", tarFile)
         return False
     entries = int(reply.split()[0])
 
     if entries > 0:
-        print "ERROR: ", entries, "lines with 'NOT'"
+        print("ERROR: ", entries, "lines with 'NOT'")
         # Earlier versions of ks_spectrum_hisq reported spurious "NOT converged."
         if re.search("outJobKS",tarFile) == None:
             return False
 
     # Passed these tests
-    print "COMPLETE: Output tar file", tarFile
+    print("COMPLETE: Output tar file", tarFile)
 
     return True
 
@@ -288,12 +375,8 @@ def checkPendingJobs(YAMLMachine,YAMLEns,YAMLLaunch):
     lockFile = lockFileName(todoFile)
     todoList = readTodo(todoFile, lockFile)
 
-    # Create parameter sets for all job steps
-#    params = makeParamSets(param)
-    params = [param]
-
     changed = False
-    for todoEntry in sorted(todoList,cmpToDoEntries):
+    for todoEntry in sorted(todoList,key=keyToDoEntries):
         a = todoList[todoEntry]
         if len(a) == 3:
             (cfg, flag, jobid) = a
@@ -304,9 +387,9 @@ def checkPendingJobs(YAMLMachine,YAMLEns,YAMLLaunch):
         if flag != "Q":
             continue
     
-        print "--------------------------------------"
-        print "Checking cfg", cfg, "jobid", jobid
-        print "--------------------------------------"
+        print("--------------------------------------")
+        print("Checking cfg", cfg, "jobid", jobid)
+        print("--------------------------------------")
 
 
         # If job is still queued, skip this entry
@@ -315,34 +398,58 @@ def checkPendingJobs(YAMLMachine,YAMLEns,YAMLLaunch):
 
         changed = True
 
-        tarFiles = list()
-        # Check tar balls for all job steps
-        complete = True
-        for p in params:
-            tarFailPath = getTarFailPath(p, jobid, cfg)
-            tarGoodPath = getTarGoodPath(p, jobid, cfg)
-            tarFile = fullTarFileName(p, jobid, cfg)
-            tarFiles.append(tarFile)
-            if not checkComplete(p, tarFile):
-                complete = False
+        # Check data files before tarring them up
+        if checkData(param, cfg):
+            # Job appears to be complete
+            # Create tar file for this job from entries in the data and logs tree
+            status = 1
+            cmd = " ".join(["../scripts/makeTar.py", cfg, jobid])
+            try:
+                reply = subprocess.check_output(cmd, shell = True).decode("ASCII")
+                print(reply)
+            except subprocess.CalledProcessError as e:
+                status = e.returncode
 
-        if complete:
-            # Mark the todo entry completed
-            markCompletedTodoEntry(cfg, todoList)
-            # Move all tar balls to the good directory
-            for tarFile in tarFiles:
+                # If status is other than 0 or 1, something went wrong
+                # Treat job as unfinished
+            
+            if status != 1:
+                print(reply)
+                print("Error", status, "in makeTar.py. Couldn't create the tar file.")
+                resetTodoEntry(cfg, todoList)
+            else:
+                # Check tar balls for all job steps
+                tarFailPath = getTarFailPath(param, jobid, cfg)
+                tarGoodPath = getTarGoodPath(param, jobid, cfg)
+                tarFile = fullTarFileName(param, jobid, cfg)
+                #                if not checkComplete(param, tarFile):
+                #                    complete = False
+
+                # Mark the todo entry completed
+                markCompletedTodoEntry(cfg, todoList)
+                # Move all tar balls to the good directory
                 moveGoodFiles(tarFile, tarGoodPath)
         else:
             # If not complete, reset the todo entry and move all tar
             # balls to the failure directory
             resetTodoEntry(cfg, todoList)
-            for tarFile in tarFiles:
-                moveFailureFiles(tarFile, tarFailPath)
+            # moveFailureFiles(tarFile, tarFailPath)
+
+            # Salvage what we can
+            cmd = " ".join(["../scripts/clean_corrs.py", param['stream'],cfg, "tar.fiducial"])
+            print(cmd)
+            try:
+                reply = subprocess.check_output(cmd, shell = True).decode("ASCII")
+                print(reply)
+            except subprocess.CalledProcessError as e:
+                status = e.returncode
 
         # Cleanup from complete and incomplete runs
         purgeProps(param,cfg)
         purgeRands(param,cfg)
         purgeSymLinks(param,jobid)
+
+        sys.stdout.flush()
 
         # Take a cat nap (avoids hammering the login node)
         subprocess.check_call(["sleep", "1"])

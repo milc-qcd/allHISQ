@@ -5,7 +5,7 @@
 ######################################################################
 def makeMomKey(mom):
     """Create momentum key"""
-    return '%d,%d,%d' % tuple(mom)
+    return "{0:d},{1:d},{2:d}".format(*tuple(mom))
 
 ######################################################################
 def splitMomKey(momKey):
@@ -57,11 +57,11 @@ def cmpQuarkKeys(qkKey1, qkKey2):
     if src1 == 'd':
         order = -1
         if src2 == 'd':
-            order = cmp(qkKey1, qkKey2)
+            order = (qkKey1 > qkKey2) - (qkKey2 < qkKey1) 
     elif src2 == 'd':
         order = +1
     else:
-        order = cmp(qkKey1, qkKey2)
+        order = (qkKey1 > qkKey2) - (qkKey2 < qkKey1) 
 
     return order
 
@@ -75,11 +75,31 @@ def cmpQuarkKeys2(qkKey1, qkKey2):
     (src2, mom2) = splitSrcKey(srcKey2)
 
     # Sort first on source and momentum, then on mass
-    order = cmp(srcKey1, srcKey2)
+    order = (srcKey1 > srcKey2) - (srcKey1 < srcKey2)
     if order == 0:
-        order = cmp(float(m1), float(m2))
+        order = (float(m1) > float(m2)) - (float(m1) < float(m2))
 
     return order
+
+######################################################################
+def cmp_to_key(mycmp):
+    'Convert a cmp= function into a key= function'
+    class K:
+        def __init__(self, obj, *args):
+            self.obj = obj
+        def __lt__(self, other):
+            return mycmp(self.obj, other.obj) < 0
+        def __gt__(self, other):
+            return mycmp(self.obj, other.obj) > 0
+        def __eq__(self, other):
+            return mycmp(self.obj, other.obj) == 0
+        def __le__(self, other):
+            return mycmp(self.obj, other.obj) <= 0
+        def __ge__(self, other):
+            return mycmp(self.obj, other.obj) >= 0
+        def __ne__(self, other):
+            return mycmp(self.obj, other.obj) != 0
+    return K
 
 ######################################################################
 def appendUnique(keys, key):

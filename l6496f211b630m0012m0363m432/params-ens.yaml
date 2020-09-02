@@ -12,7 +12,7 @@ tsrcRange:
     step:  4
     precess: 4
   fine:
-    start: 0
+    start: 96
     stop: 96
     step: 96
     precess: 3
@@ -22,6 +22,7 @@ cfgsep:
   a: 6
   b: 6
   h: 4
+  p: 4
   x: 4    # For testing
 
 #tSnkHtopi: &ref_tSnkHtopi [ 13, 14, 15, 16 ]
@@ -108,13 +109,17 @@ tarCheck:             # For checking that the output tarball is complete
 #  tarDataLines: 5272137
 #  tarDataWords: 15051114
 
-# Test values
-  tarEntries: 10871
-  tarbzip2Size: 160000000
-  tarDataLines: 20169552
-  tarDataWords: 58110624
+# Values for production running with 5 sink times T, half the loose sources
+# and one fine source
+   tarEntries: 10871
+   tarbzip2Size: 160000000
+   tarDataLines: 20169552
+   tarDataWords: 58110624
 
-#  tarEntries: 10779
-#  tarbzip2Size: 25000000
-#  tarDataLines: 3103008
-#  tarDataWords: 8940096
+# Values for production running with 5 sink times T, half the loose sources
+# and no fine source
+#  tarEntries: 5485
+#  tarbzip2Size: 140000000
+#  tarDataLines: 18618048
+#  tarDataWords: 53640576
+

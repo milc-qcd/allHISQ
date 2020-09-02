@@ -35,7 +35,7 @@ nanny:
 remoteRoot: '/global/cscratch1/sd/detar/allHISQ/scratch'
 
 # (3) archive: Smaller result files: Output correlators, logs
-archiveRoot: '/project/projectdirs/m3414/allHISQ'
+archiveRoot: '/global/cfs/cdirs/m3414/allHISQ'
 
 # (4) local: Staging location for run-time files.  See files/root/local below.
 

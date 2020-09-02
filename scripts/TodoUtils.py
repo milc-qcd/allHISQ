@@ -1,6 +1,8 @@
 # Scripts supporting job queue management
 # spawnjob.py and check_completed.py
 
+# For Python 3 version
+
 import sys, os, yaml, subprocess
 
 ######################################################################
@@ -13,7 +15,7 @@ def setTodoLock(lockFile):
     """Set lock file"""
 
     if os.access(lockFile, os.R_OK):
-        print "Error. Lock file present. Quitting."
+        print("Error. Lock file present. Quitting.")
         sys.exit(1)
 
     subprocess.call(["touch", lockFile])
@@ -51,10 +53,10 @@ def loadParam(file):
     """Read the YAML parameter file"""
 
     try:
-        param = yaml.load(open(file,'r'))
+        param = yaml.safe_load(open(file,'r'))
     except subprocess.CalledProcessError as e:
-        print "WARNING: loadParam failed for", e.cmd
-        print "return code", e.returncode
+        print("WARNING: loadParam failed for", e.cmd)
+        print("return code", e.returncode)
         sys.exit(1)
 
     return param
@@ -69,21 +71,32 @@ def readTodo(todoFile, lockFile):
         with open(todoFile) as todo:
             todoLines = todo.readlines()
     except IOError:
-        print "Can't open", todoFile
+        print("Can't open", todoFile)
         sys.exit(1)
 
     for line in todoLines:
         if len(line) == 1:
             continue
         a = line.split()
+        for i in range(len(a)):
+            if type(a[i]) is bytes:
+                a[i] = a[i].decode('ASCII')
         todoList[a[0]] = a
 
     todo.close()
     return todoList
 
 ######################################################################
+def keyToDoEntries(td):
+    """Sort key for todo entries with format x.nnnn"""
+
+    (stream, cfg) = td.split(".")
+    return "{0:s}{1:010d}".format(stream, int(cfg))
+
+######################################################################
 def cmpToDoEntries(td1, td2):
-    """Compare quark keys.  This order is for multimass KS"""
+    """Compare todo entries with format x.nnnn"""
+    # Python 2.7 only
 
     (stream1, cfg1) = td1.split(".")
     (stream2, cfg2) = td2.split(".")
@@ -106,19 +119,19 @@ def writeTodo(todoFile, lockFile, todoList):
         todo = open(todoFile, "w")
 
     except IOError:
-        print "Can't open", todoFile, "for writing"
+        print("Can't open", todoFile, "for writing")
         sys.exit(1)
             
-    for line in sorted(todoList, cmpToDoEntries):
+    for line in sorted(todoList, key=keyToDoEntries):
         a = tuple(todoList[line])
         if len(a) == 4:
-            print >>todo, "%s %s %s %s" % a
+            print("{0} {1} {2} {3}".format(*a),file=todo)
         elif len(a) == 3:
-            print >>todo, "%s %s %s" % a
+            print("{0} {1} {2}".format(*a),file=todo)
         elif len(a) == 2:
-            print >>todo, "%s %s" % a
+            print("{0} {1}".format(*a),file=todo)
         elif len(a) == 1:
-            print >>todo, "%s" % a
+            print("{0}".format(*a),file=todo)
 
     todo.close()
 
