@@ -19,12 +19,16 @@ from Cheetah.Template import Template
 
 # The todo file contains the list of jobs to be done.
 # The line format of the todo file is
-# <cfgno> [<flag> [<jobid>]]
-# If the flag is empty, the job needs to be run
-# If the flag is "X", the job has been finished
-# If it is flagged "Q", the job was queued and <jobid> is present
+# <cfgno> <[L|F]n> [<flag> [<jobid>]]
+# Where cfgno is tne configuration number in the format x.nnn where x is the series letter and nnn
+# is the configuration number in the series
+# [L|F]n is the base source time slice for loose L and fine F solves -- e.g. F64
+# (This is just a counter. The base times are converted to a precessed time in the job script.)
+# If flag is empty, the job needs to be run
+# If flag is "X", the job has been finished
+# If it is "Q", the job was queued and <jobid> is present
 
-# Requires params-allHISQ.yaml with definitions of variables needed here
+# Requires TodoUtils.py and params-launch.yaml with definitions of variables needed here
 
 ######################################################################
 def countQueue( scheduler,  myjobname ):
@@ -60,28 +64,53 @@ def countQueue( scheduler,  myjobname ):
     return nqueued
 
 ######################################################################
+def nextJobSeqNo(file):
+    """Read, update, write job sequence number in file"""
+
+    fp = open(file)
+    s = fp.read()
+    if len(s) == 0:
+        s = 0
+    else:
+        s = int(s.rstrip())
+    fp.close()
+
+    s = s + 1
+
+    fp = open(file,"w")
+    print(s,file=fp)
+    fp.close()
+
+    # Insert leading zeros
+    return "{0:04d}".format(s)
+
+######################################################################
 def nextCfgnos( maxCases, todoList ):
-    """Get next sets of cfgnos from todo file"""
+    """Get next sets of cfgnos / source times from todo file"""
 
     # return status 1 failure, 0 success
 
     # Get the cfg number and source location 
     # of the next lattice from the todo file
 
-    cfgnos = []
+    cfgnoTsrcs = []
     for line in sorted(todoList,key=keyToDoEntries):
         a = todoList[line]
-        if len(a) == 1 or a[1] != "Q" and not "X" in a[1]:
-            cfgnos.append(a[0])
-            if len(cfgnos) >= maxCases:
+        if len(a) < 2:
+            print("ERROR: bad todo line format");
+            print(a)
+            sys.exit(1)
+        if len(a) == 2 or a[2] != "Q" and not "X" in a[2]:
+            cfgnoTsrcs.append([a[0],a[1]])
+            if len(cfgnoTsrcs) >= maxCases:
                 break
 
-    ncases = len(cfgnos)
+    ncases = len(cfgnoTsrcs)
     
     if ncases > 0:
-        print("Found", ncases, "cases...", cfgnos)
+        print("Found", ncases, "cases...", cfgnoTsrcs)
 
-    return cfgnos
+    return cfgnoTsrcs
 
 
 
@@ -107,13 +136,48 @@ def nextCfgnos( maxCases, todoList ):
 #     return qsubSeqNo
 
 ######################################################################
-def submitJob(param, cfgnos, jobScript):
+def setupJob(cfgnoTsrcs, njobs, jobSeqNo):
+    """Set up the job"""
+
+    # Pack configuration numbers and source times
+    c, t = list(zip(*cfgnoTsrcs))
+    cfgs_milc = "/".join(c)
+    tsrcs = "/".join(t)
+    
+    ncases = str(len(cfgnoTsrcs))
+    njobs = str(njobs)
+
+    print("Setting up myJobID", jobSeqNo, "with NCASES", ncases, "in NJOBS",
+          njobs, "LATS", cfgs_milc, "TSRCS", tsrcs)
+
+    runCmdFile="runJob" + jobSeqNo + ".sh"
+
+    argList = [cfgs_milc, tsrcs, ncases, njobs, jobSeqNo, runCmdFile]
+    scriptList = ["../scripts/params-allHISQ-plus5.yaml",
+                  "../scripts/params-launch.yaml",
+                  "params-ens.yaml params-machine.yaml"]
+
+    cmd = " ".join(["python ../scripts/make-allHISQ-prompts.py"] + argList + scriptList)
+    print(cmd)
+
+    reply = ""
+    try:
+        reply = subprocess.check_output(cmd, shell=True)
+    except subprocess.CalledProcessError as e:
+        print(reply)
+        print("Job setup error.  Return code", e.returncode)
+        sys.exit(1)
+
+    return runCmdFile
+    
+######################################################################
+def submitJob(param, runCmdFile, jobScript):
     """Submit the job"""
 
     layout = param['submit']['layout']
     njobs = layout['njobs']
     nodes = layout['basenodes'] * njobs
-    np = nodes * layout['ppn']
+    NP = str(nodes * layout['ppn'])
 
     walltime = param['submit']['walltime']
     jobname = param['submit']['jobname']
@@ -125,16 +189,6 @@ def submitJob(param, cfgnos, jobScript):
         archflags = ''
     scheduler = param['launch'][locale]['scheduler']
 
-    # Environment variables passed to the job script
-    LATS = "/".join(str(c) for c in cfgnos)
-    NCASES = str(len(cfgnos))
-    NJOBS = str(njobs)
-    NP = str(np)
-    os.environ["LATS"] = LATS
-    os.environ["NCASES"] = NCASES
-    os.environ["NJOBS"] = NJOBS
-    os.environ["NP"] = NP
-
     # Does job script exist?
     try:
         stat = os.stat(jobScript)
@@ -142,6 +196,9 @@ def submitJob(param, cfgnos, jobScript):
         print("Can't find", jobScript)
         print("Quitting")
         sys.exit(1)
+
+    # Name of file containing job launch commands
+    os.environ["RUNCMDFILE"] = runCmdFile
 
     # Job submission command depends on locale
     if scheduler == 'LSF':
@@ -199,16 +256,17 @@ def submitJob(param, cfgnos, jobScript):
         jobid = jobid.decode('ASCII')
 
     date = subprocess.check_output("date",shell=True).rstrip().decode()
-    print(date, "Submitted job", jobid, "for cfgs", cfgnos)
+    print(date, "Submitted job", jobid, "for runCmdFile", runCmdFile)
 
     return (0, jobid)
 
 ######################################################################
-def markQueuedTodoEntries(cfgnos, jobid, todoList):
+def markQueuedTodoEntries(cfgnoTsrcs, jobid, todoList):
     """Update the todoFile, change status to "Q" and mark the job number"""
 
-    for cfg in cfgnos:
-        todoList[cfg] = [ cfg, "Q", jobid ]
+    for c, t in cfgnoTsrcs:
+        key = c + "-" + t
+        todoList[key] = [ c, t, "Q", jobid ]
 
 ######################################################################
 def nannyLoop(YAML, YAMLLaunch):
@@ -252,8 +310,8 @@ def nannyLoop(YAML, YAMLLaunch):
             todoList = readTodo(todoFile, lockFile)
 
             # List a set of cfgnos
-            cfgnos = nextCfgnos(maxCases, todoList)
-            ncases = len(cfgnos)
+            cfgnoTsrcs = nextCfgnos(maxCases, todoList)
+            ncases = len(cfgnoTsrcs)
 
             # If we have exhausted the todo list, stop
             if ncases <= 0:
@@ -261,20 +319,26 @@ def nannyLoop(YAML, YAMLLaunch):
                 removeTodoLock(lockFile)
                 sys.exit(0)
 
+            # We need our own jobid for setting up the job
+            jobSeqNo = nextJobSeqNo("JOBSEQNO")
+
+            # Set up the job
+            runCmdFile = setupJob(cfgnoTsrcs, njobs, jobSeqNo)
+
             # Submit the job
-            ( status, jobid ) = submitJob(param, cfgnos, jobScript)
+            status, jobid = submitJob(param, runCmdFile, jobScript)
             
             # Job submission succeeded
             # Edit the todoFile, marking the lattice queued and indicating the jobid
             if status == 0:
-                markQueuedTodoEntries(cfgnos, jobid, todoList)
+                markQueuedTodoEntries(cfgnoTsrcs, jobid, todoList)
             else:
                 # Job submission failed
                 if status == 1:
                     # Fatal error
                     sys.exit(1)
                 else:
-                    print("Will retry submitting", cfgnos, "later")
+                    print("Will retry submitting", cfgnoTsrcs, "later")
 
             writeTodo(todoFile, lockFile, todoList)
         sys.stdout.flush()
@@ -288,13 +352,46 @@ def nannyLoop(YAML, YAMLLaunch):
         param = updateParam(param, paramLaunch)
 
 
+######################################################################
+def testJobSetup():
+    """Test the job setup"""
+
+    cfgnoTsrcs = [["x.8","L.0"],["x.8","L.24"],["x.8","L.48"],
+                  ["x.14","F.0"],["x.16","L.72"],["x.18","L.96"]]
+    ncases = len(cfgnoTsrcs)
+    njobs = ncases
+    jobSeqNo = nextJobSeqNo("JOBSEQNO")
+
+    # Set up the job
+    runCmdFile = setupJob(cfgnoTsrcs, njobs, jobSeqNo )
+
+    print("runCmdFile =", runCmdFile)
+    
 ############################################################
 def main():
+
+    # Set permissions
+    os.system("umask 022")
+    print(sys.argv)
+
+    try:
+        a = sys.argv[1]
+    except:
+        a = ""
+
+    if a == 'test':
+        test = True
+    else:
+        test = False
 
     # Parameter file
     YAML = "params-machine.yaml"
     YAMLLaunch = "../scripts/params-launch.yaml"
-    nannyLoop(YAML, YAMLLaunch)
+
+    if test:
+        testJobSetup()
+    else:
+        nannyLoop(YAML, YAMLLaunch)
 
 
 ############################################################

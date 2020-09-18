@@ -81,7 +81,8 @@ def readTodo(todoFile, lockFile):
         for i in range(len(a)):
             if type(a[i]) is bytes:
                 a[i] = a[i].decode('ASCII')
-        todoList[a[0]] = a
+        key = a[0]+"-"+a[1]
+        todoList[key] = a
 
     todo.close()
     return todoList
@@ -90,8 +91,9 @@ def readTodo(todoFile, lockFile):
 def keyToDoEntries(td):
     """Sort key for todo entries with format x.nnnn"""
 
-    (stream, cfg) = td.split(".")
-    return "{0:s}{1:010d}".format(stream, int(cfg))
+    (streamCfg, precTsrc) = td.split("-")
+    (stream, cfg) = streamCfg.split(".")
+    return "{0:s}{1:010d}{2:s}".format(stream, int(cfg), precTsrc)
 
 ######################################################################
 def cmpToDoEntries(td1, td2):
@@ -124,7 +126,9 @@ def writeTodo(todoFile, lockFile, todoList):
             
     for line in sorted(todoList, key=keyToDoEntries):
         a = tuple(todoList[line])
-        if len(a) == 4:
+        if len(a) == 5:
+            print("{0} {1} {2} {3} {4}".format(*a),file=todo)
+        elif len(a) == 4:
             print("{0} {1} {2} {3}".format(*a),file=todo)
         elif len(a) == 3:
             print("{0} {1} {2}".format(*a),file=todo)

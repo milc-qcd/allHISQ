@@ -1,4 +1,4 @@
-# File naming and handling procedures for the Bpilnu project
+# File naming and handling procedures for the allHISQB project
 # C. DeTar 5 April 2018
 
 # Python 3 version
@@ -30,6 +30,7 @@ def addRootPaths(param):
     archiveRoot = archiveRootDir(param['archiveRoot'], afm, lrun)
     # Add to the parameter dictionary
     root['remote'] = remoteRoot
+    root['remoteSSD'] = "DW_JOB_STRIPED"
     root['archive'] = archiveRoot
 
 ######################################################################
@@ -74,13 +75,14 @@ def checkSSDList(path):
 class StageFile:
     """Staging and saving files"""
     def __init__(self, localDir, localSubdirs, remoteDir, remoteSubdirs, name, mode, 
-                 multiJobName, createLink):
+                 multiJobSubDirs, multiJobName, createLink):
         self.localDir = localDir
         self.remoteDir = remoteDir
         self.localSubdirs = localSubdirs
         self.remoteSubdirs = remoteSubdirs
         self.fileName = name
         self.mode = mode
+        self.multiJobSubDirs = multiJobSubDirs
         self.multiJobName = multiJobName
         self.createLink = createLink
 
@@ -95,16 +97,18 @@ class StageFile:
         if self.localDir == None:
             self.localDirs = None
             self.pathLocal = self.pathRemote
-            self.pathSymLink = self.remoteDirs
         else:
             self.localDirs = buildPath(self.localDir, self.localSubdirs)
             makePath(self.localDirs)
             self.pathLocal = os.path.join(self.localDirs, self.fileName)
-            self.pathSymLink = self.localDirs
 
         # Create symlink to file if requested
         if self.multiJobName != None and self.createLink:
-            self.pathSymLink = os.path.join(self.pathSymLink, self.multiJobName)
+            print("remoteDir:", self.remoteDir, "multiJobSubDirs:", self.multiJobSubDirs)
+            print("multiJobName", self.multiJobSubDirs)
+            self.symLinkDirs = buildPath(self.remoteDir, self.multiJobSubDirs)
+            self.pathSymLink = os.path.join(self.symLinkDirs, self.multiJobName)
+
             if verbose:
                 print("Creating symlink to", self.pathLocal, "from", self.pathSymLink)
             # Create the target file if it doesn't exist
@@ -258,7 +262,8 @@ class StageFile:
 
 ######################################################################
 def codeCfg(suffix, cfg):
-    """Encode tsrc and cfg for file names"""
+    """Encode suffix and cfg for file names
+       takes a, 120 -> a000120"""
     if suffix == '' or suffix == None:
         series = 'a'
     else:
@@ -266,20 +271,28 @@ def codeCfg(suffix, cfg):
     return "{0:s}{1:06d}".format(series,int(cfg))
 
 ######################################################################
-def codeTsrcCfg(tsrcConfigId):
-    """Encode tsrc and cfg for file names"""
-    (tsrc, suffix, cfg) = tsrcConfigId
+def codeTsrc(prec, tsrc):
+    """Encode prec and tsrc for file names
+       takes L 32 -> L032"""
+    return "{0:s}{1:03d}".format(prec, tsrc)
+
+######################################################################
+def codePrecTsrcCfg(precTsrcConfigId):
+    """Encode tsrc and cfg for file names
+       takes [P, 32, a, 120] -> t32P.a000120"""
+    (prec, tsrc, suffix, cfg) = precTsrcConfigId
     configId = codeCfg(suffix, cfg)
-    return "t{0:d}.{1:s}".format(tsrc, configId)
+    return "t{0:d}{1:s}.{2:s}".format(tsrc, prec, configId)
 ######################################################################
-def codeTsrcSym(tsrcConfigId,kjob):
-    """Encode tsrc and kjob for file names"""
-    (tsrc, suffix, cfg) = tsrcConfigId
-    return "t{0:d}.j{1:02d}".format(tsrc, kjob)
+def codePrecTsrcSym(precTsrcConfigId,kjob):
+    """Encode tsrc and kjob for file names
+       takes [P, 32, a, 120], 4 -> t32P.a000120.j04"""
+    (prec, tsrc, suffix, cfg) = precTsrcConfigId
+    return "t{0:d}{1:s}.j{2:02d}".format(tsrc, prec, kjob)
 ######################################################################
-def ensFile(pfx, run, tsrcConfigId):
+def ensFile(pfx, run, precTsrcConfigId):
     """Standard file name pattern containing the ensemble name, time source, and configuration"""
-    sfx = codeTsrcCfg(tsrcConfigId)
+    sfx = codePrecTsrcCfg(precTsrcConfigId)
     return  "{0:s}_{1:s}_{2:s}".format(pfx, run, sfx)
 
 ######################################################################
@@ -293,9 +306,9 @@ def milc2FNAL(suffix, cfg):
     return "{0:d}{1:05d}".format(leading, cfg)
 
 ######################################################################
-def rndFile(sq, run, tsrcConfigId):
+def rndFile(sq, run, precTsrcConfigId):
     """Construct random source name"""
-    return ensFile('rnd' + sq, run, tsrcConfigId)
+    return ensFile('rnd' + sq, run, precTsrcConfigId)
 
 ######################################################################
 def latFileCoul( run, suffix, cfg):
@@ -313,25 +326,25 @@ def latFileMILCv5( run, suffix, cfg):
     return "l{0:s}{1:s}.{2:d}".format(run, suffix, int(cfg))
 
 ######################################################################
-def propNameKS(qkKey, run, tsrcConfigId):
+def propNameKS(qkKey, run, precTsrcConfigId):
     """Construct KS propagator file name"""
-    return ensFile( 'prop_' + qkKey, run, tsrcConfigId )
+    return ensFile( 'prop_' + qkKey, run, precTsrcConfigId )
 
 ######################################################################
-def propNameClover(qkKey, run, tsrcConfigId):
+def propNameClover(qkKey, run, precTsrcConfigId):
     """Construct KS propagator file name"""
-    return ensFile( 'prop_' + qkKey, run, tsrcConfigId )
+    return ensFile( 'prop_' + qkKey, run, precTsrcConfigId )
 
 ######################################################################
-def corr3ptFileName(chan, run, extT, tsrcConfigId):
+def corr3ptFileName(chan, run, extT, precTsrcConfigId):
     """Construct 3pt correlator file name"""
-    (tsrc, suffix, cfg) = tsrcConfigId
+    (prec, tsrc, suffix, cfg) = precTsrcConfigId
     return "corr3pt_T{0:d}_{1:s}".format(extT,  codeCfg(suffix, cfg))
 
 ######################################################################
-def corr2ptFileName(chan, run, tsrcConfigId):
+def corr2ptFileName(chan, run, precTsrcConfigId):
     """Construct 2pt correlator file name"""
-    (tsrc, suffix, cfg) = tsrcConfigId
+    (prec, tsrc, suffix, cfg) = precTsrcConfigId
     return "corr2pt_{0:s}".format(codeCfg(suffix, cfg))
 
 ######################################################################
@@ -358,60 +371,66 @@ def massSubdir3pt(mQkS, mQkP, mQkD, mom):
     return '-'.join([mQkP, mQkS, mQkD, momLabel(mom)])
 
 ######################################################################
-def logFileName(run, tsrcConfigId, jobid, tag, seqno):
-    """Construct log file (stdout) name"""
-    (tsrc, suffix, cfg) = tsrcConfigId
-    # return "logJob{0:s}_{1:s}_{2:s}".format(jobid, seqno, codeTsrcCfg(tsrcConfigId))
+def logFileName(run, precTsrcConfigId, jobid, tag, seqno):
+    """Construct log file (stdout) name
+       takes run1a, [ P, 32, a, 120 ], 52343, X, step1 -> logJobX52343.a000120"""
+    (prec, tsrc, suffix, cfg) = precTsrcConfigId
+    # return "logJob{0:s}_{1:s}_{2:s}".format(jobid, seqno, codeTsrcCfg(precTsrcConfigId))
     return "logJob{0:s}{1:s}.{2:s}".format(tag, jobid, codeCfg(suffix, cfg))
 
 ######################################################################
-def logFileSymLink(run, tsrcConfigId, jobid, tag, seqno, kjob, njobs):
-    """Construct log file (stdout) name"""
-    (tsrc, suffix, cfg) = tsrcConfigId
+def logFileSymLink(run, precTsrcConfigId, jobid, tag, seqno, kjob, njobs):
+    """Construct log file (stdout) name
+       takes run1a, [ P, 32, a, 120 ], 52343, X, step1, 4, 12 -> logJobX52343_t32.a000120.j04"""
     if njobs == 1:
         return None
     else:
         return "logJob{0:s}{1:s}_{2:s}_{3:s}".format(tag, jobid, seqno, 
-                codeTsrcSym(tsrcConfigId, kjob))
+                codePrecTsrcSym(precTsrcConfigId, kjob))
 
 ######################################################################
-def outFileName(run, tsrcConfigId, jobid, tag, seqno):
-    """Construct log file (stdout) name"""
-    return "outJob{0:s}{1:s}_{2:s}_{3:s}".format(tag, jobid, seqno, codeTsrcCfg(tsrcConfigId))
+def outFileName(run, precTsrcConfigId, jobid, tag, seqno):
+    """Construct log file (stdout) name
+       takes run1a, [ P, 32, a, 120 ], 52343, X, step1 -> outJob52343_step1_t32P.a000120"""
+    return "outJob{0:s}{1:s}_{2:s}_{3:s}".format(tag, jobid, seqno, codePrecTsrcCfg(precTsrcConfigId))
 
 ######################################################################
-def outFileSymLink(run, tsrcConfigId, jobid, tag, seqno, kjob, njobs):
-    """Construct log file (stdout) name"""
+def outFileSymLink(run, precTsrcConfigId, jobid, tag, seqno, kjob, njobs):
+    """Construct log file (stdout) name
+       takes run1a, [ P, 32, a, 120 ], 52343, X, step1, 4, 12 -> outJob52343_step1_t32P.a000120.j04"""
     if njobs == 1:
         return None
     else:
-        return "outJob{0:s}{1:s}_{2:s}_{3:s}".format(tag, jobid, seqno, codeTsrcSym(tsrcConfigId, kjob))
+        return "outJob{0:s}{1:s}_{2:s}_{3:s}".format(tag, jobid, seqno,
+                                                     codePrecTsrcSym(precTsrcConfigId, kjob))
 
 ######################################################################
-def errFileName(run, tsrcConfigId, jobid, tag, seqno):
+def errFileName(run, precTsrcConfigId, jobid, tag, seqno):
     """Construct error file (stderr) name"""
-    return "errJob{0:s}{1:s}_{2:s}_{3:s}".format(tag, jobid, seqno, codeTsrcCfg(tsrcConfigId))
+    return "errJob{0:s}{1:s}_{2:s}_{3:s}".format(tag, jobid, seqno, codePrecTsrcCfg(precTsrcConfigId))
 
 ######################################################################
-def errFileSymLink(run, tsrcConfigId, jobid, tag, seqno, kjob, njobs):
+def errFileSymLink(run, precTsrcConfigId, jobid, tag, seqno, kjob, njobs):
     """Construct error file (stderr) name"""
     if njobs == 1:
         return None
     else:
-        return "errJob{0:s}{1:s}_{2:s}_{3:s}".format(tag, jobid, seqno, codeTsrcSym(tsrcConfigId, kjob))
+        return "errJob{0:s}{1:s}_{2:s}_{3:s}".format(tag, jobid, seqno,
+                                                     codePrecTsrcSym(precTsrcConfigId, kjob))
 
 ######################################################################
-def inFileName(run, tsrcConfigId, jobid, tag, seqno):
+def inFileName(run, precTsrcConfigId, jobid, tag, seqno):
     """Construct input file (stdin) name"""
-    return "inJob{0:s}{1:s}_{2:s}_{3:s}".format(tag, jobid, seqno, codeTsrcCfg(tsrcConfigId))
+    return "inJob{0:s}{1:s}_{2:s}_{3:s}".format(tag, jobid, seqno, codePrecTsrcCfg(precTsrcConfigId))
 
 ######################################################################
-def inFileSymLink(run, tsrcConfigId, jobid, tag, seqno, kjob, njobs):
+def inFileSymLink(run, precTsrcConfigId, jobid, tag, seqno, kjob, njobs):
     """Construct input file (stdin) name"""
     if njobs == 1:
         return None
     else:
-        return "inJob{0:s}{1:s}_{2:s}_{3:s}".format(tag, jobid, seqno, codeTsrcSym(tsrcConfigId, kjob))
+        return "inJob{0:s}{1:s}_{2:s}_{3:s}".format(tag, jobid, seqno,
+                                                    codePrecTsrcSym(precTsrcConfigId, kjob))
 
 ######################################################################
 def tarFileName(configId, jobid, tag):
