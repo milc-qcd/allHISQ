@@ -433,13 +433,6 @@ def inFileSymLink(run, precTsrcConfigId, jobid, tag, seqno, kjob, njobs):
                                                     codePrecTsrcSym(precTsrcConfigId, kjob))
 
 ######################################################################
-def tarFileName(configId, jobid, tag):
-    """Construct tar file name"""
-    (suffix, cfg) = configId
-    return "Job{0:s}{1:s}_{2:s}.tar.bz2".format(tag, jobid, codeCfg(suffix, cfg))
-
-
-######################################################################
 def prefixSpinTaste( pfx, spinTaste ):
     """Convert spin-taste prefix from gamma notation to bilinear notation
     For example, GXT-GT is converted to T14-V4"""

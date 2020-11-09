@@ -61,6 +61,23 @@ def loadParam(file):
 
     return param
 
+############################################################
+def loadParamsJoin(YAMLEns, YAMLAll):
+    """Concatenate two YAML parameter files and load
+    We need this because YAMLEns defines a reference needed
+    by YAMLAll"""
+    
+    # Initial parameter file
+    try:
+        ens = open(YAMLEns,'r').readlines()
+        all = open(YAMLAll,'r').readlines()
+        param = yaml.safe_load("".join(ens+all))
+    except:
+        print("ERROR: Error loading the parameter files", YAMLEns, YAMLAll)
+        sys.exit(1)
+
+    return param
+
 ######################################################################
 def readTodo(todoFile, lockFile):
     """Read the todo file"""
@@ -126,7 +143,9 @@ def writeTodo(todoFile, lockFile, todoList):
             
     for line in sorted(todoList, key=keyToDoEntries):
         a = tuple(todoList[line])
-        if len(a) == 5:
+        if len(a) == 6:
+            print("{0} {1} {2} {3} {4} {6}".format(*a),file=todo)
+        elif len(a) == 5:
             print("{0} {1} {2} {3} {4}".format(*a),file=todo)
         elif len(a) == 4:
             print("{0} {1} {2} {3}".format(*a),file=todo)

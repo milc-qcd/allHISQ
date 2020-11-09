@@ -12,14 +12,15 @@ verbose = False
 
 # Usage
 
-#  clean_corrs.py <run> <seriesCfg> <tarList>")
+#  clean_corrs.py <stream> <seriesCfg> <precTsrc> <corrList>")
 
-#  run        The run directory name containing "data" and "logs"
-#  seriesCfg  The configuraition label, as in a.505
-#  tarList    The complete list of paths to the correlator data, starting from the "loose"
-#             or "fine" subdirectories
+#  stream      The stream directory name containing the data and logs
+#  seriesCfg   The configuration label, as in a.505
+#  precTsrc    The precision and tsrc label, as in L.25
+#  corrList    The complete list of paths to the correlator data, starting from the 
+#              "data" subdirectory
 
-# Format of tarList: one line for each correlator file
+# Format of corrList: one line for each correlator file
 # but with "CFG" in place of the configuration number and a line count for
 # data for a single time slice.  These values are used in conjunction with
 # the antiquark_source_origin to determine completeness
@@ -27,11 +28,6 @@ verbose = False
 # Format ...
 # pi/m0.0024-m0.0024-p100/corr2pt_CFG 177
 # pi/m0.0024-m0.0024-p222/corr2pt_CFG 177
-
-#######################################################################
-def decodeSeriesCfg(seriesCfg):
-    """Decode series, cfg, as it appeaers in the todo file"""
-    return seriesCfg.split(".")
 
 ######################################################################
 def codeCfg(suffix, cfg):
@@ -118,31 +114,36 @@ def filterTimeCorr(corrPath, keepTimes, linesPerTime):
     return 0
 
 ######################################################################
-def filterTimeCorrs(run, precisionLabel, tarList, s06Cfg, keepTimes):
+def filterTimeCorrs(jobCase, corrList, keepTimes):
     """For correlators in the tarFiles, keep only output with the specified jobID"""
     
+    (stream, series, cfg, prec, tsrc, s06Cfg, tsrcID) = jobCase
+
     try:
-        tfp = open(tarList)
+        tfp = open(corrList)
     except:
-        print("ERROR opening", tarList)
+        print("ERROR opening", corrList)
         return 1
 
     for line in tfp:
         corrFile, linesPerTime = line.split()
         linesPerTime = int(linesPerTime)
         corrFile = re.sub('CFG', s06Cfg, corrFile)
-        corrPath = os.path.join(run, "data", precisionLabel, corrFile)
+        corrPath = os.path.join(stream, s06Cfg, tsrcID, "data", corrFile)
         if filterTimeCorr(corrPath, keepTimes, linesPerTime):
             return 1
     return 0
 
 ######################################################################
-def scanData(run, precisionLabel, s06Cfg, tarList):
-    """Scan for completed loose correlator data"""
+def scanData(jobCase, corrList):
+    """Scan for completed correlator data"""
+
+    (stream, series, cfg, prec, tsrc, s06Cfg, tsrcID) = jobCase
+    
     try:
-        tfp = open(tarList)
+        tfp = open(corrList)
     except:
-        print("ERROR opening", tarList)
+        print("ERROR opening", corrList)
         sys.exit(1)
 
     tRemove = set()
@@ -157,7 +158,7 @@ def scanData(run, precisionLabel, s06Cfg, tarList):
     for line in tfp:
         corrFile, linesPerTime = line.split()
         corrFile = re.sub('CFG', s06Cfg, corrFile)
-        corrFilePath = os.path.join(run, "data", precisionLabel, corrFile)
+        corrFilePath = os.path.join(stream, s06Cfg, tsrcID, "data", corrFile)
         linesPerTime = int(linesPerTime)
 
         try:
@@ -271,91 +272,91 @@ def scanData(run, precisionLabel, s06Cfg, tarList):
                     tSurplusData.update([t0])
 
     if nExtra > 0:
-        print("ERROR: in", nExtra, precisionLabel,
+        print("ERROR: in", nExtra, 
               "correlator files there was a mismatch between the time stanza count",
               "and the number of unique source times")
     if nBadMeasure > 0:
-        print("ERROR: In", nBadMeasure,  precisionLabel, nBadMeasure,
+        print("ERROR: In", nBadMeasure,
               "correlator files the line count was not an integer multiple of the fiducial count",
               "per stanza, indicating either extra or missing lines.")
 
     return tFinished, tRemove, nExtra, nBadMeasure, nMissing
+
+#######################################################################
+def decodeSeriesCfg(seriesCfg):
+    """Decode series, cfg, as it appeaers in the todo file"""
+    return seriesCfg.split(".")
+
+#######################################################################
+def decodePrecTsrc(seriesCfg):
+    """Decode prec, tsrc, as it appeaers in the todo file
+       Takes P.nn -> [P, nnn]"""
+    return seriesCfg.split(".")
+
+######################################################################
+def codeTsrc(prec, tsrc):
+    """Encode prec and tsrc for file names
+       takes L 32 -> L032"""
+    return "{0:s}{1:03d}".format(prec, tsrc)
+
+######################################################################
+def decodeCase(stream, seriesCfg, precTsrc):
+    """Move failed output to temporary failure archive"""
+
+    series, cfg = decodeSeriesCfg(seriesCfg)
+    s06Cfg = codeCfg(series, cfg)
+    prec, tsrc = decodePrecTsrc(precTsrc)
+    tsrc = int(tsrc)
+    tsrcID = codeTsrc(prec,tsrc)
+
+    return stream, series, cfg, prec, tsrc, s06Cfg, tsrcID
 
 ######################################################################
 def main():
 
     if len(sys.argv) < 4:
         print("Usage")
-        print(sys.argv[0], "<run> <seriesCfg> <tarList>")
+        print(sys.argv[0], "<stream> <seriesCfg> <precTsrc> <corrList>")
         sys.exit(1)
 
-    ( run, seriesCfg, tarList ) = sys.argv[1:4]
+    ( stream, seriesCfg, precTsrc, corrList ) = sys.argv[1:5]
 
-    series, cfg = decodeSeriesCfg(seriesCfg)
-    s06Cfg = codeCfg(series, cfg)
+    jobCase = decodeCase(stream, seriesCfg, precTsrc)
+    (stream, series, cfg, prec, tsrc, s06Cfg, tsrcID) = jobCase
 
     print(sys.argv)
 
-    # Scan loose data set for completed correlator data
-    print("Scanning the loose data set")
-    tFinished, tRemove, nExtra, nBadMeasure, nMissing  = scanData( run, "loose", s06Cfg, tarList )
+    # Scan data set for completed correlator data
+    print("Scanning the data set")
+    tFinished, tRemove, nExtra, nBadMeasure, nMissing  = scanData( jobCase, corrList )
 
     if len(tFinished) == 0:
         print("No finished sets were found.  Recommend rerunning the entire job")
     else:
-        print("The following", len(tFinished), "loose times are common to all correlators:")
+        print("The following", len(tFinished), "times are common to all correlators:")
         print(sorted(tFinished))
         
         if len(tRemove) > 0 or nExtra > 0 or nBadMeasure > 0 or nMissing > 0:
             if len(tRemove) > 0:
-                print("The following loose time sets are incomplete and will be removed")
+                print("The following time stanzas are incomplete and will be removed")
                 print(sorted(tRemove))
 
             if nExtra > 0:
-                print("Duplicate loose time stanzas were found and will be removed")
+                print("Duplicate time stanzas were found and will be removed")
 
             if nBadMeasure > 0:
                 print("Possible surplus data were found and will be removed")
 
             if nMissing > 0:
-                print("There were", nMissing, "missing loose correlstors.  Recommend rerunning the job.")
+                print("There were", nMissing, "missing correlstors.  Recommend rerunning the job.")
 
             # Rewrite all correlator files, keeping only those with tFinished
-            if filterTimeCorrs(run, "loose", tarList, s06Cfg, tFinished):
+            if filterTimeCorrs(jobCase, corrList, tFinished):
                 print("Quitting")
                 sys.exit(1)
+            print("Done checking/cleaning")
         else:
-            print("No loose times need to be removed")
-
-    # Scan fine data set for completed correlator data
-    print("Scanning the fine data set (if it exists)")
-    tFinished, tRemove, nExtra, nBadMeasure, nMissing = scanData( run, "fine", s06Cfg, tarList )
-
-    if len(tFinished) == 0:
-        print("There were missing completed fine data sets.")
-
-    else:
-        print("The following", len(tFinished), "fine times are common to all correlators:")
-        print(sorted(tFinished))
-        
-        if len(tRemove) > 0 or nExtra > 0 or nMissing > 0:
-            if len(tRemove) > 0:
-                print("The following fine times are incomplete and will be removed")
-                print(sorted(tRemove))
-
-            if nExtra > 0:
-                print("Duplicate fine time stanzas were found and will be removed")
-
-            if nBadMeasure > 0:
-                print("Possible surplus data were found and will be removed")
-
-            if nMissing > 0:
-                print("There were", nMissing, "missing fine correlstors.  Recommend rerunning the job.")
-
-            # Rewrite all correlator files, keeping only those with tFinished
-            if filterTimeCorrs(run, "fine", tarList, s06Cfg, tFinished):
-                print("Quitting")
-                sys.exit(1)
+            print("No time stanzas need to be removed")
 
 ######################################################################
 main()

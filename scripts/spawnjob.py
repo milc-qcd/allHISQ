@@ -19,14 +19,13 @@ from Cheetah.Template import Template
 
 # The todo file contains the list of jobs to be done.
 # The line format of the todo file is
-# <cfgno> <[L|F]n> [<flag> [<jobid>]]
+# <cfgno> <[L|F].nnn> [<flag> [<jobid> <jobseqno>]]
 # Where cfgno is tne configuration number in the format x.nnn where x is the series letter and nnn
 # is the configuration number in the series
-# [L|F]n is the base source time slice for loose L and fine F solves -- e.g. F64
-# (This is just a counter. The base times are converted to a precessed time in the job script.)
+# [L|F]nnn is the base source time slice for loose L and fine F solves -- e.g. F64
 # If flag is empty, the job needs to be run
 # If flag is "X", the job has been finished
-# If it is "Q", the job was queued and <jobid> is present
+# If it is "Q", the job was queued and <jobid>  and <jobseno> is present
 
 # Requires TodoUtils.py and params-launch.yaml with definitions of variables needed here
 
@@ -261,12 +260,12 @@ def submitJob(param, runCmdFile, jobScript):
     return (0, jobid)
 
 ######################################################################
-def markQueuedTodoEntries(cfgnoTsrcs, jobid, todoList):
+def markQueuedTodoEntries(cfgnoTsrcs, jobid, jobSeqNo, todoList):
     """Update the todoFile, change status to "Q" and mark the job number"""
 
     for c, t in cfgnoTsrcs:
         key = c + "-" + t
-        todoList[key] = [ c, t, "Q", jobid ]
+        todoList[key] = [ c, t, "Q", jobid, jobSeqNo ]
 
 ######################################################################
 def nannyLoop(YAML, YAMLLaunch):
@@ -331,7 +330,7 @@ def nannyLoop(YAML, YAMLLaunch):
             # Job submission succeeded
             # Edit the todoFile, marking the lattice queued and indicating the jobid
             if status == 0:
-                markQueuedTodoEntries(cfgnoTsrcs, jobid, todoList)
+                markQueuedTodoEntries(cfgnoTsrcs, jobid, jobSeqNo, todoList)
             else:
                 # Job submission failed
                 if status == 1:
