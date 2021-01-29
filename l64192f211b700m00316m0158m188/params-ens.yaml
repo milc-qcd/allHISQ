@@ -1,0 +1,95 @@
+ensemble:
+  run: 64192f211b700m00316m0158m188
+  dim: [ 64, 64, 64, 192 ]
+  u0: 1
+  atrue: 0.04259       # B, D decay constant paper 1712.09262
+  afm: '0.042'         # Subdirectory label
+
+tsrcRange:
+  loose:
+    start: 0
+    stop:  192
+    step:  8
+    precess: 6
+  fine:
+    start: 0
+    stop: 192
+    step: 192
+    precess: 2
+
+# Intervals between configuration numbers
+cfgsep:
+  a: 6
+  b: 6
+  x: 4    # For testing
+
+tSnkHtopi: &ref_tSnkHtopi [ 34, 39, 45, 52 ]
+tSnkHtoH: &ref_tSnkHtoH   [ 28, 35, 43, 52 ]
+
+eigen:
+  Nvecs: 0
+
+stream: run1a
+
+######################################################################
+# Quark parameters
+######################################################################
+quarks:
+  qlight:
+    type: KS
+    mass: ['0.00311']
+    naik_epsilon: ['0.']
+    residual_loose:
+      L2: 2e-3
+      R2: 0.
+    residual_fine:
+      L2: 1e-7
+      R2: 0.
+    maxCG: 
+      iters: 4000
+      restarts: 5
+    precision: 2
+    deflate: 'yes'
+
+  qstrange:
+    type: KS
+    mass: ['0.01555']
+    naik_epsilon: ['0.']
+    residual_loose:
+      L2: 2e-3
+      R2: 0.
+    residual_fine:
+      L2: 1e-7
+      R2: 0.
+    maxCG:
+      iters: 2000
+      restarts: 5
+    precision: 2
+    deflate: 'no'
+
+  qheavy:
+    type: KS
+    mass: ['0.164','0.1827','0.365','0.548','0.731', '0.767' ]  # 0.9, 1.0, 2.0, 3.0, 3.5, 4.2 mc
+    naik_epsilon: ['-0.0179', '-0.0222', '-0.0849', '-0.1781', '-0.2877', '-0.3101' ]
+    residual_loose:
+      L2: 1e-16
+      R2: 1e-6
+    residual_fine:
+      L2: 1e-16
+      R2: 1e-6
+    maxCG:
+      iters: 400
+      restarts: 5
+    precision: 2
+    deflate: 'no'
+
+outputCheck:
+   corrFiducial: '/global/homes/d/detar/allHISQ/l64192f211b700m00316m0158m188/corr.fiducial'
+   corrFiles: 5968
+
+tarCheck:             # For checking that the output tarball is complete
+# Values for production running 12 loose source times and 0 fine
+#  tarEntries: 4418
+#  tarbzip2Size: 136000000
+#  tarDataLines: 15780528
+#  tarDataWords: 46009008
