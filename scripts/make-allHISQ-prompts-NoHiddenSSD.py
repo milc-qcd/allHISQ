@@ -5,6 +5,8 @@ from allHISQKeys import *
 from allHISQFilesNoHiddenSSD import *
 from Cheetah.Template import Template
 
+from datetime import datetime
+
 ######################################################################
 def listMass(param, qk):
     """ Get the masses or kappas for the specified quark"""
@@ -1197,26 +1199,29 @@ def runParam(seriesCfgs, ncases, njobs, param):
 
         tsrcRange = param['tsrcRange']['loose']
         trange = range(tsrcRange['start'], tsrcRange['stop'], tsrcRange['step'])
-        if 1:
-            # Loose calculation -- Iterate over all source times
-            param['residQuality'] = 'loose'
-            for tsrcBase in trange:
-                tsrcs = [ tsrcBase ] * njobs
-                nt = param['ensemble']['dim'][3]
-                for kjob in range(njobs):
-                    # Compute the precession shift for the source times, 
-                    # based on the cfg number in this group
-                    suffix, cfg = decodeSeriesCfg(seriesCfgsrep[kjob])
-                    if len(suffix) == 0:
-                        suffix = 'a'
-                    cfgSep = param['cfgsep'][suffix]
-                    tShift = int(cfg)/cfgSep*tsrcRange['precess']
-                    
-                    # Add precession shift mod nt
-                    tsrcs[kjob] = (tsrcBase + tShift) % nt
+        precessLoose = tsrcRange['precess']
+        stepLoose = tsrcRange['step']
 
-                print "Loose calculation with tsrcs", tsrcs
-                doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
+        # Construct a list of loose and fine precession shifts for each configuration
+        tShiftLoose = [ 0 ] * njobs
+        for kjob in range(njobs):
+            suffix, cfg = decodeSeriesCfg(seriesCfgsrep[kjob])
+            if len(suffix) == 0:
+                suffix = 'a'
+            cfgSep = param['cfgsep'][suffix]
+            tShiftLoose[kjob] = int(cfg)//cfgSep * precessLoose
+
+        # Loose calculation -- Iterate over all source times
+        param['residQuality'] = 'loose'
+        for tsrcBase in trange:
+            tsrcs = [ tsrcBase ] * njobs
+            nt = param['ensemble']['dim'][3]
+            for kjob in range(njobs):
+                tsrcs[kjob] = (tsrcBase + tShiftLoose[kjob]) % nt
+
+            print datetime.now(),"Loose calculation with tsrcs", tsrcs
+            sys.stdout.flush()
+            doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
 
         # Fine calculation -- only one source time per lattice
         # If we are running partial t ranges with multijob, 
@@ -1224,19 +1229,27 @@ def runParam(seriesCfgs, ncases, njobs, param):
         # their fine solves together or not at all.
         tsrcRange = param['tsrcRange']['fine']
         trange = range(tsrcRange['start'], tsrcRange['stop'], tsrcRange['step'])
+        precessFine = tsrcRange['precess']
+
+        
+        # Construct a list of loose and fine precession shifts for each configuration
+        tShiftFine = [ 0 ] * njobs
+        for kjob in range(njobs):
+            suffix, cfg = decodeSeriesCfg(seriesCfgsrep[kjob])
+            if len(suffix) == 0:
+                suffix = 'a'
+            cfgSep = param['cfgsep'][suffix]
+            tShiftFine[kjob] = int(cfg)//cfgSep * precessFine * stepLoose
+
+        param['residQuality'] = 'fine'
         for tsrcBase in trange:
-            param['residQuality'] = 'fine'
             tsrcs = [ tsrcBase ] * njobs
             nt = param['ensemble']['dim'][3]
             for kjob in range(njobs):
-                suffix, cfg = decodeSeriesCfg(seriesCfgsrep[kjob])
-                if len(suffix) == 0:
-                    suffix = 'a'
-                cfgSep = param['cfgsep'][suffix]
-                # Fine solve times precess over times ranging from 0 to nt by the loose step
-                tFineShift = int(cfg)/cfgSep*tsrcRange['precess']*param['tsrcRange']['loose']['step']
-                tsrcs[kjob] = ( tsrcRange['start'] + tFineShift ) % nt
-            print "Fine calculation with tsrcBase", tsrcs
+                tsrcs[kjob] = ( tsrcBase + tShiftLoose[kjob] + tShiftFine[kjob] ) % nt
+
+            print datetime.now(), "Fine calculation with tsrcBase", tsrcs
+            sys.stdout.flush()
             doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
 
         if param['scriptMode'] != 'KSscan':
