@@ -268,7 +268,7 @@ shell = True)
 
     # We check for nonconvergence, signaled by lines with "NOT"
     try:
-        reply = subprocess.check_output("tar -Oxjf " + tarFile + " logs | grep NOT | wc -l", shell = True)
+        reply = subprocess.check_output("tar -Oxjf " + tarFile + " logs | grep -w NOT | wc -l", shell = True)
     except subprocess.CalledProcessError as e:
         print "Error checking for bad convergence", tarFile
         return False
@@ -361,6 +361,8 @@ def checkPendingJobs(YAMLMachine,YAMLEns,YAMLLaunch):
         purgeProps(param,cfg)
         purgeRands(param,cfg)
         purgeSymLinks(param,jobid)
+
+        sys.stdout.flush()
 
         # Take a cat nap (avoids hammering the login node)
         subprocess.check_call(["sleep", "1"])
