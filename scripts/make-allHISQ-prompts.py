@@ -604,8 +604,10 @@ def createRandomSource(param, work, rndSq, rndDq, precTsrcConfigId):
     
     maxCG = quark['maxCG']
     check = 'sourceonly'
+    set_type = 'single'
+    inv_type = 'UML'
     precision = 1
-    thisSet = KSsolveSet(rwSrcDum, twist, check, maxCG, precision)
+    thisSet = KSsolveSet(rwSrcDum, twist, check, set_type, inv_type, maxCG, precision)
     deflate = None
     if param['eigen']['Nvecs'] > 0:
         deflate = 'no'
@@ -683,13 +685,15 @@ def startKSSolveSet(param, qk, prec, thisSrc):
     quark = param['quarks'][qk]
     maxCG = quark['maxCG']
     check = 'yes'
+    set_type = quark['set_type']
+    inv_type = quark['inv_type']
     twist = [0, 0, 0]
     if prec == 'L':
         precision = quark['precision']
     else:
         precision = 2
 
-    thisSet = KSsolveSet(thisSrc, twist, check, maxCG, precision)
+    thisSet = KSsolveSet(thisSrc, twist, check, set_type, inv_type, maxCG, precision)
 
     return thisSet
 

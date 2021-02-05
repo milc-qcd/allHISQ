@@ -12,7 +12,7 @@ tsrcRange:
     step:  8
     precess: 6
   fine:
-    start: 0
+    start: 192
     stop: 192
     step: 192
     precess: 2
@@ -45,8 +45,13 @@ quarks:
     residual_fine:
       L2: 1e-7
       R2: 0.
+#    set_type: single
+    set_type: multimass
+#    inv_type: CGZ
+    inv_type: CG
     maxCG: 
       iters: 4000
+#      restarts: 10
       restarts: 5
     precision: 2
     deflate: 'yes'
@@ -61,8 +66,13 @@ quarks:
     residual_fine:
       L2: 1e-7
       R2: 0.
+#    set_type: single
+    set_type: multimass
+#    inv_type: CGZ
+    inv_type: CG
     maxCG:
       iters: 2000
+#      restarts: 10
       restarts: 5
     precision: 2
     deflate: 'no'
@@ -73,12 +83,17 @@ quarks:
     naik_epsilon: ['-0.0179', '-0.0222', '-0.0849', '-0.1781', '-0.2877', '-0.3101' ]
     residual_loose:
       L2: 1e-16
-      R2: 1e-6
+      R2: 0.0
     residual_fine:
       L2: 1e-16
-      R2: 1e-6
+      R2: 0.0
+#    set_type: single
+    set_type: multimass
+#    inv_type: CGZ
+    inv_type: CG
     maxCG:
-      iters: 400
+      iters: 100
+#      restarts: 10
       restarts: 5
     precision: 2
     deflate: 'no'

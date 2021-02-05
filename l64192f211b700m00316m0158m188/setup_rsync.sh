@@ -10,6 +10,8 @@ DST=${SCRATCHHOME}/allHISQ/scratch
 
 BINFILES="\
 ks_spectrum_hisq \
+ks_spectrum_hisq.2021feb1 \
+ks_spectrum_hisq.2021feb3 \
 ks_spectrum_hisq.2020sep17 \
 ks_spectrum_hisq.open_all \
 "
