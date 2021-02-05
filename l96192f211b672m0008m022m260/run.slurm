@@ -17,6 +17,8 @@ umask 0022
 
 nodes=128
 
+export TACC_IBRUN_DEBUG=1
+
 echo "Running with LATS $LATS and NCASES $NCASES"
 
 # Take predefined parameters from qsub command line:
@@ -72,7 +74,7 @@ argList="${cfgs_milc} ${ncases} ${njobs}"
 scriptList="../scripts/params-allHISQ-plus4.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml"
 
 echo "Removing any leftover correlators"
-./purge_corrs.sh ${LATS} ${NCASES}
+./purge_corrs.sh ${LATS} ${NCASES} run1b
 
 if [ $testing -eq 0 ]
 then
