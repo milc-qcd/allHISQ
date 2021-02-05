@@ -7,18 +7,18 @@ submit:
   locale: frontera-clx
   walltime: "24:00:00"
   layout:
-    njobs: &refNjobs 1  # Number of concurrent subjobs within a job (not supported)
+    njobs: &refNjobs 1  # Number of concurrent subjobs within a job
     basenodes: 128      # Number of nodes in one concurrent subjob
     ppn: 4              # MPI ranks per node
     layoutSciDAC:       # Node and I/O geometry
       node: [4, 4, 4, 8]
       io: [4, 4, 4, 8]
-    jobGeom: [ *refNjobs, 1, 1, 1]  # Not supported, yet
+    jobGeom: [ *refNjobs, 1, 1, 1]
 
 nanny:
   todofile: todo  # Ensemble series letter is included with cfg number
   maxcases: 1     # Number of cfgs to run in a single job submission
-  maxqueue: 1     # Number of jobs to keep in the queue at one time
+  maxqueue: 16    # Number of jobs to keep in the queue at one time
   wait: 30        # Seconds between nanny job checks
 
 ######################################################################
