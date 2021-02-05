@@ -8,12 +8,11 @@ ensemble:
 tsrcRange:
   loose:
     start: 0
-#    stop:  48
-    stop:  4
+    stop:  48
     step:  4
     precess: 4
   fine:
-    start: 0
+    start: 96
     stop: 96
     step: 96
     precess: 3
@@ -23,6 +22,7 @@ cfgsep:
   a: 6
   b: 6
   h: 4
+  p: 4
   x: 4    # For testing
 
 #tSnkHtopi: &ref_tSnkHtopi [ 13, 14, 15, 16 ]
@@ -32,15 +32,10 @@ cfgsep:
 tSnkHtopi: &ref_tSnkHtopi  [ 16, 17, 19, 22, 25 ]
 tSnkHtoH: &ref_tSnkHtoH    [ 14, 15, 17, 20, 21 ]
 
-apelink:              # Applies only to links in point-split operators
-  weight: 0.05
-  iter: 20
-
 eigen:
   Nvecs: 0
 
-#stream: run3a
-stream: run0
+stream: run3a
 
 ######################################################################
 # Quark parameters
@@ -109,7 +104,22 @@ tarCheck:             # For checking that the output tarball is complete
 #  tarDataWords: 38294200
 
 # Values for production running with 3 sink times T and half the source times
-  tarEntries: 4781
-  tarbzip2Size: 7350000
-  tarDataLines: 5272137
-  tarDataWords: 15051114
+#  tarEntries: 4781
+#  tarbzip2Size: 7350000
+#  tarDataLines: 5272137
+#  tarDataWords: 15051114
+
+# Values for production running with 5 sink times T, half the loose sources
+# and one fine source
+   tarEntries: 10871
+   tarbzip2Size: 160000000
+   tarDataLines: 20169552
+   tarDataWords: 58110624
+
+# Values for production running with 5 sink times T, half the loose sources
+# and no fine source
+#  tarEntries: 5485
+#  tarbzip2Size: 140000000
+#  tarDataLines: 18618048
+#  tarDataWords: 53640576
+

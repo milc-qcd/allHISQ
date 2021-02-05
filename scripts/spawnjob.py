@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+# Python 3 version
+
 import sys, os, yaml, re, subprocess
 from TodoUtils import *
 from Cheetah.Template import Template
@@ -33,13 +35,13 @@ def countQueue( scheduler,  myjobname ):
     if scheduler == 'LSF':
         # Should sync files before submission
         cmd = "./setup_rsync.sh"
-        print cmd
+        print(cmd)
         reply = ""
         try:
-            reply = subprocess.check_output(cmd, shell=True).splitlines()
+            reply = subprocess.check_output(cmd, shell=True).decode().splitlines()
         except subprocess.CalledProcessError as e:
-            print reply
-            print "Job rsync error.  Return code", e.returncode
+            print(reply)
+            print("Job rsync error.  Return code", e.returncode)
             sys.exit(1)
         cmd = ' '.join(["bjobs -u", user, "| grep", user, "| grep -w", myjobname, "| wc -l"])
     elif scheduler == 'PBS':
@@ -49,8 +51,8 @@ def countQueue( scheduler,  myjobname ):
     elif scheduler == 'Cobalt':
         cmd = ' '.join(["qstat -fu", user, "| grep", user, "| grep -w", myjobname, "| wc -l"])
     else:
-        print "Don't recognize scheduler", scheduler
-        print "Quitting"
+        print("Don't recognize scheduler", scheduler)
+        print("Quitting")
         sys.exit(1)
 
     nqueued = int(subprocess.check_output(cmd,shell=True))
@@ -67,7 +69,7 @@ def nextCfgnos( maxCases, todoList ):
     # of the next lattice from the todo file
 
     cfgnos = []
-    for line in sorted(todoList,cmpToDoEntries):
+    for line in sorted(todoList,key=keyToDoEntries):
         a = todoList[line]
         if len(a) == 1 or a[1] != "Q" and not "X" in a[1]:
             cfgnos.append(a[0])
@@ -77,7 +79,7 @@ def nextCfgnos( maxCases, todoList ):
     ncases = len(cfgnos)
     
     if ncases > 0:
-        print "Found", ncases, "cases...", cfgnos
+        print("Found", ncases, "cases...", cfgnos)
 
     return cfgnos
 
@@ -137,21 +139,21 @@ def submitJob(param, cfgnos, jobScript):
     try:
         stat = os.stat(jobScript)
     except OSError:
-        print "Can't find", jobScript
-        print "Quitting"
+        print("Can't find", jobScript)
+        print("Quitting")
         sys.exit(1)
 
     # Job submission command depends on locale
     if scheduler == 'LSF':
         # Should sync files before submission
         cmd = "./setup_rsync.sh"
-        print cmd
+        print(cmd)
         reply = ""
         try:
-            reply = subprocess.check_output(cmd, shell=True).splitlines()
+            reply = subprocess.check_output(cmd, shell=True).decode().splitlines()
         except subprocess.CalledProcessError as e:
-            print reply
-            print "Job rsync error.  Return code", e.returncode
+            print(reply)
+            print("Job rsync error.  Return code", e.returncode)
             sys.exit(1)
         cmd = [ "bsub", "-nnodes", str(nodes), "-W", walltime, "-J", jobname, jobScript ]
     elif scheduler == 'PBS':
@@ -161,21 +163,21 @@ def submitJob(param, cfgnos, jobScript):
     elif scheduler == 'Cobalt':
         cmd = [ "qsub", "-A LatticeQCD_3", "-n", str(nodes), "-t", walltime, "--jobname", jobname, archflags, "--mode script", "--env LATS="+LATS+":NCASES="+NCASES+":NJOBS="+NJOBS+":NP="+NP, jobScript ]
     else:
-        print "Don't recognize scheduler", scheduler
-        print "Quitting"
+        print("Don't recognize scheduler", scheduler)
+        print("Quitting")
         sys.exit(1)
 
     cmd = " ".join(cmd)
-    print cmd
+    print(cmd)
     reply = ""
     try:
         reply = subprocess.check_output(cmd, shell=True)
     except subprocess.CalledProcessError as e:
-        print reply
-        print "Job submission error.  Return code", e.returncode
+        print(reply)
+        print("Job submission error.  Return code", e.returncode)
         sys.exit(1)
 
-    print reply
+    print(reply)
 
     reply = reply.splitlines()
 
@@ -183,6 +185,7 @@ def submitJob(param, cfgnos, jobScript):
     if scheduler == 'LSF':
         # a.2100 Q Job <99173> is submitted to default queue <batch>
         jobid = reply[0].split()[1].split("<")[1].split(">")[0]
+        jobid = jobid.decode()
     elif scheduler == 'PBS':
         # 3314170.kaon2.fnal.gov submitted
         jobid = reply[0].split(".")[0]
@@ -194,8 +197,11 @@ def submitJob(param, cfgnos, jobScript):
         # ['1607897']
         jobid = reply[-1]
 
-    date = subprocess.check_output("date",shell=True).rstrip("\n")
-    print date, "Submitted job", jobid, "for cfgs", cfgnos
+    if type(jobid) is bytes:
+        jobid = jobid.decode('ASCII')
+
+    date = subprocess.check_output("date",shell=True).rstrip().decode()
+    print(date, "Submitted job", jobid, "for cfgs", cfgnos)
 
     return (0, jobid)
 
@@ -210,9 +216,9 @@ def markQueuedTodoEntries(cfgnos, jobid, todoList):
 def nannyLoop(YAML, YAMLLaunch):
     """Check job periodically and submit to the queue"""
     
-    date = subprocess.check_output("date",shell=True).rstrip("\n")
-    hostname = subprocess.check_output("hostname",shell=True).rstrip("\n")
-    print date, "Spawn job process", os.getpid(), "started on", hostname
+    date = subprocess.check_output("date",shell=True).rstrip().decode()
+    hostname = subprocess.check_output("hostname",shell=True).rstrip().decode()
+    print(date, "Spawn job process", os.getpid(), "started on", hostname)
 
     param = loadParam(YAML)
 
@@ -226,7 +232,7 @@ def nannyLoop(YAML, YAMLLaunch):
 
     while True:
         if os.access("STOP", os.R_OK):
-            print "Spawn job process stopped because STOP file is present"
+            print("Spawn job process stopped because STOP file is present")
             break
 
         todoFile = param['nanny']['todofile']
@@ -253,7 +259,7 @@ def nannyLoop(YAML, YAMLLaunch):
 
             # If we have exhausted the todo list, stop
             if ncases <= 0:
-                print "No more lattices. Nanny quitting."
+                print("No more lattices. Nanny quitting.")
                 removeTodoLock(lockFile)
                 sys.exit(0)
 
@@ -270,7 +276,7 @@ def nannyLoop(YAML, YAMLLaunch):
                     # Fatal error
                     sys.exit(1)
                 else:
-                    print "Will retry submitting", cfgnos, "later"
+                    print("Will retry submitting", cfgnos, "later")
 
             writeTodo(todoFile, lockFile, todoList)
         sys.stdout.flush()

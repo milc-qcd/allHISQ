@@ -1,4 +1,7 @@
-#! /usr/bin/env python2.7
+#! /usr/bin/env python
+
+# Python 3 version
+
 import sys, os, yaml, re, subprocess
 from MILCprompts import *
 from allHISQKeys import *
@@ -71,7 +74,7 @@ def stageLattice(param, suffix, cfg):
         gFix = 'no_gauge_fix'  # Force use of the v5 lattice
         saveLat = ('forget',) # and don't save a copy.
         if not latMILCv5.exist():
-            print "ERROR: lattice", inLat.path(), "not found"
+            print("ERROR: lattice", inLat.path(), "not found")
             if param['scriptDebug'] != 'debug':
                 sys.exit(1)
 
@@ -109,7 +112,7 @@ def fetchWF(param):
                       name, 'r', None, False )
     if not wf1S.exist():
         if param['scriptDebug'] != 'debug':
-            print "ERROR: Can't get wavefunction file."
+            print("ERROR: Can't get wavefunction file.")
             sys.exit(1)
     return wf1S
 
@@ -136,7 +139,7 @@ def prepareRandomSource(param, tsrcConfigId):
         rndSq = StageFile( localRoot, None, root[rand['root']], rand['subdirs'], 
                            name, 'r', None, False )
         if not rndDq.exist() or not rndSq.exist():
-            print "ERROR: with coherent random sources",rndDq.name(),"and",rndSq.name(),"must exist"
+            print("ERROR: with coherent random sources",rndDq.name(),"and",rndSq.name(),"must exist")
             if param['scriptDebug'] != 'debug':
                 sys.exit(1)
     else:
@@ -348,7 +351,7 @@ def redirectStdoutStderr(file):
     # Open the log file
     so = se = open(file, 'a', 0)
 
-    print "stdout and stderr will be redirectred to", file
+    print("stdout and stderr will be redirectred to", file)
     
     # Re-open stdout without buffering
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
@@ -488,7 +491,7 @@ def createRandomSource(param, work, rndSq, rndDq, tsrcConfigId):
     # Table of source objects for each source key
     sources = dict()
 
-    # If we don't already have the random source, generate it
+    # If we already have the random source, we don't generate it
     if rndSq.exist():
         return (sources, rwParams)
 
@@ -583,7 +586,7 @@ def makeModifiedSource(param, work, sources, ptSrc, srcKeyMod, fileCmd, wf1S):
             src = FermilabRotation(label, d1, save, ptSrc )
             thisSrc = sources[srcKeyMod] = work.addModSource(src)
         else:
-            print "ERROR. Unexpected source key", smSrc, "in", srcKeyMod
+            print("ERROR. Unexpected source key", smSrc, "in", srcKeyMod)
             sys.exit(1)
 
     return thisSrc
@@ -730,7 +733,7 @@ def applySinkOp(param, work, quarks, quark, qkKeyMod, snkKeyMod, thisQ, wf1S, ts
         thisQ = KSInverseSink(q, mQkP, epsP, u0, quarkP['maxCG'], deflate, residual,
                               quarkP['precision'], twist, label, save)
     else:
-        print "Unrecognized sink smearing", smSnk, "in", qkKeyMod
+        print("Unrecognized sink smearing", smSnk, "in", qkKeyMod)
 
     quarks[qkKeyMod] = work.addQuark(thisQ)
 
@@ -751,7 +754,7 @@ def createKSQuarks(param, work, sources, quarkKeys, rwParams, rndSq, wf1S, tsrcC
     # Run through the quark keys, sorted so multiple masses with the
     # same source appear together.  Grouping them in this way allows
     # the MILC ks_spectrum code to use the multimass inverter.
-    for qkKeyMod in sorted(quarkKeys,cmpQuarkKeys2):
+    for qkKeyMod in sorted(quarkKeys,key=cmp_to_key(cmpQuarkKeys2)):
         (residQuality, qk, mass, naik_epsilon, rndId, srcKeyMod, snkKeyMod) = splitQuarkKey(qkKeyMod)
         (smSrc, momKey) = splitSrcKey(srcKeyMod)
     
@@ -767,9 +770,19 @@ def createKSQuarks(param, work, sources, quarkKeys, rwParams, rndSq, wf1S, tsrcC
         residQuality = param['residQuality']
         qkKeyBase = makeQuarkKey((residQuality, qk, mass, naik_epsilon, rndId, srcKeyMod, 'd'))
     
-        # Build the solve set
-        if srcKeyMod != srcKeyModLast:
-            # When the source changes, add the previous solve set
+        if 1:
+            # Build the solve set (multimass version)
+
+            if srcKeyMod != srcKeyModLast:
+                # When the source changes, add the previous solve set
+
+                if len(srcKeyModLast) > 0:
+                    work.addPropSet(thisSet)
+                thisSet = startKSSolveSet(param, qk, thisSrc)
+                srcKeyModLast = srcKeyMod
+        else:
+            # Build the solve set (single-mass version)
+
             if len(srcKeyModLast) > 0:
                 work.addPropSet(thisSet)
             thisSet = startKSSolveSet(param, qk, thisSrc)
@@ -796,7 +809,7 @@ def createCorrelators(param, work, quarks, correlators, rwParams, fileCmd, tsrc)
     for corr in correlators:
         (corrFile, QKey, aQKey, mom, corrAttrs) = corr
         om = oppMom(mom)
-        pmom = 'p%d%d%d' % tuple(mom)
+        pmom = "p{0:d}{1:d}{2:d}".format(*tuple(mom))
         postfix = "-".join([pmom,param['residQuality']])
     
         # The corrAttrs apply to only one momentum
@@ -827,7 +840,7 @@ def defineTarFile(param, seriesCfg):
 def collectKSProps(param, quarkKeys):
     """Add to the list of needed light quark propagators"""
 
-    for qkKeyMod in sorted(quarkKeys,cmpQuarkKeys):
+    for qkKeyMod in sorted(quarkKeys,key=cmp_to_key(cmpQuarkKeys)):
         (residQuality, qk, mass, naik_epsilon, rndId, srcKeyMod, snkKeyMod) = splitQuarkKey(qkKeyMod)
         if param['quarks'][qk]['type'] == 'KS':
             (smSrc, momKey) = splitSrcKey(srcKeyMod)
@@ -891,7 +904,7 @@ def createMILCprompts(param, nstep, tsrc, tsrc0, kjob, seriesCfg, njobs):
         collectKSProps(param, quarkKeys)
         if False:
             for qK in quarkKeys:
-                print qK
+                print(qK)
 
     # Add gauge load and gauge-fix stanzas
     startGauge(param, work, loadLat, saveLat, gFix)
@@ -931,7 +944,7 @@ def launchJob(param, asciiIOFileSet, njobs):
     try:
         launchParam = param['launch'][locale]
     except KeyError:
-        print "ERROR: Launch parameters for locale", locale, "not defined in the YAML parameter file."
+        print("ERROR: Launch parameters for locale", locale, "not defined in the YAML parameter file.")
         sys.exit(1)
 
     # Job launch executable
@@ -963,10 +976,10 @@ def launchJob(param, asciiIOFileSet, njobs):
                          name, 'r', None, False)
     execFile = binFile.path()
     # qmp parameters
-    qmpgeom = " -qmp-geom %d %d %d %d" % tuple(param['submit']['layout']['layoutSciDAC']['node'])
+    qmpgeom = " -qmp-geom {0:d} {1:d} {2:d} {3:d}".format(*tuple(param['submit']['layout']['layoutSciDAC']['node']))
     # Multijob parameters
     if njobs > 1:
-        qmpjob = " -qmp-job %d %d %d %d" % tuple(param['submit']['layout']['jobGeom'])
+        qmpjob = " -qmp-job {0:d} {1:d} {2:d} {3:d}".format(*tuple(param['submit']['layout']['jobGeom']))
     else:
         qmpjob = ""
     # stdio
@@ -975,16 +988,18 @@ def launchJob(param, asciiIOFileSet, njobs):
     errFile = stderr.path()
     # Complete command
     cmd = ' '.join([ mpirun, mpiparam, numa, launchScript, execFile, qmpgeom, qmpjob, inFile, outFile, errFile ])
-    print "#", cmd
+    print("#", cmd)
+    sys.stdout.flush()
 
-    # If debugging, stop here
+    # Launch the job.  But if debugging, just print the command
     if param['scriptDebug'] == 'debug':
+        print(cmd,file=open(stdlog.path(),'a'))
         return
     else:
         try:
             subprocess.check_output(cmd, shell=True)
         except subprocess.CalledProcessError as e:
-            print "ERROR: ", mpirun, "exited with code", e.returncode, "."
+            print("ERROR: ", mpirun, "exited with code", e.returncode, ".")
             return 1
     return 0
     
@@ -996,7 +1011,7 @@ def checkComplete(param, tarFile):
     try:
         reply = subprocess.check_output(["ls", "-l", tarFile])
     except subprocess.CalledProcessError as e:
-        print "Error", e.returncode, "stat'ing output tar file", tarFile
+        print("Error", e.returncode, "stat'ing output tar file", tarFile)
         return False
 
     # File size in bytes is the 5th field in ls -l
@@ -1005,14 +1020,14 @@ def checkComplete(param, tarFile):
     # Allow for a 5% variation
     
     if tarFileSize*1.05 < tarFileGood:
-        print "Output tar file", tarFile, "size", tarFileSize, "too small."
+        print("Output tar file", tarFile, "size", tarFileSize, "too small.")
         return False
 
     # We check the number of entries in the tar file
     try:
         reply = subprocess.check_output("tar -tjf " + tarFile + "| wc -l", shell = True)
     except subprocess.CalledProcessError as e:
-        print "Error tar-listing", tarFile
+        print("Error tar-listing", tarFile)
         return False
     
     # Entry count is first field
@@ -1020,11 +1035,11 @@ def checkComplete(param, tarFile):
     entriesGood = param['tarCheck']['tarEntries']
     
     if entries < param['tarCheck']['tarEntries']:
-        print "Output tar file", tarFile, "entry count", entries, "too low."
+        print("Output tar file", tarFile, "entry count", entries, "too low.")
         return False
 
     # Passed these tests
-    print "Output tar file is complete"
+    print("Output tar file is complete")
 
     return True
 
@@ -1044,19 +1059,19 @@ def tarList(scriptDebug, tarbase, dirs, suffix, cfg):
         try:
             lines = subprocess.check_output(cmd, shell = True).splitlines()
         except subprocess.CalledProcessError as e:
-            print "Error deleting", tList
+            print("Error deleting", tList)
     for d in dirs:
         cmd0 = ['cd', tarbase]
         cmd0 = ' '.join(cmd0)
         cmd1 = ['/bin/find', d, '-name', "'*" + configId + "'", '-print', ">>", tList]
         cmd1 = ' '.join(cmd1)
         cmd = ";".join([cmd0, cmd1]);
-        print "#", cmd
+        print("#", cmd)
         if scriptDebug != 'debug':
             try:
                 lines = subprocess.check_output(cmd, shell = True).splitlines()
             except subprocess.CalledProcessError as e:
-                print "Error finding files in", tarbase, d
+                print("Error finding files in", tarbase, d)
     return tListPath
     
 ############################################################
@@ -1076,12 +1091,12 @@ def storeFiles(param, asciiFileList, binFileList):
 #    jobID = param['job']['id']
 #    cmd = ['/bin/cp', jobID + ".output", stdlog.path()]
 #    cmd = ' '.join(cmd)
-#    print "#", cmd
+#    print("#", cmd)
 #    if param['scriptDebug'] != 'debug':
 #        try:
 #            subprocess.check_output(cmd, shell = True)
 #        except subprocess.CalledProcessError as e:
-#            print "WARNING: /bin/cp failed for", e.cmd
+#            print("WARNING: /bin/cp failed for", e.cmd)
 
     # Resolve multijob names and clean up
     stdin.store()
@@ -1101,20 +1116,21 @@ def storeTarFile(param, seriesCfg, tar):
         tarbase = tar.dirRemote()
     tardirs = param['files']['tar']['list']
 
-    # Get a list of paths in the directories tardirs with matching configuration number
-    tListPath = tarList( param['scriptDebug'], tarbase, tardirs, suffix, cfg )
+    if 0:
+        # Get a list of paths in the directories tardirs with matching configuration number
+        tListPath = tarList( param['scriptDebug'], tarbase, tardirs, suffix, cfg )
 
-    # Create the tarball and check it for completeness
-    cmd = ['/bin/tar', '-C', tarbase, '--remove-files', '-cjf', tar.path(), '-T', tListPath]
-    cmd = ' '.join(cmd)
-    print "#", cmd
-    if param['scriptDebug'] != 'debug':
-        subprocess.check_output(cmd, shell = True)
-        if checkComplete(param, tar.path()):
-            tar.store()
-        else:
-            tar.store()
-            print "WARNING:", tar.path(), "INCOMPLETE."
+        # Create the tarball and check it for completeness
+        cmd = ['/bin/tar', '-C', tarbase, '--remove-files', '-cjf', tar.path(), '-T', tListPath]
+        cmd = ' '.join(cmd)
+        print("#", cmd)
+        if param['scriptDebug'] != 'debug':
+            subprocess.check_output(cmd, shell = True)
+            if checkComplete(param, tar.path()):
+                tar.store()
+            else:
+                tar.store()
+                print("WARNING:", tar.path(), "INCOMPLETE.")
 
 ############################################################
 def purgeProps(binFileList):
@@ -1135,11 +1151,12 @@ def doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets,
     steprange = param['job']['steprange']
     for nstep in range(steprange['low'], steprange['high']):
 
-        print "Processing", param['scriptMode'], seriesCfgsrep, "for step", nstep, "tsrc", tsrcs
+        print(datetime.now(),"Processing", param['scriptMode'], seriesCfgsrep, "for step", nstep, "tsrc", tsrcs)
 
         # Create MILC prompts and filenames for all cfgs in
         # this group for these tsrcs and all steps
         for kjob in range(njobs):
+            print(datetime.now(),"Creating MILCprompts for job",kjob)
             seriesCfg = seriesCfgsrep[kjob]
             # For multijob compatiblity, the base name is based on the first tsrc
             a, b = createMILCprompts(param, nstep, tsrcs[kjob], tsrcs[0], kjob, seriesCfg, njobs)
@@ -1150,7 +1167,7 @@ def doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets,
         # Launch the job for this group (unless we are just scanning)
         # For multijob compatibility, use the first entry in the list for stdin, stdout, stderr
         if param['scriptMode'] != 'KSscan':
-            print "Launching set", seriesCfgsrep, "for step", nstep, "tsrcs", tsrcs
+            print(datetime.now(),"Launching set", seriesCfgsrep, "for step", nstep, "tsrcs", tsrcs)
             status = launchJob(param, 
                                asciiIOFileSets[encodeSeriesCfgSrc(seriesCfgsrep[0],str(tsrcs[0]))], njobs)
 
@@ -1160,17 +1177,17 @@ def doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets,
                 try:
                     subprocess.check_output(cmd, shell=True)
                 except subprocess.CalledProcessError as e:
-                    print "Error listing files.  Return code", e.returncode
+                    print("Error listing files.  Return code", e.returncode)
 
             # Resolve symlinks and store all result files, propagators, sources, etc.
             for seriesCfgSrc in sorted(asciiIOFileSets.keys()):
                 series, cfg, tsrca = decodeSeriesCfgSrc(seriesCfgSrc)
-#                print "Storing files for", series, cfg
+#                print(datetime.now(),"Storing files for", series, cfg)
                 storeFiles(param, asciiIOFileSets[seriesCfgSrc], binIOFileSets[seriesCfgSrc])
                 purgeProps(binIOFileSets[seriesCfgSrc])  # TEMPORARY
             
             if status == 1:
-                print "Quitting due to errors"
+                print("Quitting due to errors")
                 sys.exit(1)
 
 ############################################################
@@ -1179,7 +1196,7 @@ def runParam(seriesCfgs, ncases, njobs, param):
 
     # Configurations are processed in groups of njob independent parallel computations (multijob)
     # There are nreps such groups
-    nreps = ncases/njobs
+    nreps = ncases // njobs
 
     # For each configuration we run several source times and do the work in nstep steps
 
@@ -1218,8 +1235,7 @@ def runParam(seriesCfgs, ncases, njobs, param):
             nt = param['ensemble']['dim'][3]
             for kjob in range(njobs):
                 tsrcs[kjob] = (tsrcBase + tShiftLoose[kjob]) % nt
-
-            print datetime.now(),"Loose calculation with tsrcs", tsrcs
+            print(datetime.now(),"Loose calculation with tsrcs", tsrcs)
             sys.stdout.flush()
             doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
 
@@ -1231,7 +1247,6 @@ def runParam(seriesCfgs, ncases, njobs, param):
         trange = range(tsrcRange['start'], tsrcRange['stop'], tsrcRange['step'])
         precessFine = tsrcRange['precess']
 
-        
         # Construct a list of loose and fine precession shifts for each configuration
         tShiftFine = [ 0 ] * njobs
         for kjob in range(njobs):
@@ -1248,14 +1263,14 @@ def runParam(seriesCfgs, ncases, njobs, param):
             for kjob in range(njobs):
                 tsrcs[kjob] = ( tsrcBase + tShiftLoose[kjob] + tShiftFine[kjob] ) % nt
 
-            print datetime.now(), "Fine calculation with tsrcBase", tsrcs
+            print(datetime.now(), "Fine calculation with tsrcBase", tsrcs)
             sys.stdout.flush()
             doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
 
         if param['scriptMode'] != 'KSscan':
             # Create and store tar files, one for each cfg
             for seriesCfg in seriesCfgsrep:
-                print "Storing tar files for", seriesCfg
+                print("Storing tar files for", seriesCfg)
                 storeTarFile(param, seriesCfg, tarFileSets[seriesCfg])
 
 ############################################################
@@ -1268,9 +1283,9 @@ def loadParamsJoin(YAMLEns, YAMLAll):
     try:
         ens = open(YAMLEns,'r').readlines()
         all = open(YAMLAll,'r').readlines()
-        param = yaml.load("".join(ens+all))
+        param = yaml.safe_load("".join(ens+all))
     except:
-        print "ERROR: Error loading the parameter files", YAMLEns, YAMLAll
+        print("ERROR: Error loading the parameter files", YAMLEns, YAMLAll)
         sys.exit(1)
 
     return param
@@ -1281,9 +1296,9 @@ def loadParam(YAML):
 
     # Initial parameter file
     try:
-        param = yaml.load(open(YAML,'r'))
+        param = yaml.safe_load(open(YAML,'r'))
     except:
-        print "ERROR: Error loading the parameter file", YAML
+        print("ERROR: Error loading the parameter file", YAML)
         sys.exit(1)
 
     return param
@@ -1311,7 +1326,7 @@ def initParam(param):
     except KeyError:
         job['id'] = 'debug'
         param['scriptDebug'] = 'debug'
-        print "WARNING: JOBID not found.  Changed to debug mode. Will not launch job."
+        print("WARNING: JOBID not found.  Changed to debug mode. Will not launch job.")
 
 
 ############################################################
@@ -1364,7 +1379,7 @@ def main():
 
     # Command-line args:
     if len(sys.argv) < 7:
-        print "Usage", sys.argv[0], "<cfgs> <ncases> <njobs> <yaml> <yaml-launch> <yaml-ens> <yaml-machine>"
+        print("Usage", sys.argv[0], "<cfgs> <ncases> <njobs> <yaml> <yaml-launch> <yaml-ens> <yaml-machine>")
         sys.exit(1)
 
     # Decode arguments 
@@ -1381,10 +1396,10 @@ def main():
     ncases = int(ncases)
     njobs = int(njobs)         
 
-    print "Have args", cfgList, ncases, njobs, YAML, YAMLLaunch, YAMLEns, YAMLMachine
+    print("Have args", cfgList, ncases, njobs, YAML, YAMLLaunch, YAMLEns, YAMLMachine)
 
     if ncases % njobs != 0:
-        print "ERROR: Number of cases", ncases, "must be divisible by the number of jobs", njobs
+        print("ERROR: Number of cases", ncases, "must be divisible by the number of jobs", njobs)
         sys.exit(1)
 
     # Load the basic parameter set
@@ -1397,15 +1412,16 @@ def main():
     param['scriptMode'] = 'KSscan'
     param['hisqProps'] = list()
 
-    print "Scanning with the parameter set", YAML
+    print("Scanning with the parameter set", YAML)
+    sys.stdout.flush()
     runParam(seriesCfgs, ncases, njobs, param)
 
     # Dump the collected propagator list
     hisqProps = param['hisqProps']
     for hisqProp in sorted(hisqProps):
-        print hisqProp
+        print(hisqProp)
         
-    print "#############################################"
+    print("#############################################")
         
     # Now generate the hisq staggered propagators, two-points,
     # and three-points based on the shopping list "hisqProps"
@@ -1419,7 +1435,8 @@ def main():
     # Add the shopping list
     param['hisqProps'] = hisqProps
 
-    print "Running with the parameter set", YAML
+    print("Running with the parameter set", YAML)
+    sys.stdout.flush()
     runParam(seriesCfgs, ncases, njobs, param)
 
     sys.exit(0)
