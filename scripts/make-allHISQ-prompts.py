@@ -1277,9 +1277,11 @@ def runParam(seriesCfgs, ncases, njobs, param):
                 if len(suffix) == 0:
                     suffix = 'a'
                 cfgSep = param['cfgsep'][suffix]
+                # The loose tShift:
+                tShift = int(cfg)/cfgSep * param['tsrcRange']['loose']['precess']
                 # Fine solve times precess over times ranging from 0 to nt by the loose step
                 tFineShift = int(cfg)/cfgSep*tsrcRange['precess']*param['tsrcRange']['loose']['step']
-                tsrcs[kjob] = ( tsrcRange['start'] + tFineShift ) % nt
+                tsrcs[kjob] = ( tsrcBase + tShift + tFineShift ) % nt
             print "Fine calculation with tsrcBase", tsrcs
             doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
 
