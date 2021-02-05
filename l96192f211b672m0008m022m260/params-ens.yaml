@@ -8,7 +8,7 @@ ensemble:
 tsrcRange:
   loose:
     start: 0
-    stop:  48
+    stop:  96
     step:  6
     precess: 6
   fine:
@@ -46,9 +46,11 @@ quarks:
     residual_fine:
       L2: 1e-6
       R2: 0.
+    set_type multimass
+    inv_type CG
     maxCG: 
       iters: 4000
-      restarts: 5
+      restarts: 10
     precision: 2
     deflate: 'yes'
 
@@ -62,9 +64,11 @@ quarks:
     residual_fine:
       L2: 1e-7
       R2: 0.
+    set_type multimass
+    inv_type CG
     maxCG:
       iters: 2000
-      restarts: 5
+      restarts: 10
     precision: 2
     deflate: 'no'
 
@@ -78,9 +82,11 @@ quarks:
     residual_fine:
       L2: 1e-16
       R2: 1e-5
+    set_type multimass
+    inv_type CG
     maxCG:
       iters: 400
-      restarts: 5
+      restarts: 10
     precision: 2
     deflate: 'no'
 
