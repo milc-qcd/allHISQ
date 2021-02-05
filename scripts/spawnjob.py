@@ -69,7 +69,7 @@ def nextCfgnos( maxCases, todoList ):
     cfgnos = []
     for line in sorted(todoList,cmpToDoEntries):
         a = todoList[line]
-        if len(a) == 1 or a[1] != "Q" and a[1] != "X" and a[1] != "XX":
+        if len(a) == 1 or a[1] != "Q" and not "X" in a[1]:
             cfgnos.append(a[0])
             if len(cfgnos) >= maxCases:
                 break
