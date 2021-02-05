@@ -8,24 +8,24 @@ ensemble:
 tsrcRange:
   loose:
     start: 0
-    stop:  96
+    stop:  48
     step:  6
-    precess: 5
+    precess: 6
   fine:
     start: 0
     stop: 192
     step: 192
-    precess: 3
+    precess: 2
 
 # Intervals between configuration numbers
 cfgsep:
   a: 6
+  b: 8
+  c: 6
   x: 4    # For testing
 
 tSnkHtopi: &ref_tSnkHtopi [ 25, 28, 30, 34, 37 ]
 tSnkHtoH: &ref_tSnkHtoH   [ 22, 23, 26, 29, 32 ]
-#tSnkHtopi: &ref_tSnkHtopi [ 13, 14, 15, 16 ]
-#tSnkHtoH: &ref_tSnkHtoH [ 13, 14, 15, 16 ]
 
 eigen:
   Nvecs: 0
@@ -44,7 +44,7 @@ quarks:
       L2: 4e-3
       R2: 0.
     residual_fine:
-      L2: 1e-7
+      L2: 1e-6
       R2: 0.
     maxCG: 
       iters: 4000
@@ -85,9 +85,14 @@ quarks:
     deflate: 'no'
 
 tarCheck:             # For checking that the output tarball is complete
-# Values for production running 32 time sources
-  tarEntries: 6485
-  tarbzip2Size: 213260551
-  tarDataLines: 27128844 
-  tarDataWords: 78498904
+# Values for production running 32 loose time sources and one fine
+#   tarEntries: 10905
+#   tarbzip2Size: 426002340
+#   tarDataLines: 47878800
+#   tarDataWords: 140500512
 
+# Values for production running 32 loose time sources and no fine
+  tarEntries: 5520
+  tarbzip2Size: 400000000
+  tarDataLines: 45062400
+  tarDataWords: 132235776
