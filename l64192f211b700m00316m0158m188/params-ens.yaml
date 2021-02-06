@@ -45,14 +45,11 @@ quarks:
     residual_fine:
       L2: 1e-7
       R2: 0.
-#    set_type: single
-    set_type: multimass
-#    inv_type: CGZ
-    inv_type: CG
+    set_type: single
+    inv_type: CGZ
     maxCG: 
       iters: 4000
-#      restarts: 10
-      restarts: 5
+      restarts: 10
     precision: 2
     deflate: 'yes'
 
@@ -66,14 +63,11 @@ quarks:
     residual_fine:
       L2: 1e-7
       R2: 0.
-#    set_type: single
-    set_type: multimass
-#    inv_type: CGZ
-    inv_type: CG
+    set_type: single
+    inv_type: CGZ
     maxCG:
       iters: 2000
-#      restarts: 10
-      restarts: 5
+      restarts: 10
     precision: 2
     deflate: 'no'
 
@@ -87,14 +81,11 @@ quarks:
     residual_fine:
       L2: 1e-16
       R2: 0.0
-#    set_type: single
-    set_type: multimass
-#    inv_type: CGZ
-    inv_type: CG
+    set_type: single
+    inv_type: CGZ
     maxCG:
       iters: 100
-#      restarts: 10
-      restarts: 5
+      restarts: 10
     precision: 2
     deflate: 'no'
 
