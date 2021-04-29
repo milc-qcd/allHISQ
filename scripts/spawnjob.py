@@ -26,6 +26,7 @@ from Cheetah.Template import Template
 # If flag is empty, the job needs to be run
 # If flag is "X", the job has been finished
 # If it is "Q", the job was queued and <jobid>  and <jobseno> is present
+# If it is "C", the job is finished and is undergoing checking and tarring
 
 # Requires TodoUtils.py and params-launch.yaml with definitions of variables needed here
 
@@ -99,7 +100,7 @@ def nextCfgnos( maxCases, todoList ):
             print("ERROR: bad todo line format");
             print(a)
             sys.exit(1)
-        if len(a) == 2 or a[2] != "Q" and not "X" in a[2]:
+        if len(a) == 2 or a[2] != "Q" and a[2] != "C" and not "X" in a[2]:
             cfgnoTsrcs.append([a[0],a[1]])
             if len(cfgnoTsrcs) >= maxCases:
                 break
@@ -108,6 +109,7 @@ def nextCfgnos( maxCases, todoList ):
     
     if ncases > 0:
         print("Found", ncases, "cases...", cfgnoTsrcs)
+        sys.stdout.flush()
 
     return cfgnoTsrcs
 
@@ -274,6 +276,7 @@ def nannyLoop(YAML, YAMLLaunch):
     date = subprocess.check_output("date",shell=True).rstrip().decode()
     hostname = subprocess.check_output("hostname",shell=True).rstrip().decode()
     print(date, "Spawn job process", os.getpid(), "started on", hostname)
+    sys.stdout.flush()
 
     param = loadParam(YAML)
 
@@ -306,7 +309,9 @@ def nannyLoop(YAML, YAMLLaunch):
   
         # Submit until we have the desired number of jobs in the queue
         if nqueued < param['nanny']['maxqueue']:
-            todoList = readTodo(todoFile, lockFile)
+            waitSetTodoLock(lockFile)
+            todoList = readTodo(todoFile)
+            removeTodoLock(lockFile)
 
             # List a set of cfgnos
             cfgnoTsrcs = nextCfgnos(maxCases, todoList)
@@ -315,7 +320,6 @@ def nannyLoop(YAML, YAMLLaunch):
             # If we have exhausted the todo list, stop
             if ncases <= 0:
                 print("No more lattices. Nanny quitting.")
-                removeTodoLock(lockFile)
                 sys.exit(0)
 
             # We need our own jobid for setting up the job
@@ -330,7 +334,11 @@ def nannyLoop(YAML, YAMLLaunch):
             # Job submission succeeded
             # Edit the todoFile, marking the lattice queued and indicating the jobid
             if status == 0:
+                waitSetTodoLock(lockFile)
+                todoList = readTodo(todoFile)
                 markQueuedTodoEntries(cfgnoTsrcs, jobid, jobSeqNo, todoList)
+                writeTodo(todoFile, todoList)
+                removeTodoLock(lockFile)
             else:
                 # Job submission failed
                 if status == 1:
@@ -339,7 +347,6 @@ def nannyLoop(YAML, YAMLLaunch):
                 else:
                     print("Will retry submitting", cfgnoTsrcs, "later")
 
-            writeTodo(todoFile, lockFile, todoList)
         sys.stdout.flush()
             
         subprocess.call(["sleep", str( param['nanny']['wait'] ) ])
