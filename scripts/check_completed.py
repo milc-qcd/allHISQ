@@ -95,6 +95,13 @@ def markCompletedTodoEntry(seriesCfg, precTsrc, todoList):
     print("Marked cfg", seriesCfg, precTsrc, "completed")
 
 
+######################################################################
+def markCheckingTodoEntry(seriesCfg, precTsrc, todoList):
+    """Update the todoList, change status to X"""
+
+    key = seriesCfg + "-" + precTsrc
+    todoList[key] = [ seriesCfg, precTsrc, "C" ]
+
 #######################################################################
 def decodeSeriesCfg(seriesCfg):
     """Decode series, cfg, as it appeaers in the todo file"""
@@ -355,9 +362,14 @@ def makeTar(stream, jobCase):
         print("ERROR: can't list log files in", fileList)
         return False
 
+    # Guard against clobbering an existing tar file
+    if os.access(tarPath, os.R_OK):
+        print("ERROR: File", tarPath, "exists.  Not clobbering.")
+        return False
+
     # Create the bzipped tar file from the list
     fileListPath = os.path.join(tarInput, fileList)
-    cmd = ' '.join(["tar -C ", tarInput, "-cjf ", tarPath, "-T ", fileListPath])
+    cmd = ' '.join(["tar -C ", tarInput, "-cjf ", tarPath, "-T ", fileListPath, "--remove-files"])
     print(cmd)
     try:
         subprocess.check_output(cmd, shell=True)
@@ -365,11 +377,20 @@ def makeTar(stream, jobCase):
         print("ERROR: can't create", tarPath, "from", fileList)
         return False
 
+    # Remove the left-over, empty directory tree
+    cmd = ' '.join(["pushd", tarInput, "; /bin/rm -r data logs; popd"])
+    print(cmd)
+    try:
+        subprocess.check_output(cmd, shell=True)
+    except subprocess.CalledProcessError as e:
+        print("ERROR: can't remove the empty data and logs directory trees under", tarInput)
+        return False
+
     return True
 
 ######################################################################
 def decodeCase(stream, seriesCfg, precTsrc, jobID, jobSeqNo):
-    """Move failed output to temporary failure archive"""
+    """Parameters needed for directory tree"""
 
     series, cfg = decodeSeriesCfg(seriesCfg)
     s06Cfg = codeCfg(series, cfg)
@@ -397,6 +418,47 @@ def moveFailedOutputs(jobCase):
         status = e.returncode
 
 ######################################################################
+def nextFinished(param, todoList, entryList):
+    """Find the next well-formed entry marked "Q" whose job is no longer in the queue"""
+    a = ()
+    nskip = 0
+    while len(entryList) > 0:
+        todoEntry = entryList.pop(0)
+        a = todoList[todoEntry]
+        if len(a) == 5:
+            (seriesCfg, precTsrc, flag, jobID, jobSeqNo) = a
+            if flag == "C":
+                nskip = 5  # So we stay this many Q entries away from another check_completed process
+            if flag != "Q":
+                a = ()
+                continue
+            # Avoid collisions with other check-completed processes
+            if nskip > 0:
+                nskip -= 1
+                a = ()
+                continue
+        else:
+            a = ()
+            continue
+    
+        if len(a) == 0:
+            print("no entries found -- skipping")
+            continue
+        
+        print("------------------------------------------------------")
+        print("Checking cfg", seriesCfg, precTsrc, "jobID", jobID, "jobSeqNo", jobSeqNo)
+        print("------------------------------------------------------")
+        
+        # If job is not queued, exit
+        if not jobStillQueued(param,jobID):
+            break
+
+    if len(a) == 0:
+        return None
+    else:
+        return todoEntry
+
+######################################################################
 def checkPendingJobs(YAMLAll, YAMLMachine, YAMLEns, YAMLLaunch):
     """Process all entries marked Q in the todolist"""
 
@@ -415,38 +477,39 @@ def checkPendingJobs(YAMLAll, YAMLMachine, YAMLEns, YAMLLaunch):
     # Read the todo file
     todoFile = param['nanny']['todofile']
     lockFile = lockFileName(todoFile)
-    todoList = readTodo(todoFile, lockFile)
 
-    changed = False
-    for todoEntry in sorted(todoList,key=keyToDoEntries):
-        a = todoList[todoEntry]
-        if len(a) == 5:
-            (seriesCfg, precTsrc, flag, jobID, jobSeqNo) = a
-            if flag != "Q":
-                continue
-        else:
+    # First, just get a list of entries
+    waitSetTodoLock(lockFile)
+    todoList = readTodo(todoFile)
+    removeTodoLock(lockFile)
+    entryList = sorted(todoList,key=keyToDoEntries)
+
+    # Run through the entries
+    while len(entryList) > 0:
+        # Wait to access the todo file
+        waitSetTodoLock(lockFile)
+        todoList = readTodo(todoFile)
+        todoEntry = nextFinished(param, todoList, entryList)
+        if todoEntry == None:
+            removeTodoLock(lockFile)
             continue
-    
-        print("------------------------------------------------------")
-        print("Checking cfg", seriesCfg, precTsrc, "jobID", jobID, "jobSeqNo", jobSeqNo)
-        print("------------------------------------------------------")
 
+        # Mark that we are checking this item and rewrite the todo list
+        (seriesCfg, precTsrc, flag, jobID, jobSeqNo) = todoList[todoEntry]
+        todoList[todoEntry] = (seriesCfg, precTsrc, "C", jobID, jobSeqNo)
+        writeTodo(todoFile, todoList)
+        removeTodoLock(lockFile)
+
+        # Directory tree parameters
         stream = param['stream']
         jobCase = decodeCase(stream, seriesCfg, precTsrc, jobID, jobSeqNo)
         (stream, series, cfg, prec, tsrc, s06Cfg, tsrcID, jobID, jobSeqNo)  = jobCase
-
-        # If job is still queued, skip this entry
-        if jobStillQueued(param,jobID):
-            continue
-
-        # todo data will be changed
-        changed = True
-
+        
         # Check data files before tarring them up
         if goodData(param, jobCase) and goodLogs(param, jobCase):
             # Job appears to be complete
-            markCompletedTodoEntry(seriesCfg, precTsrc, todoList)
-
+            newTodo = (seriesCfg, precTsrc, "X", jobID, jobSeqNo)
+            
             # Cleanup from complete and incomplete runs
             #        purgeProps(param,seriesCfg)
             #        purgeRands(param,seriesCfg)
@@ -455,11 +518,11 @@ def checkPendingJobs(YAMLAll, YAMLMachine, YAMLEns, YAMLLaunch):
             # Create tar file for this job from entries in the data and logs tree
             if not makeTar(stream, jobCase):
                 print("ERROR: Couldn't create the tar file.")
-                resetTodoEntry(seriesCfg, precTsrc, todoList)
+                newTodo = (seriesCfg, precTsrc, "XXtar", jobID, jobSeqNo)
 
         else:
             # If not complete, reset the todo entry
-            resetTodoEntry(seriesCfg, precTsrc, todoList)
+            newTodo = (seriesCfg, precTsrc, "XXfix", jobID, jobSeqNo)
 
             # Salvage what we can
             cmd = " ".join(["../scripts/clean_corrs.py", stream,seriesCfg,precTsrc,"corr.fiducial"])
@@ -475,13 +538,15 @@ def checkPendingJobs(YAMLAll, YAMLMachine, YAMLEns, YAMLLaunch):
             
         sys.stdout.flush()
 
+        # Update the todo file
+        waitSetTodoLock(lockFile)
+        todoList = readTodo(todoFile)
+        todoList[todoEntry] = newTodo
+        writeTodo(todoFile, todoList)
+        removeTodoLock(lockFile)
+
         # Take a cat nap (avoids hammering the login node)
         subprocess.check_call(["sleep", "1"])
-
-    if changed:
-        writeTodo(todoFile, lockFile, todoList)
-    else:
-        removeTodoLock(lockFile)
 
 ############################################################
 def main():
