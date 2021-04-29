@@ -3,7 +3,7 @@
 
 # For Python 3 version
 
-import sys, os, yaml, subprocess
+import sys, os, yaml, subprocess, time
 
 ######################################################################
 def lockFileName(todoFile):
@@ -11,12 +11,13 @@ def lockFileName(todoFile):
     return todoFile + ".lock"
 
 ######################################################################
-def setTodoLock(lockFile):
+def waitSetTodoLock(lockFile):
     """Set lock file"""
 
-    if os.access(lockFile, os.R_OK):
-        print("Error. Lock file present. Quitting.")
-        sys.exit(1)
+    while os.access(lockFile, os.R_OK):
+        print("Lock file present. Sleeping.")
+        sys.stdout.flush()
+        time.sleep(600)
 
     subprocess.call(["touch", lockFile])
     
@@ -79,10 +80,9 @@ def loadParamsJoin(YAMLEns, YAMLAll):
     return param
 
 ######################################################################
-def readTodo(todoFile, lockFile):
+def readTodo(todoFile):
     """Read the todo file"""
     
-    setTodoLock(lockFile)
     todoList = dict()
     try:
         with open(todoFile) as todo:
@@ -128,7 +128,7 @@ def cmpToDoEntries(td1, td2):
     return order
 
 ######################################################################
-def writeTodo(todoFile, lockFile, todoList):
+def writeTodo(todoFile, todoList):
     """Write the todo file"""
 
     # Back up the files
@@ -157,5 +157,3 @@ def writeTodo(todoFile, lockFile, todoList):
             print("{0}".format(*a),file=todo)
 
     todo.close()
-
-    removeTodoLock(lockFile)
