@@ -4,15 +4,14 @@
 
 # Super_HISQ files
 
-GPFSHOME=/gpfs/alpine/proj-shared/phy131/detar
-NFSHOME=/ccs/home/detar
+SCRATCHHOME=$CSCRATCH
+NFSHOME=/global/homes/d/detar
 
 SRC=${NFSHOME}/allHISQ
-DST=${GPFSHOME}/allHISQ
+DST=${SCRATCHHOME}/allHISQ/scratch
 
 BINFILES="\
 ks_spectrum_hisq \
-ks_spectrum_hisq.hotfix \
 "
 
 for f in ${BINFILES}
@@ -22,33 +21,39 @@ done
 
 SCRIPTFILES=" \
 allHISQFiles.py \
+allHISQFilesNoHiddenSSD.py \
 allHISQKeys.py \
-make-allHISQ-prompts.py \
-params-allHISQ-plus.yaml \
-params-allHISQ.yaml \
-params-launch.yaml
+make-allHISQ-prompts-NoHiddenSSD.py \
+params-allHISQ-plus4.yaml \
+params-launch.yaml \
 "
-
 for f in ${SCRIPTFILES}
 do
     rsync -auv ${SRC}/scripts/$f ${DST}/scripts/
 done
 
+SCRIPTFILES=" \
+/global/homes/d/detar/milc_qcd/python3lib/MILCprompts/MILCprompts.py \
+"
+for f in ${SCRIPTFILES}
+do
+    rsync -auv $f ${DST}/scripts/
+done
 
 ENS="l64144f211b672m0024m024m286"
 
 ENSFILES="
-lat \
 make_ssd_dirs.sh \
 params-ens.yaml
 params-machine.yaml
-prop \
-purge_corrs.sh \
+purge_corrs2.sh \
 purge_props.sh \
 purge_symlinks.sh \
-rand \
-run.lsf \
-run0 \
+run.slurm \
+tar.fiducial \
+run3a \
+run3b \
+run3c \
 "
 
 for f in ${ENSFILES}
@@ -63,12 +68,12 @@ rsync -auv ${SRC}/wavefunction/* ${DST}/wavefunction/
 # Python lib files
 
 SRC=${NFSHOME}/python_modules
-DST=${GPFSHOME}/
+DST=${SCRATCHHOME}/
 
 rsync -auv ${SRC} ${DST}
 
 # Additional Python files
 
-rsync -auv ${NFSHOME}/milc_qcd/python2lib/MILCprompts/MILCprompts.py ${GPFSHOME}/MILCprompts/
+#rsync -auv ${NFSHOME}/milc_qcd/python2lib/MILCprompts/MILCprompts.py ${SCRATCHHOME}/MILCprompts/
 
 

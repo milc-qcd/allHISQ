@@ -7,8 +7,8 @@ ensemble:
 
 tsrcRange:
   loose:
-    start: 64
-    stop:  96
+    start: 32
+    stop:  64
     step:  4
     precess: 2
   fine:
@@ -41,7 +41,7 @@ apelink:              # Applies only to links in point-split operators
 eigen:
   Nvecs: 0
 
-stream: run3c
+stream: run3b
 
 ######################################################################
 # Quark parameters
@@ -96,17 +96,35 @@ quarks:
     deflate: 'no'
 
 tarCheck:             # For checking that the output tarball is complete
+# For extended run with 3 T values
+#  tarEntries: 4815
+#  tarbzip2Size: 50217442
+#  tarDataLines: 6894333
+#  tarDataWords: 19682226
 
-# For 4 T values and 12 source times, plus 1 fine solve
+# For initial run with 4 T values and 24 source times
+#  tarEntries: 6377
+#  tarbzip2Size: 95704371
+#  tarDataLines: 13415100
+#  tarDataWords: 38294200
+
+# For initial run with 4 T values and 12 source times
+
+#  tarEntries: 6269
+#  tarbzip2Size: 50000000
+#  tarDataLines: 6975852
+#  tarDataWords: 19912984
+
+# For initial run with 4 T values and 12 source times, plus 1 fine solve
 
 #   tarEntries: 8753
 #   tarbzip2Size: 88000000
 #   tarDataLines: 11211696
 #   tarDataWords: 32302512
 
-# For 4 T values and 8 source times, plus 0 fine solves
+# For initial run with 4 T values and 12 source times, plus 0 fine solves
 
-  tarEntries: 4408
-  tarbzip2Size: 79800000
-  tarDataLines:  9965952
-  tarDataWords: 28713344
+   tarEntries: 4408
+   tarbzip2Size: 79800000
+   tarDataLines:  9965952
+   tarDataWords: 28713344

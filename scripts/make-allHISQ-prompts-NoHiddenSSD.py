@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python
 
 # Python 3 version
 
@@ -775,9 +775,19 @@ def createKSQuarks(param, work, sources, quarkKeys, rwParams, rndSq, wf1S, tsrcC
         residQuality = param['residQuality']
         qkKeyBase = makeQuarkKey((residQuality, qk, mass, naik_epsilon, rndId, srcKeyMod, 'd'))
     
-        # Build the solve set
-        if srcKeyMod != srcKeyModLast:
-            # When the source changes, add the previous solve set
+        if 1:
+            # Build the solve set (multimass version)
+
+            if srcKeyMod != srcKeyModLast:
+                # When the source changes, add the previous solve set
+
+                if len(srcKeyModLast) > 0:
+                    work.addPropSet(thisSet)
+                thisSet = startKSSolveSet(param, qk, thisSrc)
+                srcKeyModLast = srcKeyMod
+        else:
+            # Build the solve set (single-mass version)
+
             if len(srcKeyModLast) > 0:
                 work.addPropSet(thisSet)
             thisSet = startKSSolveSet(param, qk, thisSrc)
@@ -984,10 +994,12 @@ def launchJob(param, asciiIOFileSet, njobs):
     # Complete command
     cmd = ' '.join([ mpirun, mpiparam, numa, launchScript, execFile, qmpgeom, qmpjob, inFile, outFile, errFile ])
     print("#", cmd)
+    sys.stdout.flush()
 
-    # If debugging, stop here
+    # Launch the job.  But if debugging, just print the command
     if param['scriptDebug'] == 'debug':
-        return 0
+        print(cmd,file=open(stdlog.path(),'a'))
+        return
     else:
         try:
             reply = subprocess.check_output(cmd, shell=True)
@@ -1116,20 +1128,21 @@ def storeTarFile(param, seriesCfg, tar):
         tarbase = tar.dirRemote()
     tardirs = param['files']['tar']['list']
 
-    # Get a list of paths in the directories tardirs with matching configuration number
-    tListPath = tarList( param['scriptDebug'], tarbase, tardirs, suffix, cfg )
+    if 0:
+        # Get a list of paths in the directories tardirs with matching configuration number
+        tListPath = tarList( param['scriptDebug'], tarbase, tardirs, suffix, cfg )
 
-    # Create the tarball and check it for completeness
-    cmd = ['/bin/tar', '-C', tarbase, '--remove-files', '-cjf', tar.path(), '-T', tListPath]
-    cmd = ' '.join(cmd)
-    print("#", cmd)
-    if param['scriptDebug'] != 'debug':
-        subprocess.check_output(cmd, shell = True)
-        if checkComplete(param, tar.path()):
-            tar.store()
-        else:
-            tar.store()
-            print("WARNING:", tar.path(), "INCOMPLETE.")
+        # Create the tarball and check it for completeness
+        cmd = ['/bin/tar', '-C', tarbase, '--remove-files', '-cjf', tar.path(), '-T', tListPath]
+        cmd = ' '.join(cmd)
+        print("#", cmd)
+        if param['scriptDebug'] != 'debug':
+            subprocess.check_output(cmd, shell = True)
+            if checkComplete(param, tar.path()):
+                tar.store()
+            else:
+                tar.store()
+                print("WARNING:", tar.path(), "INCOMPLETE.")
 
 ############################################################
 def purgeProps(binFileList):
@@ -1150,11 +1163,12 @@ def doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets,
     steprange = param['job']['steprange']
     for nstep in range(steprange['low'], steprange['high']):
 
-        print("Processing", param['scriptMode'], seriesCfgsrep, "for step", nstep, "tsrc", tsrcs)
+        print(datetime.now(),"Processing", param['scriptMode'], seriesCfgsrep, "for step", nstep, "tsrc", tsrcs)
 
         # Create MILC prompts and filenames for all cfgs in
         # this group for these tsrcs and all steps
         for kjob in range(njobs):
+            print(datetime.now(),"Creating MILCprompts for job",kjob)
             seriesCfg = seriesCfgsrep[kjob]
             # For multijob compatiblity, the base name is based on the first tsrc
             a, b = createMILCprompts(param, nstep, tsrcs[kjob], tsrcs[0], kjob, seriesCfg, njobs)
@@ -1165,7 +1179,7 @@ def doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets,
         # Launch the job for this group (unless we are just scanning)
         # For multijob compatibility, use the first entry in the list for stdin, stdout, stderr
         if param['scriptMode'] != 'KSscan':
-            print("Launching set", seriesCfgsrep, "for step", nstep, "tsrcs", tsrcs)
+            print(datetime.now(),"Launching set", seriesCfgsrep, "for step", nstep, "tsrcs", tsrcs)
             status = launchJob(param, 
                                asciiIOFileSets[encodeSeriesCfgSrc(seriesCfgsrep[0],str(tsrcs[0]))], njobs)
 
@@ -1180,7 +1194,7 @@ def doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets,
             # Resolve symlinks and store all result files, propagators, sources, etc.
             for seriesCfgSrc in sorted(asciiIOFileSets.keys()):
                 series, cfg, tsrca = decodeSeriesCfgSrc(seriesCfgSrc)
-#                print("Storing files for", series, cfg)
+#                print(datetime.now(),"Storing files for", series, cfg)
                 storeFiles(param, asciiIOFileSets[seriesCfgSrc], binIOFileSets[seriesCfgSrc])
                 purgeProps(binIOFileSets[seriesCfgSrc])  # TEMPORARY
             
@@ -1214,27 +1228,29 @@ def runParam(seriesCfgs, ncases, njobs, param):
 
         tsrcRange = param['tsrcRange']['loose']
         trange = range(tsrcRange['start'], tsrcRange['stop'], tsrcRange['step'])
-        tShift = [ 0 ] * njobs
-        if 1:
-            # Loose calculation -- Iterate over all source times
-            param['residQuality'] = 'loose'
-            for tsrcBase in trange:
-                tsrcs = [ tsrcBase ] * njobs
-                nt = param['ensemble']['dim'][3]
-                for kjob in range(njobs):
-                    # Compute the precession shift for the source times, 
-                    # based on the cfg number in this group
-                    suffix, cfg = decodeSeriesCfg(seriesCfgsrep[kjob])
-                    if len(suffix) == 0:
-                        suffix = 'a'
-                    cfgSep = param['cfgsep'][suffix]
-                    tShift[kjob] = int(cfg)//cfgSep*tsrcRange['precess']
-                    
-                    # Add precession shift mod nt
-                    tsrcs[kjob] = (tsrcBase + tShift[kjob]) % nt
+        precessLoose = tsrcRange['precess']
+        stepLoose = tsrcRange['step']
 
-                print("Loose calculation with tsrcs", tsrcs)
-                doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
+        # Construct a list of loose and fine precession shifts for each configuration
+        tShiftLoose = [ 0 ] * njobs
+        for kjob in range(njobs):
+            suffix, cfg = decodeSeriesCfg(seriesCfgsrep[kjob])
+            if len(suffix) == 0:
+                suffix = 'a'
+            cfgSep = param['cfgsep'][suffix]
+            tShiftLoose[kjob] = int(cfg)//cfgSep * precessLoose
+
+        # Loose calculation -- Iterate over all source times
+        param['residQuality'] = 'loose'
+        for tsrcBase in trange:
+            tsrcs = [ tsrcBase ] * njobs
+            nt = param['ensemble']['dim'][3]
+            for kjob in range(njobs):
+                tsrcs[kjob] = (tsrcBase + tShiftLoose[kjob]) % nt
+
+            print(datetime.now(),"Loose calculation with tsrcs", tsrcs)
+            sys.stdout.flush()
+            doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
 
         # Fine calculation -- only one source time per lattice
         # If we are running partial t ranges with multijob, 
@@ -1242,19 +1258,26 @@ def runParam(seriesCfgs, ncases, njobs, param):
         # their fine solves together or not at all.
         tsrcRange = param['tsrcRange']['fine']
         trange = range(tsrcRange['start'], tsrcRange['stop'], tsrcRange['step'])
+        precessFine = tsrcRange['precess']
+        
+        # Construct a list of loose and fine precession shifts for each configuration
+        tShiftFine = [ 0 ] * njobs
+        for kjob in range(njobs):
+            suffix, cfg = decodeSeriesCfg(seriesCfgsrep[kjob])
+            if len(suffix) == 0:
+                suffix = 'a'
+            cfgSep = param['cfgsep'][suffix]
+            tShiftFine[kjob] = int(cfg)//cfgSep * precessFine * stepLoose
+
+        param['residQuality'] = 'fine'
         for tsrcBase in trange:
-            param['residQuality'] = 'fine'
             tsrcs = [ tsrcBase ] * njobs
             nt = param['ensemble']['dim'][3]
             for kjob in range(njobs):
-                suffix, cfg = decodeSeriesCfg(seriesCfgsrep[kjob])
-                if len(suffix) == 0:
-                    suffix = 'a'
-                cfgSep = param['cfgsep'][suffix]
-                # Fine solve times precess over times ranging from 0 to nt by the loose step
-                tFineShift = int(cfg)//cfgSep*tsrcRange['precess']*param['tsrcRange']['loose']['step']
-                tsrcs[kjob] = ( tsrcBase + tShift[kjob] + tFineShift ) % nt
-            print("Fine calculation with tsrcBase", tsrcs)
+                tsrcs[kjob] = ( tsrcBase + tShiftLoose[kjob] + tShiftFine[kjob] ) % nt
+
+            print(datetime.now(), "Fine calculation with tsrcBase", tsrcs)
+            sys.stdout.flush()
             doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
 
         if param['scriptMode'] != 'KSscan':
@@ -1403,6 +1426,7 @@ def main():
     param['hisqProps'] = list()
 
     print("Scanning with the parameter set", YAML)
+    sys.stdout.flush()
     runParam(seriesCfgs, ncases, njobs, param)
 
     # Dump the collected propagator list
@@ -1425,6 +1449,7 @@ def main():
     param['hisqProps'] = hisqProps
 
     print("Running with the parameter set", YAML)
+    sys.stdout.flush()
     runParam(seriesCfgs, ncases, njobs, param)
 
     sys.exit(0)

@@ -334,6 +334,23 @@ def checkComplete(param, tarFile):
         print("ERROR: data words", words, "do not match", param['tarCheck']['tarDataWords'], "in tar file", tarFile)
         return False
 
+    # We check for the correct number of data lines and words                                                          
+    try:
+        reply = subprocess.check_output("tar -Oxjf " + tarFile + " data | wc", shell = True)
+    except subprocess.CalledProcessError as e:
+        print "Error checking for data-line count", tarFile
+        return False
+    lines = int(reply.split()[0])
+    words = int(reply.split()[1])
+
+    if lines != param['tarCheck']['tarDataLines']:
+        print "ERROR: data lines", lines, "do not match", param['tarCheck']['tarDataLines'], "in tar file", tarFile
+        return False
+
+    if words != param['tarCheck']['tarDataWords']:
+        print "ERROR: data words", words, "do not match", param['tarCheck']['tarDataWords'], "in tar file", tarFile
+        return False
+
     # We check for nonconvergence, signaled by lines with "NOT"
     try:
         reply = subprocess.check_output("tar -Oxjf " + tarFile + " logs | grep -w NOT | wc -l", shell = True)
@@ -402,7 +419,6 @@ def checkPendingJobs(YAMLMachine,YAMLEns,YAMLLaunch):
             # Job appears to be complete
             # Create tar file for this job from entries in the data and logs tree
             status = 1
-            reply = "(empty reply)"
             cmd = " ".join(["../scripts/makeTar.py", cfg, jobid])
             try:
                 reply = subprocess.check_output(cmd, shell = True).decode("ASCII")

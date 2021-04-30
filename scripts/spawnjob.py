@@ -38,7 +38,7 @@ def countQueue( scheduler,  myjobname ):
         print(cmd)
         reply = ""
         try:
-            reply = subprocess.check_output(cmd, shell=True).splitlines()
+            reply = subprocess.check_output(cmd, shell=True).decode().splitlines()
         except subprocess.CalledProcessError as e:
             print(reply)
             print("Job rsync error.  Return code", e.returncode)
@@ -71,7 +71,7 @@ def nextCfgnos( maxCases, todoList ):
     cfgnos = []
     for line in sorted(todoList,key=keyToDoEntries):
         a = todoList[line]
-        if len(a) == 1 or a[1] != "Q" and not "X" in a[1] :
+        if len(a) == 1 or a[1] != "Q" and not "X" in a[1]:
             cfgnos.append(a[0])
             if len(cfgnos) >= maxCases:
                 break
@@ -184,6 +184,7 @@ def submitJob(param, cfgnos, jobScript):
     if scheduler == 'LSF':
         # a.2100 Q Job <99173> is submitted to default queue <batch>
         jobid = reply[0].split()[1].split("<")[1].split(">")[0]
+        jobid = jobid.decode()
     elif scheduler == 'PBS':
         # 3314170.kaon2.fnal.gov submitted
         jobid = reply[0].split(".")[0]

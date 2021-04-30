@@ -10,18 +10,38 @@ apelink:              # Applies only to links in point-split operators
   iter: 32
 
 tsrcRange:
-  start: 0
-  stop:  64
-  step:  2
-  precess: 2          # For precessing the source times, based on the cfg number
+  loose:
+    start: 0
+    stop:  32
+    step:  2
+    precess: 2
+  fine:
+    start: 0
+    stop: 64
+    step: 64
+    precess: 3
 
-tSnkHtopi: &ref_tSnkHtopi [ 17,18,20,21 ]
-tSnkHtoH: &ref_tSnkHtoH [ 12,13,14,15 ] 
+# Intervals between configuration numbers
+cfgsep:
+  a: 5
+  b: 5
+  c: 5
+  d: 5
+  e: 6  # Keep this error for consistent precession
+  f: 5
+  g: 5
+  h: 5
+  i: 5
+  j: 5
+  x: 4    # For testing
+
+tSnkHtopi: &ref_tSnkHtopi [ 12, 13, 14, 16, 17 ]
+tSnkHtoH: &ref_tSnkHtoH [ 10, 11, 12, 14, 15 ] 
 
 eigen:
   Nvecs: 0
 
-stream: run1
+stream: run2a
 
 ######################################################################
 # Quark parameters
@@ -64,10 +84,10 @@ quarks:
     mass: ['0.5744','0.6382','0.8935' ]   # 0.9, 1.0, 1.4 mc
     naik_epsilon: ['-0.1932', '-0.2309', '-0.3899']
     residual_loose:
-      L2: 0.
+      L2: 1e-16
       R2: 1e-5
     residual_fine:
-      L2: 0.
+      L2: 1e-16
       R2: 1e-5
     maxCG:
       iters: 400
@@ -76,16 +96,29 @@ quarks:
     deflate: 'no'
 
 tarCheck:             # For checking that the output tarball is complete
-  tarEntries: 3233
-  tarDataEntries: 2936
-  tarbzip2Size: 43000000
-  tarDataLines: 6668772
-  tarDataWords: 18749544
+#  tarEntries: 3233
+#  tarDataEntries: 2936
+#  tarbzip2Size: 43000000
+#  tarDataLines: 6668772
+#  tarDataWords: 18749544
+
 # Values for the TSM tuning runs -- one source time per loose and fine
 # tarEntries: 2954
 # tarDataEntries: 2936
 # tarbzip2Size: 2700000
 # tarDataLines: 404168
 # tarDataWords: 1136336
+
+# Values for production running with params-allHISQ-plus4.yaml and half the loose source times
+
+  tarEntries: 4699
+  tarDataEntries: 2936
+  tarbzip2Size: 4000000
+  tarDataLines: 8042768 
+  tarDataWords: 22816448 
+
+
+
+
 
 

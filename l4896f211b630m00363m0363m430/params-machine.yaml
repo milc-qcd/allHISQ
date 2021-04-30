@@ -14,7 +14,16 @@ submit:
     layoutSciDAC:       # Node and I/O geometry
       node: [1, 2, 2, 2]
       io: [1, 2, 2, 2]
-    jobGeom: [ 1, 1, 1, *refNjobs]
+#  locale: bnl-skylake
+#  walltime: "24:00:00"
+#  layout:
+#    njobs: &refNjobs 1  # Number of concurrent subjobs within a job (not supported)
+#    basenodes: 4        # Number of nodes in one concurrent subjob
+#    ppn: 4              # MPI ranks per node
+#    layoutSciDAC:       # Node and I/O geometry
+#      node: [1, 2, 2, 4]
+#      io: [1, 2, 2, 4]
+#    jobGeom: [ 1, 1, 1, *refNjobs]
 
 nanny:
   todofile: todo  # Ensemble series letter is included with cfg number
@@ -42,7 +51,7 @@ archiveRoot: '/hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project'
 
 files:
   root:
-    project: '/sdcc/u/detar/allHISQ'
+    project: '/sdcc/u/detar/allHISQ-skx'
 #    local: '/scratch' # If empty, we do not stage files
     local: # If empty, we do not stage files
     remoteSSD: ''
