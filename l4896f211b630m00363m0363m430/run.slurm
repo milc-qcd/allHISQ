@@ -1,10 +1,11 @@
 #! /bin/bash
 
-#SBATCH --gres=gpu:4
+#SBATCH --gres=gpu:2
 #SBATCH -N 4
 #SBATCH -p long
-####### -C pascal
-#SBATCH -A semibdff-sky-2-19-20
+####### -q scavenger
+#SBATCH -C pascal
+#SBATCH -A semibdff-20-21
 #SBATCH -e stderrJob%jnode%n
 #SBATCH -o stdoutJob%jnode%n
 #SBATCH -V
@@ -23,35 +24,33 @@ echo $SLURM_JOB_NODELIST
 # Job environment
 
 source ${HOME}/bin/load_modules.sh
+source $HOME/bin/pythonpath.sh
 
-cd $HOME/allHISQ/l4896f211b630m00363m0363m430
+# Show environment
+env
 
-# Take predefined parameters from qsub command line:
+# Show executable dependencies
+ldd $HOME/allHISQ/bin/ks_spectrum_hisq
+ldd $HOME/allHISQ/bin/ks_spectrum_hisq_sm37-sp-openmpi2
+
+# Job parameters
 if [ -n "${SLURM_SUBMIT_DIR}" ]
 then
   cd ${SLURM_SUBMIT_DIR}
-  # Get job-dependent variables
-  # Unpack lists
-  # cfgs_milc=( `echo ${LATS} | sed 's|/| |g'` )
-  ncases=${NCASES}
-  pbsjobid=${SLURM_JOBID}
-  if [ -z "${pbsjobid}" ]
-  then
-    pbsjobid=none
-  fi
   testing=0
   prompt=0
 else
   echo "Not a SLURM job.  Running in test mode."
+  NCASES=1
   LATS="x.99"
-  t0s=(0)
-  jobids=("grp")
-  ncases=1
-  njobs=0
-  pbsjobid=test
+  NJOBS=1
   testing=1
   prompt=2
 fi
+
+ncases=${NCASES}
+cfgs_milc=${LATS}
+njobs=${NJOBS}
 
 # location of QUDA tunecache file
 export QUDA_RESOURCE_PATH=${SLURM_SUBMIT_DIR}
@@ -63,9 +62,13 @@ argList="${LATS} ${ncases} 1"
 scriptList="../scripts/params-allHISQ-plus4.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml"
 
 echo "Removing any leftover correlators"
-./purge_corrs.sh ${LATS} ${NCASES}
+./purge_corrs.sh ${LATS} ${NCASES} run3c
 
-python ../scripts/make-allHISQ-prompts-NoHiddenSSD.py ${argList} ${scriptList}
+echo "Running the job script:"
+echo "python ../scripts/make-allHISQ-prompts-NoHiddenSSD.py ${argList} ${scriptList}"
+
+# Use Intel's python3 until it is installed in /usr/local
+/hpcgpfs01/software/Intel/psxe2019/intelpython3/bin/python ../scripts/make-allHISQ-prompts-NoHiddenSSD.py ${argList} ${scriptList}
 
 if [ $? -ne 0 ]
 then
