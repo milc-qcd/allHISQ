@@ -1,0 +1,110 @@
+#! /bin/bash
+
+#SBATCH --gres=gpu:2
+#SBATCH -N 4
+#SBATCH -p long
+#SBATCH scavenger
+#SBATCH -C pascal
+#SBATCH -A semibdff-20-21
+#SBATCH -e stderrJob%jnode%n
+#SBATCH -o stdoutJob%jnode%n
+####### -t (command line in spawnjob.py)
+####### -n (command line in spawnjob.py)
+####### --jobname (command line in spawnjob.py)
+#SBATCH -V
+
+# Submission command must define environment variables LATS, NCASES
+# sbatch -n ${NODES} -t ${walltime} -J ${jobname} ${slurm_script}
+
+# LATS    list of cfg numbers, separated by /
+# NCASES  number of cfg cases to run
+# NJOBS   number of concurrent cases to run
+
+umask 0022
+
+echo "Running on nodes"
+echo $SLURM_JOB_NODELIST
+
+# Job environment
+
+#module load intel/psxe2019.u3
+#module load cmake
+module list
+source ${HOME}/bin/pythonpath.sh
+export PATH="/sdcc/u/zgelzer/anaconda3/bin:$PATH"
+echo $PYTHONPATH
+echo `which python`
+
+cd $HOME/allHISQ/l48144f211b672m0048m024m286
+
+# Take predefined parameters from qsub command line:
+if [ -n "${SLURM_JOB_NODELIST}" ]
+then
+  echo "Running on nodes"
+  echo $SLURM_JOB_NODELIST
+  # Get job-dependent variables
+  if [ -z "${jobid}" ]
+  then
+    jobid=none
+  fi
+  testing=0
+  prompt=0
+else
+  echo "Not a SLURM job.  Running in test mode."
+  NCASES=1
+  LATS="x.99"
+  NJOBS=1
+  t0s=(0)
+  jobids=("grp")
+  jobid=test
+  testing=1
+  prompt=2
+fi
+ncases=${NCASES}
+cfgs_milc=${LATS}
+njobs=${NJOBS}
+
+######################################################################
+# Job layout: node/thread/core usage
+
+#FABRIC Env variables (for EDR)#
+export I_MPI_FABRICS=shm:dapl
+export I_MPI_DAPL_PROVIDER=ofa-v2-mlx5_0-1u
+export I_MPI_SHM_LMT=shm
+export I_MPI_THREAD_LEVEL_DEFAULT=multiple
+export I_MPI_MAX_THREAD_SAFETY=multiple
+export I_MPI_VERSION_DISPLAY=1
+export PMI_MMAP_SYNC_WAIT_TIME=300
+
+#OMP Env Variables
+export OMP_NUM_THREADS=36
+export THREADS_PER_CORE=2
+#export OMPI_MCA_btl=self,vader,tcp
+export OMPI_MCA_btl_openib_connect_udcm_max_retry=1000
+
+#QUDA variables
+export QUDA_RESOURCE_PATH=`pwd`
+export QUDA_ENABLE_GDR=1
+export QUDA_MILC_HISQ_RECONSTRUCT=13
+export QUDA_MILC_HISQ_RECONSTRUCT_SLOPPY=9
+
+argList="${cfgs_milc} ${ncases} ${njobs}"
+scriptList="../scripts/params-allHISQ-plus4.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml"
+
+echo "Removing any leftover correlators"
+./purge_corrs.sh ${LATS} ${NCASES} run1c
+
+echo "Running the job script:"
+echo "python ../scripts/make-allHISQ-prompts-NoHiddenSSD.py ${argList} ${scriptList}"
+
+python ../scripts/make-allHISQ-prompts.py ${argList} ${scriptList}
+
+if [ $? -ne 0 ]
+then
+    echo "Exiting because of errors in job"
+    exit 1
+else
+    echo "Finished with status 0."
+    exit 0
+fi
+

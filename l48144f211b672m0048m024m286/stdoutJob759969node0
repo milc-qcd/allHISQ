@@ -1,0 +1,10 @@
+Running on nodes
+ichost[114,117,123-124]
+/sdcc/u/detar/python_modules:/sdcc/u/detar/python_modules/lib/python3.6/site-packages:/sdcc/u/detar/MILCprompts:/sdcc/u/detar/allHISQ/scripts:/sdcc/u/detar/python_modules:/sdcc/u/detar/python_modules/lib/python3.6/site-packages:/sdcc/u/detar/MILCprompts:/sdcc/u/detar/allHISQ/scripts
+/sdcc/u/zgelzer/anaconda3/bin/python
+Running on nodes
+ichost[114,117,123-124]
+Removing any leftover correlators
+Purging corrs for a001848
+Running the job script:
+python ../scripts/make-allHISQ-prompts-NoHiddenSSD.py a.1848 1 1 ../scripts/params-allHISQ-plus4.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml
