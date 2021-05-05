@@ -96,8 +96,8 @@ quarks:
     deflate: 'no'
 
 outputCheck:
-   corrFiducial: '/sdcc/u/detar/allHISQ/l48144f211b672m0048m024m286'
-   corrFiles: 5968
+   corrFiducial: '/sdcc/u/detar/allHISQ/l48144f211b672m0048m024m286/corr.fiducial'
+   corrFiles: 4336
 
 tarCheck:             # For checking that the output tarball is complete
 # Values for production running 9 loose source times and 1 fine
