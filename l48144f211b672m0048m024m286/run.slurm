@@ -15,6 +15,9 @@
 
 umask 0022
 
+echo "Running on nodes"
+echo $SLURM_JOB_NODELIST
+
 echo "Running with RUNCMDFILE ${RUNCMDFILE}"
 
 if [ ! -n "${SLURM_SUBMIT_DIR}" ]
@@ -45,8 +48,7 @@ fi
 # replacing "JOBID" with the job number
 # and "DW_JOB_STRIPED" with the datawarp path.
 
-# echo "Replacing 'JOBID' with ${SLURM_JOBID} and 'DW_JOB_STRIPED' with ${DW_JOB_STRIPED}"
-echo "Replacing 'JOBID' with ${SLURM_JOBID}"
+echo "Replacing 'JOBID' with ${SLURM_JOBID} and 'DW_JOB_STRIPED' with ${DW_JOB_STRIPED}"
 
 for f in `awk '{for(i=1;i<=NF;i++)if(index($i,"inJob")>0)print $i}' ${runcmdfile}`
 do

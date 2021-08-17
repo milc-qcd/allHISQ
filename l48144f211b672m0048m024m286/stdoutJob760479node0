@@ -1,0 +1,107 @@
+Running on nodes
+ichost[206-209]
+/sdcc/u/detar/python_modules:/sdcc/u/detar/python_modules/lib/python3.6/site-packages:/sdcc/u/detar/MILCprompts:/sdcc/u/detar/allHISQ/scripts:/sdcc/u/detar/python_modules:/sdcc/u/detar/python_modules/lib/python3.6/site-packages:/sdcc/u/detar/MILCprompts:/sdcc/u/detar/allHISQ/scripts
+/sdcc/u/zgelzer/anaconda3/bin/python
+Running on nodes
+ichost[206-209]
+Removing any leftover correlators
+Purging corrs for a001848
+Running the job script:
+python ../scripts/make-allHISQ-prompts-NoHiddenSSD.py a.1848 1 1 ../scripts/params-allHISQ-plus4.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml
+Have args a.1848 1 1 ../scripts/params-allHISQ-plus4.yaml ../scripts/params-launch.yaml params-ens.yaml params-machine.yaml
+Warning, DW_JOB_STRIPED not defined
+Scanning with the parameter set ../scripts/params-allHISQ-plus4.yaml
+Loose calculation with tsrcs [112]
+Processing KSscan ['a.1848'] for step 0 tsrc [112]
+Processing KSscan ['a.1848'] for step 1 tsrc [112]
+Processing KSscan ['a.1848'] for step 2 tsrc [112]
+Fine calculation with tsrcBase [136]
+Processing KSscan ['a.1848'] for step 0 tsrc [136]
+Processing KSscan ['a.1848'] for step 1 tsrc [136]
+Processing KSscan ['a.1848'] for step 2 tsrc [136]
+['d', 'q', '0,0,0', '0.0048', '0.', 'qlight']
+['d', 'q', '0,0,0', '0.024', '0.', 'qstrange']
+['d', 'q', '0,0,0', '0.257', '-0.0433', 'qheavy']
+['d', 'q', '0,0,0', '0.286', '-0.0533', 'qheavy']
+['d', 'q', '0,0,0', '0.572', '-0.1918', 'qheavy']
+['d', 'q', '0,0,0', '0.858', '-0.3673', 'qheavy']
+['d', 'q', '0,0,0', '1.144', '-0.5683', 'qheavy']
+['d', 'q', '1,0,0', '0.0048', '0.', 'qlight']
+['d', 'q', '1,0,0', '0.024', '0.', 'qstrange']
+['d', 'q', '1,0,0', '0.257', '-0.0433', 'qheavy']
+['d', 'q', '1,0,0', '0.286', '-0.0533', 'qheavy']
+['d', 'q', '1,0,0', '0.572', '-0.1918', 'qheavy']
+['d', 'q', '1,0,0', '0.858', '-0.3673', 'qheavy']
+['d', 'q', '1,0,0', '1.144', '-0.5683', 'qheavy']
+['d', 'q', '1,1,0', '0.0048', '0.', 'qlight']
+['d', 'q', '1,1,0', '0.024', '0.', 'qstrange']
+['d', 'q', '1,1,0', '0.257', '-0.0433', 'qheavy']
+['d', 'q', '1,1,0', '0.286', '-0.0533', 'qheavy']
+['d', 'q', '1,1,0', '0.572', '-0.1918', 'qheavy']
+['d', 'q', '1,1,0', '0.858', '-0.3673', 'qheavy']
+['d', 'q', '1,1,0', '1.144', '-0.5683', 'qheavy']
+['d', 'q', '2,0,0', '0.0048', '0.', 'qlight']
+['d', 'q', '2,0,0', '0.024', '0.', 'qstrange']
+['d', 'q', '2,0,0', '0.257', '-0.0433', 'qheavy']
+['d', 'q', '2,0,0', '0.286', '-0.0533', 'qheavy']
+['d', 'q', '2,0,0', '0.572', '-0.1918', 'qheavy']
+['d', 'q', '2,0,0', '0.858', '-0.3673', 'qheavy']
+['d', 'q', '2,0,0', '1.144', '-0.5683', 'qheavy']
+['d', 'q', '2,1,1', '0.0048', '0.', 'qlight']
+['d', 'q', '2,1,1', '0.024', '0.', 'qstrange']
+['d', 'q', '2,1,1', '0.257', '-0.0433', 'qheavy']
+['d', 'q', '2,1,1', '0.286', '-0.0533', 'qheavy']
+['d', 'q', '2,1,1', '0.572', '-0.1918', 'qheavy']
+['d', 'q', '2,1,1', '0.858', '-0.3673', 'qheavy']
+['d', 'q', '2,1,1', '1.144', '-0.5683', 'qheavy']
+['d', 'q', '2,2,2', '0.0048', '0.', 'qlight']
+['d', 'q', '2,2,2', '0.024', '0.', 'qstrange']
+['d', 'q', '2,2,2', '0.257', '-0.0433', 'qheavy']
+['d', 'q', '2,2,2', '0.286', '-0.0533', 'qheavy']
+['d', 'q', '2,2,2', '0.572', '-0.1918', 'qheavy']
+['d', 'q', '2,2,2', '0.858', '-0.3673', 'qheavy']
+['d', 'q', '2,2,2', '1.144', '-0.5683', 'qheavy']
+['d', 'q', '3,0,0', '0.0048', '0.', 'qlight']
+['d', 'q', '3,0,0', '0.024', '0.', 'qstrange']
+['d', 'q', '3,0,0', '0.257', '-0.0433', 'qheavy']
+['d', 'q', '3,0,0', '0.286', '-0.0533', 'qheavy']
+['d', 'q', '3,0,0', '0.572', '-0.1918', 'qheavy']
+['d', 'q', '3,0,0', '0.858', '-0.3673', 'qheavy']
+['d', 'q', '3,0,0', '1.144', '-0.5683', 'qheavy']
+['d', 'q', '4,0,0', '0.0048', '0.', 'qlight']
+['d', 'q', '4,0,0', '0.024', '0.', 'qstrange']
+['d', 'q', '4,0,0', '0.257', '-0.0433', 'qheavy']
+['d', 'q', '4,0,0', '0.286', '-0.0533', 'qheavy']
+['d', 'q', '4,0,0', '0.572', '-0.1918', 'qheavy']
+['d', 'q', '4,0,0', '0.858', '-0.3673', 'qheavy']
+['d', 'q', '4,0,0', '1.144', '-0.5683', 'qheavy']
+#############################################
+Warning, DW_JOB_STRIPED not defined
+Running with the parameter set ../scripts/params-allHISQ-plus4.yaml
+Loose calculation with tsrcs [112]
+Processing KSproduction ['a.1848'] for step 0 tsrc [112]
+Launching set ['a.1848'] for step 0 tsrcs [112]
+# srun -n 8 -c 8 --distribution=cyclic:cyclic --cpu_bind=sockets  /sdcc/u/detar/allHISQ/bin/ks_spectrum_hisq  -qmp-geom 1 1 2 4  /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/logs/loose/inJob760479_step0_t112.a001848 /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/logs/loose/outJob760479_step0_t112.a001848 /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/logs/loose/errJob760479_step0_t112.a001848
+Processing KSproduction ['a.1848'] for step 1 tsrc [112]
+Launching set ['a.1848'] for step 1 tsrcs [112]
+# srun -n 8 -c 8 --distribution=cyclic:cyclic --cpu_bind=sockets  /sdcc/u/detar/allHISQ/bin/ks_spectrum_hisq  -qmp-geom 1 1 2 4  /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/logs/loose/inJob760479_step1_t112.a001848 /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/logs/loose/outJob760479_step1_t112.a001848 /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/logs/loose/errJob760479_step1_t112.a001848
+Processing KSproduction ['a.1848'] for step 2 tsrc [112]
+Launching set ['a.1848'] for step 2 tsrcs [112]
+# srun -n 8 -c 8 --distribution=cyclic:cyclic --cpu_bind=sockets  /sdcc/u/detar/allHISQ/bin/ks_spectrum_hisq  -qmp-geom 1 1 2 4  /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/logs/loose/inJob760479_step2_t112.a001848 /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/logs/loose/outJob760479_step2_t112.a001848 /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/logs/loose/errJob760479_step2_t112.a001848
+Fine calculation with tsrcBase [136]
+Processing KSproduction ['a.1848'] for step 0 tsrc [136]
+Launching set ['a.1848'] for step 0 tsrcs [136]
+# srun -n 8 -c 8 --distribution=cyclic:cyclic --cpu_bind=sockets  /sdcc/u/detar/allHISQ/bin/ks_spectrum_hisq  -qmp-geom 1 1 2 4  /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/logs/fine/inJob760479_step0_t136.a001848 /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/logs/fine/outJob760479_step0_t136.a001848 /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/logs/fine/errJob760479_step0_t136.a001848
+Processing KSproduction ['a.1848'] for step 1 tsrc [136]
+Launching set ['a.1848'] for step 1 tsrcs [136]
+# srun -n 8 -c 8 --distribution=cyclic:cyclic --cpu_bind=sockets  /sdcc/u/detar/allHISQ/bin/ks_spectrum_hisq  -qmp-geom 1 1 2 4  /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/logs/fine/inJob760479_step1_t136.a001848 /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/logs/fine/outJob760479_step1_t136.a001848 /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/logs/fine/errJob760479_step1_t136.a001848
+Processing KSproduction ['a.1848'] for step 2 tsrc [136]
+Launching set ['a.1848'] for step 2 tsrcs [136]
+# srun -n 8 -c 8 --distribution=cyclic:cyclic --cpu_bind=sockets  /sdcc/u/detar/allHISQ/bin/ks_spectrum_hisq  -qmp-geom 1 1 2 4  /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/logs/fine/inJob760479_step2_t136.a001848 /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/logs/fine/outJob760479_step2_t136.a001848 /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/logs/fine/errJob760479_step2_t136.a001848
+Storing tar files for a.1848
+# cd /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0;/bin/find data -name '*a001848' -print >> tar.a001848
+# cd /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0;/bin/find logs -name '*a001848' -print >> tar.a001848
+# /bin/tar -C /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0 --remove-files -cjf /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/Job760479_a001848.tar.bz2 -T /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/tar.a001848
+Output tar file /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/Job760479_a001848.tar.bz2 size 26256227 too small.
+WARNING: /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/Job760479_a001848.tar.bz2 INCOMPLETE.
+Finished with status 0.

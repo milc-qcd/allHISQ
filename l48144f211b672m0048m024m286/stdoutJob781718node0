@@ -1,0 +1,132 @@
+Running on nodes
+ichost[190,193-195]
+Running with RUNCMDFILE runJob0004.sh
+Sun May  2 10:41:45 EDT 2021 Running on nodes
+ichost[190,193-195]
+Replacing 'JOBID' with 781718 and 'DW_JOB_STRIPED' with /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ
+sed 's/JOBID/'781718'/' < /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/a001848/L112/logs/inJob0004_step0_t112L.a001848 | sed 's|DW_JOB_STRIPED|'/hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ'/'
+sed 's/JOBID/'781718'/' < /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/a001848/L112/logs/inJob0004_step1_t112L.a001848 | sed 's|DW_JOB_STRIPED|'/hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ'/'
+sed 's/JOBID/'781718'/' < /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/a001848/L112/logs/inJob0004_step2_t112L.a001848 | sed 's|DW_JOB_STRIPED|'/hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ'/'
+sed 's/JOBID/'781718'/' < /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/project/a0.06/l48144f211b672m0048m024m286/run0/a001848/L112/logs/inJob0004_step3_t112L.a001848 | sed 's|DW_JOB_STRIPED|'/hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ'/'
+Sun May  2 10:41:45 EDT 2021 Running the job launch commands:
+com_qmp: set thread-safety level to 0
+Intra-node (non peer-to-peer) enabled for rank   4 (gpu=0) with neighbor   5 (gpu=1) dir=0, dim=2
+Intra-node (non peer-to-peer) enabled for rank   4 (gpu=0) with neighbor   5 (gpu=1) dir=1, dim=2
+Intra-node (non peer-to-peer) enabled for rank   2 (gpu=0) with neighbor   3 (gpu=1) dir=0, dim=2
+Intra-node (non peer-to-peer) enabled for rank   2 (gpu=0) with neighbor   3 (gpu=1) dir=1, dim=2
+Intra-node (non peer-to-peer) enabled for rank   6 (gpu=0) with neighbor   7 (gpu=1) dir=0, dim=2
+Intra-node (non peer-to-peer) enabled for rank   6 (gpu=0) with neighbor   7 (gpu=1) dir=1, dim=2
+Intra-node (non peer-to-peer) enabled for rank   1 (gpu=1) with neighbor   0 (gpu=0) dir=0, dim=2
+Intra-node (non peer-to-peer) enabled for rank   1 (gpu=1) with neighbor   0 (gpu=0) dir=1, dim=2
+Intra-node (non peer-to-peer) enabled for rank   5 (gpu=1) with neighbor   4 (gpu=0) dir=0, dim=2
+Intra-node (non peer-to-peer) enabled for rank   5 (gpu=1) with neighbor   4 (gpu=0) dir=1, dim=2
+Intra-node (non peer-to-peer) enabled for rank   3 (gpu=1) with neighbor   2 (gpu=0) dir=0, dim=2
+Intra-node (non peer-to-peer) enabled for rank   3 (gpu=1) with neighbor   2 (gpu=0) dir=1, dim=2
+Intra-node (non peer-to-peer) enabled for rank   7 (gpu=1) with neighbor   6 (gpu=0) dir=0, dim=2
+Intra-node (non peer-to-peer) enabled for rank   7 (gpu=1) with neighbor   6 (gpu=0) dir=1, dim=2
+LRL_open_write_file: failed to open /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/l48144f211b672m0048m024m286/rand/a001848/rnd_48144f211b672m0048m024m286_t112L.a001848.vol0005 for writing
+QIO_generic_open_write(5): failed to open file for writing
+open_scidac_output(5): QIO_open_write returned NULL
+LRL_open_write_file: failed to open /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/l48144f211b672m0048m024m286/rand/a001848/rnd_48144f211b672m0048m024m286_t112L.a001848.vol0004 for writing
+QIO_generic_open_write(4): failed to open file for writing
+open_scidac_output(4): QIO_open_write returned NULL
+LRL_open_write_file: failed to open /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/l48144f211b672m0048m024m286/rand/a001848/rnd_48144f211b672m0048m024m286_t112L.a001848.vol0001 for writing
+QIO_generic_open_write(1): failed to open file for writing
+open_scidac_output(1): QIO_open_write returned NULL
+LRL_open_write_file: failed to open /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/l48144f211b672m0048m024m286/rand/a001848/rnd_48144f211b672m0048m024m286_t112L.a001848.vol0007 for writing
+QIO_generic_open_write(7): failed to open file for writing
+open_scidac_output(7): QIO_open_write returned NULL
+LRL_open_write_file: failed to open /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/l48144f211b672m0048m024m286/rand/a001848/rnd_48144f211b672m0048m024m286_t112L.a001848.vol0006 for writing
+QIO_generic_open_write(6): failed to open file for writing
+open_scidac_output(6): QIO_open_write returned NULL
+LRL_open_write_file: failed to open /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/l48144f211b672m0048m024m286/rand/a001848/rnd_48144f211b672m0048m024m286_t112L.a001848.vol0003 for writing
+QIO_generic_open_write(3): failed to open file for writing
+open_scidac_output(3): QIO_open_write returned NULL
+LRL_open_write_file: failed to open /hpcgpfs01/work/lqcd/semibdff-18-19/allHISQ/l48144f211b672m0048m024m286/rand/a001848/rnd_48144f211b672m0048m024m286_t112L.a001848.vol0002 for writing
+QIO_generic_open_write(2): failed to open file for writing
+open_scidac_output(2): QIO_open_write returned NULL
+open_scidac_input_xml(4): QIO_open_read returns NULL.
+Termination: node 4, status = 1
+--------------------------------------------------------------------------
+MPI_ABORT was invoked on rank 4 in communicator MPI_COMM_WORLD
+with errorcode 1.
+
+NOTE: invoking MPI_ABORT causes Open MPI to kill all MPI processes.
+You may or may not see output from other processes, depending on
+exactly when Open MPI kills them.
+--------------------------------------------------------------------------
+open_scidac_input_xml(2): QIO_open_read returns NULL.
+Termination: node 2, status = 1
+--------------------------------------------------------------------------
+MPI_ABORT was invoked on rank 2 in communicator MPI_COMM_WORLD
+with errorcode 1.
+
+NOTE: invoking MPI_ABORT causes Open MPI to kill all MPI processes.
+You may or may not see output from other processes, depending on
+exactly when Open MPI kills them.
+--------------------------------------------------------------------------
+open_scidac_input_xml(1): QIO_open_read returns NULL.
+Termination: node 1, status = 1
+open_scidac_input_xml(3): QIO_open_read returns NULL.
+Termination: node 3, status = 1
+open_scidac_input_xml(5): QIO_open_read returns NULL.
+Termination: node 5, status = 1
+--------------------------------------------------------------------------
+MPI_ABORT was invoked on rank 3 in communicator MPI_COMM_WORLD
+with errorcode 1.
+
+NOTE: invoking MPI_ABORT causes Open MPI to kill all MPI processes.
+You may or may not see output from other processes, depending on
+exactly when Open MPI kills them.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+MPI_ABORT was invoked on rank 1 in communicator MPI_COMM_WORLD
+with errorcode 1.
+
+NOTE: invoking MPI_ABORT causes Open MPI to kill all MPI processes.
+You may or may not see output from other processes, depending on
+exactly when Open MPI kills them.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+MPI_ABORT was invoked on rank 5 in communicator MPI_COMM_WORLD
+with errorcode 1.
+
+NOTE: invoking MPI_ABORT causes Open MPI to kill all MPI processes.
+You may or may not see output from other processes, depending on
+exactly when Open MPI kills them.
+--------------------------------------------------------------------------
+open_scidac_input_xml(6): QIO_open_read returns NULL.
+Termination: node 6, status = 1
+--------------------------------------------------------------------------
+MPI_ABORT was invoked on rank 6 in communicator MPI_COMM_WORLD
+with errorcode 1.
+
+NOTE: invoking MPI_ABORT causes Open MPI to kill all MPI processes.
+You may or may not see output from other processes, depending on
+exactly when Open MPI kills them.
+--------------------------------------------------------------------------
+open_scidac_input_xml(7): QIO_open_read returns NULL.
+Termination: node 7, status = 1
+--------------------------------------------------------------------------
+MPI_ABORT was invoked on rank 7 in communicator MPI_COMM_WORLD
+with errorcode 1.
+
+NOTE: invoking MPI_ABORT causes Open MPI to kill all MPI processes.
+You may or may not see output from other processes, depending on
+exactly when Open MPI kills them.
+--------------------------------------------------------------------------
+com_qmp: set thread-safety level to 0
+Intra-node (non peer-to-peer) enabled for rank   2 (gpu=0) with neighbor   3 (gpu=1) dir=0, dim=2
+Intra-node (non peer-to-peer) enabled for rank   2 (gpu=0) with neighbor   3 (gpu=1) dir=1, dim=2
+Intra-node (non peer-to-peer) enabled for rank   4 (gpu=0) with neighbor   5 (gpu=1) dir=0, dim=2
+Intra-node (non peer-to-peer) enabled for rank   4 (gpu=0) with neighbor   5 (gpu=1) dir=1, dim=2
+Intra-node (non peer-to-peer) enabled for rank   6 (gpu=0) with neighbor   7 (gpu=1) dir=0, dim=2
+Intra-node (non peer-to-peer) enabled for rank   6 (gpu=0) with neighbor   7 (gpu=1) dir=1, dim=2
+Intra-node (non peer-to-peer) enabled for rank   1 (gpu=1) with neighbor   0 (gpu=0) dir=0, dim=2
+Intra-node (non peer-to-peer) enabled for rank   1 (gpu=1) with neighbor   0 (gpu=0) dir=1, dim=2
+Intra-node (non peer-to-peer) enabled for rank   3 (gpu=1) with neighbor   2 (gpu=0) dir=0, dim=2
+Intra-node (non peer-to-peer) enabled for rank   3 (gpu=1) with neighbor   2 (gpu=0) dir=1, dim=2
+Intra-node (non peer-to-peer) enabled for rank   5 (gpu=1) with neighbor   4 (gpu=0) dir=0, dim=2
+Intra-node (non peer-to-peer) enabled for rank   5 (gpu=1) with neighbor   4 (gpu=0) dir=1, dim=2
+Intra-node (non peer-to-peer) enabled for rank   7 (gpu=1) with neighbor   6 (gpu=0) dir=0, dim=2
+Intra-node (non peer-to-peer) enabled for rank   7 (gpu=1) with neighbor   6 (gpu=0) dir=1, dim=2
