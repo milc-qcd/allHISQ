@@ -12,7 +12,7 @@ tsrcRange:
     step:  8
     precess: 6
   fine:
-    start: 192
+    start: 0
     stop: 192
     step: 192
     precess: 2
@@ -94,8 +94,9 @@ outputCheck:
    corrFiles: 5968
 
 tarCheck:             # For checking that the output tarball is complete
-# Values for production running 12 loose source times and 0 fine
-#  tarEntries: 4418
-#  tarbzip2Size: 136000000
-#  tarDataLines: 15780528
-#  tarDataWords: 46009008
+# Values for production running a single source time
+#  tarEntries: 4418??
+#  tarbzip2Size: 28800000
+#  tarDataLines: 3122640
+#  tarDataWords: 9163408
+

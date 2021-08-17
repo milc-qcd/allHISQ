@@ -52,8 +52,9 @@ do
   for g in ${f}*
   do
     echo "sed 's/JOBID/'${SLURM_JOBID}'/' < $g | sed 's|DW_JOB_STRIPED|'${DW_JOB_STRIPED}'/'"
-    sed 's|JOBID|'${SLURM_JOBID}'|' < $g | sed 's|DW_JOB_STRIPED|'${DW_JOB_STRIPED}'|' > foo
-    mv foo $g
+    sed 's|JOBID|'${SLURM_JOBID}'|' < $g | sed 's|DW_JOB_STRIPED|'${DW_JOB_STRIPED}'|' > foo.${SLURM_JOBID}
+    cp foo.${SLURM_JOBID} $g
+    rm foo.${SLURM_JOBID}
   done
 done
 
@@ -74,8 +75,8 @@ do
 done
 
 # Run production jobs out of $CSCRATCH
-SCRATCH_HOME=$CSCRATCH/test_20200930
-SCRATCH=${SCRATCH_HOME}/allHISQ/scratch/l144288f211b700m000569m01555m1827
+SCRATCH_HOME=$CSCRATCH
+SCRATCH=${SCRATCH_HOME}/allHISQ/scratch/l64192f211b700m00316m0158m188
 mkdir -p $SCRATCH
 ./setup_rsync.sh  ${SCRATCH_HOME}
 cd $SCRATCH

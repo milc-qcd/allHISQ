@@ -10,8 +10,7 @@ DST=${SCRATCHHOME}/allHISQ/scratch
 
 BINFILES="\
 ks_spectrum_hisq \
-ks_spectrum_hisq.2021feb1 \
-ks_spectrum_hisq.2021feb3 \
+ks_spectrum_hisq.2021feb6 \
 ks_spectrum_hisq.2020sep17 \
 ks_spectrum_hisq.open_all \
 "
@@ -21,7 +20,7 @@ do
     rsync -auv ${SRC}/bin/$f ${DST}/bin/
 done
 
-ENS="l144288f211b700m000569m01555m1827"
+ENS="l64192f211b700m00316m0158m188"
 
 ENSFILES="
 run1a \
