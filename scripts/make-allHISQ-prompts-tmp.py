@@ -6,7 +6,7 @@ import sys, os, yaml, re, subprocess
 sys.path.append("/Users/wijay/GitHub/MILC/milc_qcd/python3lib/MILCprompts/")
 from MILCprompts import *
 from allHISQKeys import *
-from allHISQFilesNoHiddenSSD import *
+from allHISQFiles import *
 from Cheetah.Template import Template
 
 from datetime import datetime
@@ -45,14 +45,22 @@ def decodeSeriesCfg(seriesCfg):
     return seriesCfg.split(".")
 
 #######################################################################
-def encodeSeriesCfgSrc(seriesCfg,tsrc):
-    """Encode series, cfg and tsrc"""
-    series, cfg = decodeSeriesCfg(seriesCfg)
-    return ".".join([series, cfg, tsrc])
+def decodePrecTsrc(seriesCfg):
+    """Decode prec, tsrc, as it appeaers in the todo file
+       Takes P.nn -> [P, nnn]"""
+    return seriesCfg.split(".")
 
 #######################################################################
-def decodeSeriesCfgSrc(seriesCfgSrc):
-    """Decode series, cfg, and tsrc"""
+def encodeSeriesCfgPrecSrc(seriesCfg,prec,tsrc):
+    """Encode series, cfg, tsrc, prec
+       takes x.nnn, P, mmm -> x.nnn.P.mmm """
+    series, cfg = decodeSeriesCfg(seriesCfg)
+    return ".".join([series, cfg, tsrc, prec])
+
+#######################################################################
+def decodeSeriesCfgPrecSrc(seriesCfgSrc,prec):
+    """Decode series, cfg, prec, src
+       takes x.nnn.P.mmm -> [x, nnn, P, mmm]"""
     return seriesCfgSrc.split(".")
 
 ######################################################################
@@ -74,7 +82,7 @@ def stageLattice(param, suffix, cfg):
     # that go with the saved propagator
     name = latFileCoul( run, suffix, cfg )
     latCoul = StageFile( localRoot, None, root[lat['root']],
-                         lat['subdirs'], name, 'r', None, False )
+                         lat['subdirs'], name, 'r', None, None, False )
     inLat = latCoul
     loadLat = (fileCmd['lat']['load'], inLat.path())
     saveLat = ('forget',)
@@ -84,7 +92,7 @@ def stageLattice(param, suffix, cfg):
         name = latFileMILCv5( run, suffix, cfg)
         lat = param['files']['latMILCv5']
         latMILCv5 = StageFile( localRoot, None, root[lat['root']],
-                               lat['subdirs'], name, 'r', None, False )
+                               lat['subdirs'], name, 'r', None, None, False )
         inLat = latMILCv5
         loadLat = (fileCmd['lat']['load'], inLat.path())
 #        See explanation above.
@@ -112,7 +120,7 @@ def stageEigen(param, suffix, cfg):
 
     name = latFileEig( run, suffix, cfg )
     inEigen = StageFile( localRoot, None, root[eig['root']], eig['subdirs'],
-                         name, 'r', None, False )
+                         name, 'r', None, None, False )
 
     fileCmd = param['fileCmd']
     loadEigen = (fileCmd['eig']['load'], inEigen.path())
@@ -128,7 +136,7 @@ def fetchWF(param):
     root = param['files']['root']
     localRoot = root['local']
     wf1S = StageFile( localRoot, None, root[wf['root']], wf['subdirs'],
-                      name, 'r', None, False )
+                      name, 'r', None, None, False )
     if not wf1S.exist():
         if param['scriptDebug'] != 'debug':
             print("ERROR: Can't get wavefunction file.")
@@ -136,10 +144,10 @@ def fetchWF(param):
     return wf1S
 
 ######################################################################
-def prepareRandomSource(param, tsrcConfigId):
+def prepareRandomSource(param, precTsrcConfigId):
     """Fetch or prepare to generate the random wall source"""
 
-    (tsrc, suffix, cfg) = tsrcConfigId
+    (prec, tsrc, suffix, cfg) = precTsrcConfigId
 
     # Random source files for spectator and daughter
     root = param['files']['root']
@@ -151,18 +159,18 @@ def prepareRandomSource(param, tsrcConfigId):
     rand = param['files']['rand']
     if rand['coherent'] == 'yes':
         # Files must exist
-        name = rndFile('', run, tsrcConfigId)
+        name = rndFile('', run, precTsrcConfigId)
         rndDq = StageFile( localRoot, None, root[rand['root']], rand['subdirs'],
-                           name, 'r', None, False )
-        name = rndFile('Sq', run, tsrcConfigId)
+                           name, 'r', None, None, False )
+        name = rndFile('Sq', run, precTsrcConfigId)
         rndSq = StageFile( localRoot, None, root[rand['root']], rand['subdirs'],
-                           name, 'r', None, False )
+                           name, 'r', None, None, False )
         if not rndDq.exist() or not rndSq.exist():
             print("ERROR: with coherent random sources",rndDq.name(),"and",rndSq.name(),"must exist")
             if param['scriptDebug'] != 'debug':
                 sys.exit(1)
     else:
-        name = rndFile('', run, tsrcConfigId)
+        name = rndFile('', run, precTsrcConfigId)
         # Store random sources in subdirectories labeled by the configuration ID
         configID = codeCfg(suffix, cfg)
         remotePath = rand['subdirs'] + [configID]
@@ -170,9 +178,9 @@ def prepareRandomSource(param, tsrcConfigId):
 #        rndDq = StageFile( localRoot, None, root[rand['root']], rand['subdirs'], name, 'x', None, False )
 #        rndSq = StageFile( localRoot, None, root[rand['root']], rand['subdirs'], name, 'x', None, False )
         rndDq = StageFile( localRoot, None, root[rand['root']], remotePath,
-                           name, 'r', None, False )
+                           name, 'r', None, None, False )
         rndSq = StageFile( localRoot, None, root[rand['root']], remotePath,
-                           name, 'r', None, False )
+                           name, 'r', None, None, False )
 
     # With coherent sources we must distinguish the spectator and daughter random sources
     # Equivalent to antiquark and quark random sources
@@ -187,7 +195,7 @@ def prepareRandomSource(param, tsrcConfigId):
     return (rndSq, rndDq, rndQ, rndAq)
 
 ######################################################################
-def compile2ptCorrelators(param, correlators, quarkKeys, rndQ, rndAq, nstep, tsrcConfigId):
+def compile2ptCorrelators(param, correlators, quarkKeys, rndQ, rndAq, nstep, precTsrcConfigId):
     """Parse the YAML 2pt parameters and make tables of propagators to
     be generated and 2pt correlators to be computed"""
     def unpack(quark_specification):
@@ -223,11 +231,14 @@ def compile2ptCorrelators(param, correlators, quarkKeys, rndQ, rndAq, nstep, tsr
             tokens = (residQuality, qk, m, eps, rnd, srcKey, smSnk)
         return tokens
 
-    (tsrc, suffix, cfg) = tsrcConfigId
+    (prec, tsrc, suffix, cfg) = precTsrcConfigId
 
     root = param['files']['root']
     localRoot = root['local']
-    residQuality = param['residQuality']
+    residQuality = prec
+
+    configId = codeCfg(suffix, cfg)
+    tsrcId = codeTsrc(prec, tsrc)
 
     ensemble = param['ensemble']
     run = ensemble['run']
@@ -263,7 +274,6 @@ def compile2ptCorrelators(param, correlators, quarkKeys, rndQ, rndAq, nstep, tsr
 
         # Antiquark always zero momentum and zero twist
         # Make a table of antiquark keys encoding the needed quark attributes
-        # (aQk, smAQSrcList, smAQSnkList) = corr2pts[nptKey]['aQ']
         (aQk, smAQSrcList, smAQSnkList, _) = unpack(corr2pts[nptKey]['aQ'])
         mom = [0, 0, 0]
         for smAQSrc in smAQSrcList:
@@ -276,7 +286,7 @@ def compile2ptCorrelators(param, correlators, quarkKeys, rndQ, rndAq, nstep, tsr
 
         # Set up 2pt correlators
         # Result is a 2pt hadron "correlators" table with all needed attributes
-        name = corr2ptFileName(nptKey, run, tsrcConfigId)
+        name = corr2ptFileName(nptKey, run, precTsrcConfigId)
         corr = param['files']['corr']
         (qk, smQSrcList, smQSnkList, qTwist) = unpack(corr2pts[nptKey]['Q'])
         (aQk, smAQSrcList, smAQSnkList, _) = unpack(corr2pts[nptKey]['aQ'])
@@ -298,15 +308,15 @@ def compile2ptCorrelators(param, correlators, quarkKeys, rndQ, rndAq, nstep, tsr
                                     mQkLab = massLabel(param['quarks'][qk], mQ)
                                     mAQkLab = massLabel(param['quarks'][aQk], mAq)
                                     massMomDir = massSubdir2pt(mQkLab, mAQkLab, Qmom)
-                                    subDirs = [stream, corr['subdir'], residQuality, nptKey, massMomDir]
+                                    subDirs = [stream, configId, tsrcId, corr['subdir'], nptKey, massMomDir]
                                     corrFile = StageFile(localRoot, subDirs, root[corr['root']],
-                                                            subDirs, name, 'w', None, False)
+                                                            subDirs, name, 'w', None, None, False)
                                     correlators.append(
                                         Correlator(corrFile, qKey, aQKey, Qmom, aQmom, corrAttrsTable[momKey]))
 
 
 ######################################################################
-def compile3ptCorrelators(param, correlators, quarkKeys, rndQ, rndAq, nstep, tsrcConfigId):
+def compile3ptCorrelators(param, correlators, quarkKeys, rndQ, rndAq, nstep, precTsrcConfigId):
     """Parse the YAML 3pt parameters and make tables of propagators to
     be generated and 3pt correlators to be computed"""
 
@@ -335,15 +345,18 @@ def compile3ptCorrelators(param, correlators, quarkKeys, rndQ, rndAq, nstep, tsr
             tokens = (residQuality, qk, m, eps, rnd, srcKey, smSnk)
         return tokens
 
-    (tsrc, suffix, cfg) = tsrcConfigId
+    (prec, tsrc, suffix, cfg) = precTsrcConfigId
 
     root = param['files']['root']
     localRoot = root['local']
 
+    configId = codeCfg(suffix, cfg)
+    tsrcId = codeTsrc(prec, tsrc)
+
     ensemble = param['ensemble']
     run = ensemble['run']
     stream = param['stream']
-    residQuality = param['residQuality']
+    residQuality = prec
 
     corr3pts = param['corr3pts']
     for nptKey in corr3pts:
@@ -392,7 +405,7 @@ def compile3ptCorrelators(param, correlators, quarkKeys, rndQ, rndAq, nstep, tsr
             for smSSrc in smSSrcList:
                 for extT, parentMom in itertools.product(corr3pts[nptKey]['extT'], parentMomenta):
                     corr = param['files']['corr']
-                    name = corr3ptFileName(nptKey, run, extT, tsrcConfigId)
+                    name = corr3ptFileName(nptKey, run, extT, precTsrcConfigId)
                     quarkP = param['quarks'][qkP]
                     for mQkP, epsP in zip(quarkP['mass'], quarkP['naik_epsilon']):
                         snkKey = makeSnkKey((smSSnk, str(extT), stP, qkP, mQkP, epsP, makeMomKey(parentMom)))
@@ -428,9 +441,9 @@ def compile3ptCorrelators(param, correlators, quarkKeys, rndQ, rndAq, nstep, tsr
                                     mQkSLab = massLabel(param['quarks'][qkS], mQkS)
                                     mQkDLab = massLabel(param['quarks'][qkD], mQkD)
                                     massMomDir = massSubdir3pt(mQkPLab, mQkSLab, mQkDLab, daughterMom)
-                                    subDirs = [stream, corr['subdir'], residQuality, nptKey, massMomDir]
+                                    subDirs = [stream, configId, tsrcId, corr['subdir'], nptKey, massMomDir]
                                     corrFile = StageFile(localRoot, subDirs, root[corr['root']],
-                                                         subDirs, name, 'w', None, False)
+                                                         subDirs, name, 'w', None, None, False)
 
                                     # correlators.append([corrFile, daughterKey, parentKey, daughterMom, corrAttrsTable[momKey]])
 
@@ -472,13 +485,16 @@ def setUpJobTarFile(param, configId):
     localpath = os.path.join( root[io['root']] )
     subDirs = [stream]
     tar = StageFile(localRoot, subDirs, localpath, subDirs,
-                    name, 'w', None, False)
+                    name, 'w', None, None, False)
 
     return tar
 
 ######################################################################
-def setUpJobIOFiles(param, nstep, tsrcConfigId, tsrcConfigIdSym, kjob, njobs):
+def setUpJobIOFiles(param, nstep, precTsrcConfigId, precTsrcConfigIdSym, kjob, njobs):
     """Define and open the stdin file, define stdout and stderr and redirect the script stdout, stderr"""
+
+    (prec, tsrc, suffix, cfg) = precTsrcConfigId
+    (precSym, tsrcSym, suffixSym, cfgSym) = precTsrcConfigIdSym
 
     root = param['files']['root']
     localRoot = root['local']
@@ -487,59 +503,75 @@ def setUpJobIOFiles(param, nstep, tsrcConfigId, tsrcConfigIdSym, kjob, njobs):
     run = ensemble['run']
     stream = param['stream']
     jobid = param['job']['id']
-    residQuality = param['residQuality']
 
     step = 'step' + str(nstep)
     tag = ''
 
+    configId = codeCfg(suffix, cfg)
+    tsrcId = codeTsrc(prec,tsrc)
+
+    configIDSym = codeCfg(suffixSym, cfgSym)
+    tsrcIDSym = codeTsrc(precSym,tsrcSym)
+
     io = param['files']['log']
-    name = logFileName(run, tsrcConfigId, jobid, tag, step)
-    multiJobName = logFileSymLink(run, tsrcConfigIdSym, jobid, tag, step, kjob, njobs)
+    # The logfile isn't doing its job -- needs fixing or removing
+    name = logFileName(run, precTsrcConfigId, jobid, tag, step)
+    multiJobName = logFileSymLink(run, precTsrcConfigIdSym, jobid, tag, step, kjob, njobs)
+    multiJobSubDirs = [stream, configIDSym, tsrcIDSym, io['subdir']]
     localpath = os.path.join( root[io['root']] )
     # Don't stage the log file.  It contains script information
     # that might be needed in case the job fails.
-    subDirs = [stream, io['subdir'], residQuality]
-    stdlog = StageFile(None, None, localpath, subDirs, name, 'w', multiJobName, True)
-#    # Redirect script stdout and stderr to the log file
+    subDirs = [stream, configId, tsrcId, io['subdir']]
+    stdlog = StageFile(None, None, localpath, subDirs, name, 'w', multiJobSubDirs, multiJobName, True)
+    # Redirect script stdout and stderr to the log file
 #    if param['scriptDebug'] != 'debug':
 #        redirectStdoutStderr(stdlog.path())
 
     io = param['files']['in']
-    name = inFileName(run, tsrcConfigId, jobid, tag, step)
-    multiJobName = inFileSymLink(run, tsrcConfigIdSym, jobid, tag, step, kjob, njobs)
+    name = inFileName(run, precTsrcConfigId, jobid, tag, step)
+    multiJobName = inFileSymLink(run, precTsrcConfigIdSym, jobid, tag, step, kjob, njobs)
+    multiJobSubDirs = [stream, configIDSym, tsrcIDSym, io['subdir']]
     localpath = os.path.join( root[io['root']] )
-    subDirs = [stream, io['subdir'], residQuality]
+    subDirs = [stream, configId, tsrcId, io['subdir']]
     stdin = StageFile(localRoot, subDirs, localpath, subDirs, name,
-                      'w', multiJobName, True)
+                      'w', multiJobSubDirs, multiJobName, True)
 
     io = param['files']['out']
-    name = outFileName(run, tsrcConfigId, jobid, tag, step)
-    multiJobName = outFileSymLink(run, tsrcConfigIdSym, jobid, tag, step, kjob, njobs)
+    name = outFileName(run, precTsrcConfigId, jobid, tag, step)
+    multiJobName = outFileSymLink(run, precTsrcConfigIdSym, jobid, tag, step, kjob, njobs)
+    multiJobSubDirs = [stream, configIDSym, tsrcIDSym, io['subdir']]
     localpath = os.path.join( root[io['root']] )
-    subDirs = [stream, io['subdir'], residQuality]
+    subDirs = [stream, configId, tsrcId, io['subdir']]
     stdout = StageFile(localRoot, subDirs, localpath, subDirs, name,
-                       'w', multiJobName, True)
+                       'w', multiJobSubDirs, multiJobName, True)
 
     io = param['files']['err']
-    name = errFileName(run, tsrcConfigId, jobid, tag, step)
-    multiJobName = errFileSymLink(run, tsrcConfigIdSym, jobid, tag, step, kjob, njobs)
+    name = errFileName(run, precTsrcConfigId, jobid, tag, step)
+    multiJobName = errFileSymLink(run, precTsrcConfigIdSym, jobid, tag, step, kjob, njobs)
+    multiJobSubDirs = [stream, configIDSym, tsrcIDSym, io['subdir']]
     localpath = os.path.join( root[io['root']] )
-    subDirs = [stream, io['subdir'], residQuality]
+    subDirs = [stream, configId, tsrcId, io['subdir']]
     stderr = StageFile(localRoot, subDirs, localpath, subDirs, name, 'w',
-                       multiJobName, True)
+                       multiJobSubDirs, multiJobName, True)
 
     return (stdin, stdout, stderr, stdlog)
 
 ######################################################################
-def initializePrompts(param, tsrcConfigId):
+def initializePrompts(param, precTsrcConfigId):
     """Start input parameter set"""
 
-    (tsrc, suffix, cfg) = tsrcConfigId
+    (prec, tsrc, suffix, cfg) = precTsrcConfigId
 
     ensemble = param['ensemble']
     dim = ensemble['dim']
     seed = str(cfg)+str(tsrc)
-    jobID = param['job']['id']
+
+    # Label in header of input parameter file
+    if param['scriptDebug'] == 'debug':
+        jobID = 'JOBID'
+    else:
+        jobID = param['job']['id']
+
     layoutSciDAC = param['submit']['layout']['layoutSciDAC']
     work = ks_spectrum('test', dim, seed, jobID, layoutSciDAC)
 
@@ -565,10 +597,51 @@ def addEigen(param, work, loadEigen, saveEigen):
     work.newEigen(eigs)
 
 ######################################################################
-def createRandomSource(param, work, rndSq, rndDq, tsrcConfigId):
+def createSSDList(jobid):
+    """Create the SSDList file"""
+
+    cmd = ['touch', "SSDList." + jobid]
+    cmd = ' '.join(cmd)
+    print("#", cmd)
+    try:
+        subprocess.check_output(cmd, shell = True)
+    except subprocess.CalledProcessError as e:
+        print("ERROR adding", fileName, "to SSDlist")
+    return
+
+######################################################################
+def updateSSDList(fileName, jobid):
+    """Add a new file name to the SSDList"""
+
+    cmd = ['echo', fileName, ">> SSDList." + jobid]
+    cmd = ' '.join(cmd)
+    print("#", cmd)
+    try:
+        subprocess.check_output(cmd, shell = True)
+    except subprocess.CalledProcessError as e:
+        print("ERROR adding", fileName, "to SSDlist")
+    return
+
+######################################################################
+def checkSSDList(fileName, jobid):
+    """Check SSDList to see if a file should now exist"""
+
+    cmd = ['grep', fileName, "SSDList." + jobid, "> /dev/null"]
+    cmd = ' '.join(cmd)
+    print("#", cmd)
+    try:
+        lines = subprocess.check_output(cmd, shell = True).splitlines()
+    except subprocess.CalledProcessError as e:
+        print("Not FOUND in SSDlist", fileName)
+        return False
+    print("FOUND in SSDlist", fileName)
+    return True
+
+######################################################################
+def createRandomSource(param, work, rndSq, rndDq, precTsrcConfigId):
     """Set up commands for creating the random source"""
 
-    (tsrc, suffix, cfg) = tsrcConfigId
+    (prec, tsrc, suffix, cfg) = precTsrcConfigId
 
     ensemble = param['ensemble']
     dim = ensemble['dim']
@@ -586,8 +659,12 @@ def createRandomSource(param, work, rndSq, rndDq, tsrcConfigId):
     # Table of source objects for each source key
     sources = dict()
 
+    # Maintain SSDList to track what should be there
+    jobid = param['job']['id']
+    path = rndSq.path()
+
     # If we already have the random source, we don't generate it
-    if rndSq.exist():
+    if rndSq.exist() or checkSSDList(path, jobid):
         return (sources, rwParams)
 
     # First create the zero-momentum random_wall source
@@ -603,6 +680,10 @@ def createRandomSource(param, work, rndSq, rndDq, tsrcConfigId):
     src = VectorFieldSource(loadRnd, [0,0,0,tsrc], rwNcolor, "KS", rwSubset,
                             rwMom, scaleFactor, rwLabel, saveRnd )
     sources[makeSrcKey(('d',makeMomKey(rwMom)))] = work.addBaseSource(src)
+
+    # Record file that should go on the SSD
+    if param['scriptMode'] != 'KSscan':
+        updateSSDList(path, jobid)
 
     # Do dummy propagator
     # Any quark will do here
@@ -622,10 +703,10 @@ def createRandomSource(param, work, rndSq, rndDq, tsrcConfigId):
     deflate = None
     if param['eigen']['Nvecs'] > 0:
         deflate = 'no'
-    if param['residQuality'] == 'fine':
-        residual = quark['residual_fine']
-    else:
+    if prec == 'L':
         residual = quark['residual_loose']
+    else:
+        residual = quark['residual_fine']
     thisQ = KSsolveElement(mass, naik_epsilon, load, save, deflate, residual)
     thisSet.addPropagator(thisQ)
     work.addPropSet(thisSet)
@@ -690,24 +771,24 @@ def makeModifiedSource(param, work, sources, ptSrc, srcKeyMod, fileCmd, wf1S):
 
 
 ######################################################################
-def startKSSolveSet(param, qk, thisSrc, twistKey=None):
+def startKSSolveSet(param, qk, prec, thisSrc, twistKey=None):
     """Start the KS solve set"""
 
     quark = param['quarks'][qk]
     maxCG = quark['maxCG']
     check = 'yes'
-    set_type = 'single'
-    inv_type = 'UML'
+    set_type = quark['set_type']
+    inv_type = quark['inv_type']
     if twistKey is None:
         twist = [0, 0, 0]
     else:
         twist = splitTwistKey(twistKey)
     if len(twist) != 3:
         raise ValueError("Unsupported twist", twist)
-    if param['residQuality'] == 'fine':
-        precision = 2
-    else:
+    if prec == 'L':
         precision = quark['precision']
+    else:
+        precision = 2
 
     thisSet = KSsolveSet(thisSrc, twist, check, set_type, inv_type, maxCG, precision)
 
@@ -715,7 +796,7 @@ def startKSSolveSet(param, qk, thisSrc, twistKey=None):
 
 ######################################################################
 def solveKSProp(param, work, thisSet, propFiles, quarks, quarkKeys,
-                qk, mass, naik, qkKeyBase, thisSrc, tsrcConfigId):
+                qk, mass, naik, qkKeyBase, thisSrc, precTsrcConfigId):
     """ks_spectrum version: Compute a KS propagator"""
 
     # If we already have the base propagator, use it.
@@ -723,7 +804,7 @@ def solveKSProp(param, work, thisSet, propFiles, quarks, quarkKeys,
         return quarks[qkKeyBase]
 
     # Otherwise, set up the calculation of the basic propagator
-    (tsrc, suffix, cfg) = tsrcConfigId
+    (prec, tsrc, suffix, cfg) = precTsrcConfigId
 
     ensemble = param['ensemble']
     run = ensemble['run']
@@ -742,27 +823,34 @@ def solveKSProp(param, work, thisSet, propFiles, quarks, quarkKeys,
     # If we already have this propagator in a file, load it.
     # Otherwise, start from zero
     prop = param['files']['prop']
-    name = propNameKS(qkKeyBase, run, tsrcConfigId)
+    name = propNameKS(qkKeyBase, run, precTsrcConfigId)
 
     # Store propagators in subdirectories labeled by the configuration ID
-    configID = codeCfg(suffix, cfg)
-    remotePath = prop['subdirs'] + [configID]
+    configId = codeCfg(suffix, cfg)
+    remotePath = prop['subdirs'] + [configId]
     propFiles[qkKeyBase] = StageFile(localRoot, None, root[prop['root']],
-                                     remotePath, name, 'r', None, False)
-    if propFiles[qkKeyBase].exist():
+                                     remotePath, name, 'r', None, None, False)
+    # Record file that should go on the SSD
+    jobid = param['job']['id']
+    path = propFiles[qkKeyBase].path()
+    if propFiles[qkKeyBase].exist() or checkSSDList(path, jobid):
         load = (fileCmd['propKS']['load'],propFiles[qkKeyBase].path())
         save = ('forget_ksprop',)
 #        save = (fileCmd['propKS']['save'], propFiles[qkKeyBase].path())
     else:
         load = ('fresh_ksprop',)
         save = (fileCmd['propKS']['save'], propFiles[qkKeyBase].path())
+        # Record file that should go on the SSD
+        if param['scriptMode'] != 'KSscan':
+            updateSSDList(propFiles[qkKeyBase].path(), param['job']['id'])
+
     deflate = None
     if param['eigen']['Nvecs'] > 0:
         deflate = quark['deflate']
-    if param['residQuality'] == 'fine':
-        residual = quark['residual_fine']
-    else:
+    if prec == 'L':
         residual = quark['residual_loose']
+    else:
+        residual = quark['residual_fine']
     thisQ = KSsolveElement(mass, naik, load, save, deflate, residual)
     thisSet.addPropagator( thisQ )
 
@@ -781,11 +869,13 @@ def solveKSProp(param, work, thisSet, propFiles, quarks, quarkKeys,
     return thisQ
 
 ######################################################################
-def applySinkOp(param, work, quarks, quark, qkKeyMod, snkKeyMod, thisQ, wf1S, tsrc):
+def applySinkOp(param, work, quarks, quark, qkKeyMod, snkKeyMod, thisQ, wf1S, prec, tsrc):
     """Apply sink operator"""
 
     ensemble = param['ensemble']
     fileCmd = param['fileCmd']
+
+    residQuality = prec
 
     # snkKeyMod typically has a structure like:
     # 2pt functions: 'd'
@@ -817,7 +907,6 @@ def applySinkOp(param, work, quarks, quark, qkKeyMod, snkKeyMod, thisQ, wf1S, ts
         load = (fileCmd['wf']['load'], wf1S.path())
         thisQ = RadialWavefunctionSink(thisQ, label, afm, stride, load, save)
     elif smSnk == 'ext':
-        # Bmomentum = [0, 0, 0]
         label = 'x'
         save = ['forget_ksprop', ]
         T = int(extT)
@@ -853,10 +942,10 @@ def applySinkOp(param, work, quarks, quark, qkKeyMod, snkKeyMod, thisQ, wf1S, ts
         twist = [ 0, 0, 0 ]
         quarkP = param['quarks'][qkP]
         deflate = quarkP['deflate']
-        if param['residQuality'] == 'fine':
-            residual = quarkP['residual_fine']
-        else:
+        if prec == 'L':
             residual = quarkP['residual_loose']
+        else:
+            residual = quarkP['residual_fine']
         thisQ = KSInverseSink(q, mQkP, epsP, u0, quarkP['maxCG'], deflate, residual,
                               quarkP['precision'], twist, label, save)
     else:
@@ -865,7 +954,7 @@ def applySinkOp(param, work, quarks, quark, qkKeyMod, snkKeyMod, thisQ, wf1S, ts
     quarks[qkKeyMod] = work.addQuark(thisQ)
 
 ######################################################################
-def createKSQuarks(param, work, sources, quarkKeys, rwParams, rndSq, wf1S, tsrcConfigId):
+def createKSQuarks(param, work, sources, quarkKeys, rwParams, rndSq, wf1S, precTsrcConfigId):
     """For ks_spectrum code: Create staggered quark propagators for tying together to make hadrons"""
     def assemble_tokens(residQuality, qk, m, eps, rnd, srcKey, smSnk, twist):
         """
@@ -889,7 +978,10 @@ def createKSQuarks(param, work, sources, quarkKeys, rwParams, rndSq, wf1S, tsrcC
         return (residQuality, qk, mass, naik_epsilon, rndId, srcKeyMod, snkKeyMod, twist)
 
 
-    (tsrc, suffix, cfg) = tsrcConfigId
+    (prec, tsrc, suffix, cfg) = precTsrcConfigId
+
+    configId = codeCfg(suffix, cfg)
+    tsrcId = codeTsrc(prec, tsrc)
 
     # Table of propagator files
     propFiles = dict()
@@ -902,8 +994,8 @@ def createKSQuarks(param, work, sources, quarkKeys, rwParams, rndSq, wf1S, tsrcC
     # Run through the quark keys, sorted so multiple masses with the
     # same source appear together.  Grouping them in this way allows
     # the MILC ks_spectrum code to use the multimass inverter.
-    for qkKeyMod in sorted(quarkKeys, key=cmp_to_key(cmpQuarkKeys2)):
-        (_, qk, mass, naik_epsilon, rndId, srcKeyMod, snkKeyMod, twist) = unpack(qkKeyMod)
+    for qkKeyMod in sorted(quarkKeys,key=cmp_to_key(cmpQuarkKeys2)):
+        (residQuality, qk, mass, naik_epsilon, rndId, srcKeyMod, snkKeyMod, twist) = unpack(qkKeyMod)
         (_, momKey) = splitSrcKey(srcKeyMod)  # e.g., 'd.1.2.3' --> 'd', '1.2.3.'
 
         # Call for the point source first if it is unknown
@@ -915,7 +1007,6 @@ def createKSQuarks(param, work, sources, quarkKeys, rwParams, rndSq, wf1S, tsrcC
 
         # Compute propagator from this source if we don't already have the file
         # Start with the basic propagator without any sink treatment
-        residQuality = param['residQuality']
         tokens = assemble_tokens(residQuality, qk, mass, naik_epsilon, rndId, srcKeyMod, 'd', twist)
         qkKeyBase = makeQuarkKey(tokens)
 
@@ -927,7 +1018,7 @@ def createKSQuarks(param, work, sources, quarkKeys, rwParams, rndSq, wf1S, tsrcC
 
                 if len(srcKeyModLast) > 0:
                     work.addPropSet(thisSet)
-                thisSet = startKSSolveSet(param, qk, thisSrc, twist)
+                thisSet = startKSSolveSet(param, qk, residQuality, thisSrc, twist)
                 srcKeyModLast = srcKeyMod
                 twistLast = twist
         else:
@@ -940,11 +1031,11 @@ def createKSQuarks(param, work, sources, quarkKeys, rwParams, rndSq, wf1S, tsrcC
             # srcKeyModLast = srcKeyMod
 
         thisQ = solveKSProp(param, work, thisSet, propFiles, quarks, quarkKeys,
-                            qk, mass, naik_epsilon, qkKeyBase, thisSrc, tsrcConfigId)
+                            qk, mass, naik_epsilon, qkKeyBase, thisSrc, precTsrcConfigId)
 
         # Do sink treatment on propagator if we don't have the result already
         if qkKeyMod not in quarks.keys():
-            applySinkOp(param, work, quarks, param['quarks'][qk], qkKeyMod, snkKeyMod, thisQ, wf1S, tsrc)
+            applySinkOp(param, work, quarks, param['quarks'][qk], qkKeyMod, snkKeyMod, thisQ, wf1S, prec, tsrc)
 
     # Add the last propagator set
     if len(srcKeyModLast) > 0:
@@ -953,14 +1044,14 @@ def createKSQuarks(param, work, sources, quarkKeys, rwParams, rndSq, wf1S, tsrcC
     return ( quarks, propFiles )
 
 ######################################################################
-def createCorrelators(param, work, quarks, correlators, rwParams, fileCmd, tsrc):
+def createCorrelators(param, work, quarks, correlators, rwParams, fileCmd, prec, tsrc):
     """Tie quark propagators together to create npts"""
 
     (rwNcolor, rwNorm, rwSubset, scaleFactor, rwLabel) = rwParams
     for corr in correlators:
         # will need both momenta here --> parent and daughter
         (corrFile, QKey, aQKey, Qmom, aQmom, corrAttrs) = corr
-        momentum_transfer = np.array(Qmom) + np.array(aQmom)  # TODO: Or is this be a minus sign?
+        momentum_transfer = np.array(Qmom) + np.array(aQmom)  # TODO: Or should this be a minus sign?
         # To conserve momentum, the total momentum transfer injected at the current must balance
         # the momentum of the parent quark and the momentum of the daughter quark.
         om = -momentum_transfer
@@ -968,17 +1059,21 @@ def createCorrelators(param, work, quarks, correlators, rwParams, fileCmd, tsrc)
         # pmom = "p{0:d}{1:d}{2:d}".format(*tuple(mom))
         # postfix = "-".join([pmom,param['residQuality']])
         # e.g., "p000-fine" or "p000-k123-fine"
+        if prec == 'L':
+            prec_suffix = 'loose'
+        else:
+            prec_suffix = 'fine'
         if np.all(np.array(aQmom) == np.array([0, 0, 0])):
             # "p123-fine"
             postfix = "-".join([
                 "p{0:d}{1:d}{2:d}".format(*Qmom).replace("-", "m"),
-                param['residQuality']])
+                prec_suffix])
         else:
             # "p123-k456-fine"
             postfix = "-".join([
                 "p{0:d}{1:d}{2:d}".format(*Qmom).replace("-", "m"),
                 "k{0:d}{1:d}{2:d}".format(*aQmom).replace("-", "m"),
-                param['residQuality']])
+                prec_suffix])
 
         # The corrAttrs apply to only one momentum
         npts = list()
@@ -1046,18 +1141,14 @@ def rebuildKSQuarkKeys(param, quarkKeys):
         appendUnique(quarkKeys, qkKeyMod)
 
 ######################################################################
-def createMILCprompts(param, nstep, tsrc, tsrc0, kjob, seriesCfg, njobs):
-    """Create MILC prompts based on YAML file.  Do this for this cfg, tsrc, and nstep"""
+def createMILCprompts(param, nstep, precTsrcConfigId, precTsrcConfigIdSym, kjob, njobs):
+    """Create MILC prompts based on YAML file.  Do this for this cfg, prec, tsrc, and nstep"""
 
-    suffix, cfg = decodeSeriesCfg(seriesCfg)
-    tsrcConfigId = (tsrc, suffix, int(cfg))
-    # In case of multijob,we create symlinks with a base name followed by .jnn
-    # We use tsrc0 in the base name
-    tsrcConfigIdSym = (tsrc0, suffix, int(cfg))
+    (prec, tsrc, suffix, cfg) = precTsrcConfigId
 
     # Construct job stdio, stdout, stderr, log file
-    (stdin, stdout, stderr, stdlog) = setUpJobIOFiles(param, nstep, tsrcConfigId,
-                                                      tsrcConfigIdSym, kjob, njobs )
+    (stdin, stdout, stderr, stdlog) = setUpJobIOFiles(param, nstep, precTsrcConfigId,
+                                                      precTsrcConfigIdSym, kjob, njobs )
 
     # Stage lattice file
     (latCoul, loadLat, saveLat, gFix) = stageLattice(param, suffix, cfg)
@@ -1068,11 +1159,14 @@ def createMILCprompts(param, nstep, tsrc, tsrc0, kjob, seriesCfg, njobs):
     # Fetch 1S wavefunction file
     wf1S = fetchWF(param)
 
+    # SSDlist
+    createSSDList(param['job']['id'])
+
     # Random source
-    (rndSq, rndDq, rndQ, rndAq) = prepareRandomSource(param, tsrcConfigId)
+    (rndSq, rndDq, rndQ, rndAq) = prepareRandomSource(param, precTsrcConfigId)
 
     # Start input parameter set.  Prompt information is accumulated in "work".
-    work = initializePrompts(param, tsrcConfigId)
+    work = initializePrompts(param, precTsrcConfigId)
 
     # Construct tables of propagators to be generated and correlators
     # to be computed
@@ -1081,8 +1175,8 @@ def createMILCprompts(param, nstep, tsrc, tsrc0, kjob, seriesCfg, njobs):
 #        rebuildKSQuarkKeys(param, quarkKeys)
 
     correlators = list() # List of hadron npt correlators
-    compile2ptCorrelators( param, correlators, quarkKeys, rndQ, rndAq, nstep, tsrcConfigId)
-    compile3ptCorrelators( param, correlators, quarkKeys, rndQ, rndAq, nstep, tsrcConfigId)
+    compile2ptCorrelators( param, correlators, quarkKeys, rndQ, rndAq, nstep, precTsrcConfigId)
+    compile3ptCorrelators( param, correlators, quarkKeys, rndQ, rndAq, nstep, precTsrcConfigId)
 
     # Each entry in correlators is a list with contents
     # [
@@ -1103,9 +1197,6 @@ def createMILCprompts(param, nstep, tsrc, tsrc0, kjob, seriesCfg, njobs):
     # or
     # 'loose+qlight+0.0008+0.+q+d.0,0,0+ext,25,G5-G5,qheavy,0.257,-0.0433'
 
-    for key in quarkKeys:
-        print(key)
-    print()
     # Append to list of needed HISQ quark propagators to param['hisqProps']
     if param['scriptMode'] == 'KSscan':
         collectKSProps(param, quarkKeys)
@@ -1121,14 +1212,14 @@ def createMILCprompts(param, nstep, tsrc, tsrc0, kjob, seriesCfg, njobs):
 
     # Generate commands for creating the random sources
     (sources, rwParams) = createRandomSource(param, work, rndSq, rndDq,
-                                             tsrcConfigId)
+                                             precTsrcConfigId)
 
     # Construct quark propagators (including extended ones) from the quark key list
     (quarks, propFiles) = createKSQuarks(param, work, sources, quarkKeys,
-                                         rwParams, rndSq, wf1S, tsrcConfigId)
+                                         rwParams, rndSq, wf1S, precTsrcConfigId)
 
     # Create correlators
-    createCorrelators(param, work, quarks, correlators, rwParams, param['fileCmd'], tsrc)
+    createCorrelators(param, work, quarks, correlators, rwParams, param['fileCmd'], prec, tsrc)
 
     # Write the MILC prompts
     if param['scriptMode'] != 'KSscan':
@@ -1180,7 +1271,7 @@ def launchJob(param, asciiIOFileSet, njobs):
     # We don't stage the executable on the localRoot directory because it must be
     # visible to all nodes
     binFile = StageFile( None, None, root[bin['root']], bin['subdirs'],
-                         name, 'r', None, False)
+                         name, 'r', None, None, False)
     execFile = binFile.path()
     # qmp parameters
     qmpgeom = " -qmp-geom {0:d} {1:d} {2:d} {3:d}".format(*tuple(param['submit']['layout']['layoutSciDAC']['node']))
@@ -1200,11 +1291,13 @@ def launchJob(param, asciiIOFileSet, njobs):
 
     # Launch the job.  But if debugging, just print the command
     if param['scriptDebug'] == 'debug':
-        print(cmd,file=open(stdlog.path(),'a'))
+        fp = open(param['jobcmdfile'],'a')
+        print(cmd,file=fp)
+        fp.close()
         return
     else:
         try:
-            reply = subprocess.check_output(cmd, shell=True)
+            subprocess.check_output(cmd, shell=True)
         except subprocess.CalledProcessError as e:
             print("ERROR: ", mpirun, "exited with code", e.returncode, ".")
             print( "output was" )
@@ -1354,9 +1447,9 @@ def purgeProps(binFileList):
         propFiles[p].delete_staged()
 
 ############################################################
-def doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets,
+def doJobSteps(param, tsrcs, precs, njobs, seriesCfgsrep, asciiIOFileSets,
                binIOFileSets):
-    """Do the job steps for the given base source time"""
+    """Do the job steps for the given source times"""
 
     # FOR TSM TUNING ONLY!!
     # tsrcs = [ 0 ] * njobs
@@ -1365,25 +1458,40 @@ def doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets,
     steprange = param['job']['steprange']
     for nstep in range(steprange['low'], steprange['high']):
 
-        print(datetime.now(),"Processing", param['scriptMode'], seriesCfgsrep, "for step", nstep, "tsrc", tsrcs)
+        print(datetime.now(),"Processing", param['scriptMode'], seriesCfgsrep,
+            "for step", nstep, "tsrc", tsrcs)
 
         # Create MILC prompts and filenames for all cfgs in
         # this group for these tsrcs and all steps
+        # For multijob, the base path and file name derives from the first subjob in the set
+        # The full paths include a suffix ".jnn" where nn = kjob is the subjob index
+        # These multijob paths are symlinks to the actual files
+        # If njobs = 1, no symlinks are created
+        (suffixSym, cfgSym) = decodeSeriesCfg(seriesCfgsrep[0])
+        precSym = precs[0]
+        tsrcSym = tsrcs[0]
+        precTsrcConfigIdSym = (precSym, tsrcSym, suffixSym, int(cfgSym))
         for kjob in range(njobs):
             print(datetime.now(),"Creating MILCprompts for job",kjob)
             seriesCfg = seriesCfgsrep[kjob]
-            # For multijob compatiblity, the base name is based on the first tsrc
-            a, b = createMILCprompts(param, nstep, tsrcs[kjob], tsrcs[0], kjob, seriesCfg, njobs)
-            seriesCfgSrc = encodeSeriesCfgSrc(seriesCfg,str(tsrcs[kjob]))
-            asciiIOFileSets[seriesCfgSrc] = a
-            binIOFileSets[seriesCfgSrc] = b
+            (suffix, cfg) = decodeSeriesCfg(seriesCfg)
+            prec = precs[kjob]
+            tsrc = tsrcs[kjob]
+            precTsrcConfigId = (prec, tsrc, suffix, int(cfg))
+            a, b = createMILCprompts(param, nstep, precTsrcConfigId,
+                                     precTsrcConfigIdSym, kjob, njobs)
+            # Key for this configuration and source time
+            seriesCfgPrecSrc = encodeSeriesCfgPrecSrc(seriesCfg,precs[kjob],str(tsrcs[kjob]))
+            asciiIOFileSets[seriesCfgPrecSrc] = a
+            binIOFileSets[seriesCfgPrecSrc] = b
 
         # Launch the job for this group (unless we are just scanning)
         # For multijob compatibility, use the first entry in the list for stdin, stdout, stderr
         if param['scriptMode'] != 'KSscan':
-            print(datetime.now(),"Launching set", seriesCfgsrep, "for step", nstep, "tsrcs", tsrcs)
-            status = launchJob(param,
-                               asciiIOFileSets[encodeSeriesCfgSrc(seriesCfgsrep[0],str(tsrcs[0]))], njobs)
+            print(datetime.now(),"Launching set", seriesCfgsrep, "for step", nstep,
+                  "tsrcs", tsrcs, "precs", precs)
+            seriesCfgPrecSrc = encodeSeriesCfgPrecSrc(seriesCfgsrep[0],precs[0],str(tsrcs[0]))
+            status = launchJob(param, asciiIOFileSets[seriesCfgPrecSrc], njobs)
 
             # List files created
             if param['files']['root']['local'] != None:
@@ -1393,26 +1501,25 @@ def doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets,
                 except subprocess.CalledProcessError as e:
                     print("Error listing files.  Return code", e.returncode)
 
+#           We will take care of cleanup afterwards
             # Resolve symlinks and store all result files, propagators, sources, etc.
-            for seriesCfgSrc in sorted(asciiIOFileSets.keys()):
-                series, cfg, tsrca = decodeSeriesCfgSrc(seriesCfgSrc)
+#            for seriesCfgPrecSrc in sorted(asciiIOFileSets.keys()):
+#                series, cfg, tsrca, prec = decodeSeriesCfgPrecSrc(seriesCfgPrecSrc)
 #                print(datetime.now(),"Storing files for", series, cfg)
-                storeFiles(param, asciiIOFileSets[seriesCfgSrc], binIOFileSets[seriesCfgSrc])
-                purgeProps(binIOFileSets[seriesCfgSrc])  # TEMPORARY
+#                storeFiles(param, asciiIOFileSets[seriesCfgPrecSrc], binIOFileSets[seriesCfgPrecSrc])
+#                purgeProps(binIOFileSets[seriesCfgPrecSrc])  # TEMPORARY
 
             if status == 1:
                 print("Quitting due to errors")
                 sys.exit(1)
 
 ############################################################
-def runParam(seriesCfgs, ncases, njobs, param):
+def runParam(seriesCfgs, precTsrcs, ncases, njobs, param):
     """Run with the given parameter set"""
 
     # Configurations are processed in groups of njob independent parallel computations (multijob)
-    # There are nreps such groups
+    # There are nreps such groups in a job.  Usually we have ncases = njobs, so nreps = 1.
     nreps = ncases // njobs
-
-    # For each configuration we run several source times and do the work in nstep steps
 
     # Run through groups of configurations
     for irep in range(nreps):
@@ -1423,70 +1530,23 @@ def runParam(seriesCfgs, ncases, njobs, param):
 
         # List of cfgs to process in parallel (multijob) in this group
         seriesCfgsrep = seriesCfgs[irep*njobs:(irep+1)*njobs]
+        precTsrcsrep = precTsrcs[irep*njobs:(irep+1)*njobs]
 
-        # Create the tarfiles for all cfgs in this group
-        for seriesCfg in seriesCfgsrep:
-            tarFileSets[seriesCfg] = defineTarFile(param, seriesCfg)
+# We decided not to generate tar files on the compute nodes
+#        # Create the tarfiles for all cfgs in this group
+#        for seriesCfg in seriesCfgsrep:
+#            tarFileSets[seriesCfg] = defineTarFile(param, seriesCfg)
 
-        tsrcRange = param['tsrcRange']['loose']
-        trange = range(tsrcRange['start'], tsrcRange['stop'], tsrcRange['step'])
-        precessLoose = tsrcRange['precess']
-        stepLoose = tsrcRange['step']
-
-        # Construct a list of loose and fine precession shifts for each configuration
-        tShiftLoose = [ 0 ] * njobs
+        precs = []
+        tsrcs = []
         for kjob in range(njobs):
-            suffix, cfg = decodeSeriesCfg(seriesCfgsrep[kjob])
-            if len(suffix) == 0:
-                suffix = 'a'
-            cfgSep = param['cfgsep'][suffix]
-            tShiftLoose[kjob] = int(cfg)//cfgSep * precessLoose
+            prec, tsrc = decodePrecTsrc(precTsrcsrep[kjob])
+            precs.append(prec)
+            tsrcs.append(int(tsrc))
 
-        # Loose calculation -- Iterate over all source times
-        param['residQuality'] = 'loose'
-        for tsrcBase in trange:
-            tsrcs = [ tsrcBase ] * njobs
-            nt = param['ensemble']['dim'][3]
-            for kjob in range(njobs):
-                tsrcs[kjob] = (tsrcBase + tShiftLoose[kjob]) % nt
-
-            print(datetime.now(),"Loose calculation with tsrcs", tsrcs)
+            print(datetime.now(),"Calculation with tsrcs", tsrcs, "and precs", precs)
             sys.stdout.flush()
-            doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
-
-        # Fine calculation -- only one source time per lattice
-        # If we are running partial t ranges with multijob,
-        # one job per lattice, we want all job components to do
-        # their fine solves together or not at all.
-        tsrcRange = param['tsrcRange']['fine']
-        trange = range(tsrcRange['start'], tsrcRange['stop'], tsrcRange['step'])
-        precessFine = tsrcRange['precess']
-
-        # Construct a list of loose and fine precession shifts for each configuration
-        tShiftFine = [ 0 ] * njobs
-        for kjob in range(njobs):
-            suffix, cfg = decodeSeriesCfg(seriesCfgsrep[kjob])
-            if len(suffix) == 0:
-                suffix = 'a'
-            cfgSep = param['cfgsep'][suffix]
-            tShiftFine[kjob] = int(cfg)//cfgSep * precessFine * stepLoose
-
-        param['residQuality'] = 'fine'
-        for tsrcBase in trange:
-            tsrcs = [ tsrcBase ] * njobs
-            nt = param['ensemble']['dim'][3]
-            for kjob in range(njobs):
-                tsrcs[kjob] = ( tsrcBase + tShiftLoose[kjob] + tShiftFine[kjob] ) % nt
-
-            print(datetime.now(), "Fine calculation with tsrcBase", tsrcs)
-            sys.stdout.flush()
-            doJobSteps(param, tsrcs, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
-
-        if param['scriptMode'] != 'KSscan':
-            # Create and store tar files, one for each cfg
-            for seriesCfg in seriesCfgsrep:
-                print("Storing tar files for", seriesCfg)
-                storeTarFile(param, seriesCfg, tarFileSets[seriesCfg])
+            doJobSteps(param, tsrcs, precs, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
 
 ############################################################
 def loadParamsJoin(YAMLEns, YAMLAll):
@@ -1519,11 +1579,14 @@ def loadParam(YAML):
     return param
 
 ############################################################
-def initParam(param):
+def initParam(param, myjobid):
     """Set some initial values of params"""
 
     # Add the remote and archive roots to the yaml-generated dictionary:
     addRootPaths(param)
+
+    # Add my job ID
+    param['myjobid'] = myjobid
 
     # Assume that we are debugging if we are not on PBS
     param['scriptDebug'] = 'KSproduction'
@@ -1539,7 +1602,7 @@ def initParam(param):
         # New global "id" added to "job" stanza
         job['id'] = os.environ[launchParam['jobidName']].split(".").pop(0)
     except KeyError:
-        job['id'] = 'debug'
+        job['id'] = param['myjobid']
         param['scriptDebug'] = 'debug'
         print("WARNING: JOBID not found.  Changed to debug mode. Will not launch job.")
 
@@ -1567,7 +1630,7 @@ def updateParam(param, paramUpdate):
     return param
 
 ############################################################
-def loadParams(YAMLAll, YAMLLaunch, YAMLEns, YAMLMachine):
+def loadParams(YAMLAll, YAMLLaunch, YAMLEns, YAMLMachine, myjobid):
     """Load a set of YAML parameter files into a single dictionary"""
 
     # Initial parameter file
@@ -1582,7 +1645,7 @@ def loadParams(YAMLAll, YAMLLaunch, YAMLEns, YAMLMachine):
     param = updateParam(param, paramMachine)
 
     # Add further initial values to the parameters
-    initParam(param)
+    initParam(param, myjobid)
 
     return param
 
@@ -1593,33 +1656,41 @@ def main():
     os.system("umask 022")
 
     # Command-line args:
-    if len(sys.argv) < 7:
-        print(sys.argv)
-        print("Usage", sys.argv[0], "<cfgs> <ncases> <njobs> <yaml> <yaml-launch> <yaml-ens> <yaml-machine>")
+    if len(sys.argv) < 10:
+        print("Usage", sys.argv[0], "<cfgList> <tsrcList> <ncases> <njobs> <myjobid> <jobcmdfile> <yaml> <yaml-launch> <yaml-ens> <yaml-machine>")
         sys.exit(1)
 
     # Decode arguments
-    # cfgList     List of configuration numbers to run
-    # ncases      Number of cases to process
-    # njobs       Number of simultaneous cases in this partition
+    # cfgList     List of ncases configuration numbers to run.  Format a.102/a.102/a.108/...
+    # tsrcList    List of ncases source times to run (includes precision label) Format L.0/L.12/L.0/...
+    # ncases      Number of cases to process in this job
+    # njobs       Number of simultaneous subjobs to run
+    # myjobid     A unique label for the job
+    # jobcmdfile  Where we write the job launch commands
     # YAML        Basic parameter file in yaml format
+    # YAMLLaunch  Job launching information in yaml format
     # YAMLEns     Ensemble parameter file in yaml format
     # YAMLMachine Machine/installation parameter file in yaml format
 
-    (cfgList, ncases, njobs, YAML, YAMLLaunch, YAMLEns, YAMLMachine) = sys.argv[1:8]
+    (cfgList, tsrcList, ncases, njobs, myjobid, jobcmdfile, YAML, YAMLLaunch, YAMLEns, YAMLMachine) = sys.argv[1:11]
+
+    print("Have args", cfgList, tsrcList, ncases, njobs, myjobid, jobcmdfile, YAML, YAMLLaunch, YAMLEns, YAMLMachine)
 
     seriesCfgs = cfgList.split("/")
+    precTsrcs = tsrcList.split("/")
     ncases = int(ncases)
     njobs = int(njobs)
 
-    print("Have args", cfgList, ncases, njobs, YAML, YAMLLaunch, YAMLEns, YAMLMachine)
+    if len(seriesCfgs) != ncases or len(precTsrcs) != ncases:
+        print("ERROR: Number of cases", ncases, "is not equal to the number of lattices or source times")
+        sys.exit(1)
 
     if ncases % njobs != 0:
         print("ERROR: Number of cases", ncases, "must be divisible by the number of jobs", njobs)
         sys.exit(1)
 
     # Load the basic parameter set
-    param = loadParams(YAML, YAMLLaunch, YAMLEns, YAMLMachine)
+    param = loadParams(YAML, YAMLLaunch, YAMLEns, YAMLMachine, myjobid)
 
     # We generate the non-extended staggered propagators first.  So we
     # need to collect a shopping list of propagators.  The list is
@@ -1630,7 +1701,7 @@ def main():
 
     print("Scanning with the parameter set", YAML)
     sys.stdout.flush()
-    runParam(seriesCfgs, ncases, njobs, param)
+    runParam(seriesCfgs, precTsrcs, ncases, njobs, param)
 
     # Dump the collected propagator list
     hisqProps = param['hisqProps']
@@ -1643,7 +1714,7 @@ def main():
     # and three-points based on the shopping list "hisqProps"
 
     # Restore the initial parameter set
-    param = loadParams(YAML, YAMLLaunch, YAMLEns, YAMLMachine)
+    param = loadParams(YAML, YAMLLaunch, YAMLEns, YAMLMachine, myjobid)
 
     # Switch from KSscan to KSproduction mode
     param['scriptMode'] = 'KSproduction'
@@ -1651,9 +1722,12 @@ def main():
     # Add the shopping list
     param['hisqProps'] = hisqProps
 
+    # Name of the file that will contain the job launch commands
+    param['jobcmdfile'] = jobcmdfile
+
     print("Running with the parameter set", YAML)
     sys.stdout.flush()
-    runParam(seriesCfgs, ncases, njobs, param)
+    runParam(seriesCfgs, precTsrcs, ncases, njobs, param)
 
     sys.exit(0)
 
