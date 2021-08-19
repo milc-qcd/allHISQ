@@ -1,0 +1,517 @@
+# Parameters for controlling the all HISQ heavy-flavor calculation
+# C. DeTar 8 June 2018
+
+randomW:
+  rwNcolor: 1         # Number of random sources per time slice
+
+KSaction:
+  stride: 2           # In case we want smearing
+  bc: 'antiperiodic'  # Applies to all propagators
+
+apelink:              # Applies only to links in point-split operators
+  weight: 0.05
+  iter: 20
+
+######################################################################
+# Correlators
+######################################################################
+# The job run is split into steps to conserve memory
+# Each of the calculations is assigned a step
+# This stanza controls the steps that are actually run
+job:
+  steprange:
+    low: 0
+    high: 3
+
+######################################################################
+# 2pt correlators.  Their "steps" must precede the 3pts.
+# Explanation of notation below...
+# The quark values are
+# [ quark, source-smearing, sink-smearing ]
+# 'd' = no smearing
+corr2pts:
+  pi:
+    step: 0
+    aQ: [ 'qlight', ['d'], ['d'] ]
+    Q: [ 'qlight', ['d'], ['d'] ]
+    correlators: &ref_corr2ptPS [
+      [ 1, G5-G5, [0, 0, 0]],
+      [ 1, G5-G5, [1, 0, 0]],
+      [ 1, G5-G5, [1, 1, 0]],
+      [ 1, G5-G5, [2, 0, 0]],
+      [ 1, G5-G5, [2, 1, 0]],  # new
+      [ 1, G5-G5, [2, 1, 1]],
+      [ 1, G5-G5, [2, 2, 1]],  # new
+      [ 1, G5-G5, [3, 0, 0]],
+      [ 1, G5-G5, [2, 2, 2]],
+      [ 1, G5-G5, [4, 0, 0]],
+    ]
+
+  K:
+    step: 0
+    aQ: [ 'qstrange', ['d'], ['d'] ]
+    Q: [ 'qlight', ['d'], ['d'] ]
+    correlators: *ref_corr2ptPS
+
+  pi_twisted:
+    step: 0
+    aQ: [ 'qlight', ['d'], ['d'] ]
+    Q: [ 'qlight', ['d'], ['d'] , [7, 8, 9] ]
+    correlators: &ref_corr2ptPS_twisted [
+      [ 1, G5-G5, [2, 1, 0]],
+    ]
+
+  K_twisted_l:
+    step: 0
+    aQ: [ 'qstrange', ['d'], ['d'] ]
+    Q: [ 'qlight', ['d'], ['d'], [7, 8, 9] ]
+    correlators: *ref_corr2ptPS_twisted
+
+  K_twisted_s: # I'm actually not sure if there's any reason why *both* need to be twisted.
+    step: 0
+    aQ: [ 'qlight', ['d'], ['d'] ]
+    Q: [ 'qstrange', ['d'], ['d'], [7, 8, 9] ]
+    correlators: *ref_corr2ptPS_twisted
+
+  # Heavy-light meson
+  H:
+    step: 0
+    aQ: [ 'qheavy', ['d'], ['d'] ]
+    Q: [ 'qlight', ['d'], ['d']]
+    correlators: *ref_corr2ptPS
+
+  # Heavy-strange meson
+  Hs:
+    step: 0
+    aQ: [ 'qheavy', ['d'], ['d'] ]
+    Q: [ 'qstrange', ['d'], ['d'] ]
+    correlators: *ref_corr2ptPS
+
+  # Heavy-light gamma5-gamma0 meson
+  HA4:
+    step: 0
+    aQ: [ 'qheavy', ['d'], ['d'] ]
+    Q: [ 'qlight', ['d'], ['d']]
+    correlators: &ref_corr2ptA4 [
+      [ 1, G5T-G5T, [0, 0, 0]],
+      [ 1, G5T-G5T, [1, 0, 0]],
+      [ 1, G5T-G5T, [1, 1, 0]],
+      [ 1, G5T-G5T, [2, 0, 0]],
+      [ 1, G5T-G5T, [2, 1, 0]],  # new
+      [ 1, G5T-G5T, [2, 1, 1]],
+      [ 1, G5T-G5T, [2, 2, 1]],  # new
+      [ 1, G5T-G5T, [3, 0, 0]],
+      [ 1, G5T-G5T, [2, 2, 2]],
+      [ 1, G5T-G5T, [4, 0, 0]],
+    ]
+
+  # Heavy-strange gamma5-gamma0 meson
+  HA4s:
+    step: 0
+    aQ: [ 'qheavy', ['d'], ['d'] ]
+    Q: [ 'qstrange', ['d'], ['d'] ]
+    correlators: *ref_corr2ptA4
+
+######################################################################
+# 3pt correlators
+# Explanation of notation below...
+# The daughter quark list values are
+# [ quark, source-smearing ]
+# The spectator quark list values are
+# [ quark, source-smearing ]
+# The correlator list values are
+# [ phase, gammaDaughter, gammaCurrent, momentum ]
+corr3pts:
+  # Vector and tensor-current H-to-pi
+  HV2pi:
+    step: 1
+    spinTasteParent: 'G5T-G5T'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qlight', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qlight', ['d'] ]
+    select: all
+    correlators: &ref_corrVT3ptPS [
+      [ -1, GT-GT,  [0, 0, 0] ],
+      [ -1, GT-GT,  [1, 0, 0] ],
+      [ -1, GT-GT,  [1, 1, 0] ],
+      [ -1, GT-GT,  [2, 0, 0] ],
+      [ -1, GT-GT,  [2, 1, 0] ],
+      [ -1, GT-GT,  [2, 1, 1] ],
+      [ -1, GT-GT,  [2, 2, 1] ],
+      [ -1, GT-GT,  [3, 0, 0] ],
+      [ -1, GT-GT,  [2, 2, 2] ],
+      [ -1, GT-GT,  [4, 0, 0] ],
+
+      [  1, GXT-GT, [1, 0, 0] ],
+      [  1, GXT-GT, [1, 1, 0] ],
+      [ -1, GYT-GT, [1, 1, 0] ],
+      [  1, GXT-GT, [2, 0, 0] ],
+      [  1, GXT-GT, [2, 1, 0] ],
+      [ -1, GYT-GT, [2, 1, 0] ],
+      [  1, GXT-GT, [2, 1, 1] ],
+      [ -1, GYT-GT, [2, 1, 1] ],
+      [  1, GZT-GT, [2, 1, 1] ],
+      [  1, GXT-GT, [2, 2, 1] ],
+      [ -1, GYT-GT, [2, 2, 1] ],
+      [  1, GZT-GT, [2, 2, 1] ],
+      [  1, GXT-GT, [3, 0, 0] ],
+      [  1, GXT-GT, [2, 2, 2] ],
+      [ -1, GYT-GT, [2, 2, 2] ],
+      [  1, GZT-GT, [2, 2, 2] ],
+      [  1, GXT-GT, [4, 0, 0] ]
+    ]
+
+  # One-link vector current and scalar density H-to-pi
+  HVx2pi:
+    step: 1
+    spinTasteParent: 'G5-G5'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qlight', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qlight', ['d'] ]
+    select: all
+    correlators: &ref_corrVxS3ptPS [
+      [ -1, GX-G1,  [1, 0, 0] ],
+      [ -1, GX-G1,  [1, 1, 0] ],
+      [  1, GY-G1,  [1, 1, 0] ],
+      [ -1, GX-G1,  [2, 0, 0] ],
+      [ -1, GX-G1,  [2, 1, 0] ],
+      [  1, GY-G1,  [2, 1, 0] ],
+      [ -1, GX-G1,  [2, 1, 1] ],
+      [  1, GY-G1,  [2, 1, 1] ],
+      [ -1, GZ-G1,  [2, 1, 1] ],
+      [ -1, GX-G1,  [2, 2, 1] ],
+      [  1, GY-G1,  [2, 2, 1] ],
+      [ -1, GZ-G1,  [2, 2, 1] ],
+      [ -1, GX-G1,  [3, 0, 0] ],
+      [ -1, GX-G1,  [2, 2, 2] ],
+      [  1, GY-G1,  [2, 2, 2] ],
+      [ -1, GZ-G1,  [2, 2, 2] ],
+      [ -1, GX-G1,  [4, 0, 0] ],
+
+      [  1, G1-G1,  [0, 0, 0] ],
+      [  1, G1-G1,  [1, 0, 0] ],
+      [  1, G1-G1,  [1, 1, 0] ],
+      [  1, G1-G1,  [2, 0, 0] ],
+      [  1, G1-G1,  [2, 1, 0] ],
+      [  1, G1-G1,  [2, 1, 1] ],
+      [  1, G1-G1,  [2, 2, 1] ],
+      [  1, G1-G1,  [3, 0, 0] ],
+      [  1, G1-G1,  [2, 2, 2] ],
+      [  1, G1-G1,  [4, 0, 0] ]
+    ]
+
+  # Vector and tensor-current H-to-K
+  HV2K:
+    step: 2
+    spinTasteParent: 'G5T-G5T'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qstrange', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qlight', ['d'] ]
+    select: all
+    correlators: *ref_corrVT3ptPS
+
+  # One-link vector current and scalar density H-to-K
+  HVx2K:
+    step: 2
+    spinTasteParent: 'G5-G5'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qstrange', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qlight', ['d'] ]
+    select: all
+    correlators: *ref_corrVxS3ptPS
+
+  # Vector and tensor-current Hs-to-K
+  HsV2K:
+    step: 2
+    spinTasteParent: 'G5T-G5T'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qlight', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qstrange', ['d'] ]
+    select: all
+    correlators: *ref_corrVT3ptPS
+
+  # One-link vector current and scalar density Hs-to-K
+  HsVx2K:
+    step: 2
+    spinTasteParent: 'G5-G5'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qlight', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qstrange', ['d'] ]
+    select: all
+    correlators: *ref_corrVxS3ptPS
+
+  # Vector and tensor-current H-to-H
+  HV2H:
+    step: 1
+    spinTasteParent: 'G5T-G5T'
+    extT: *ref_tSnkHtoH
+    Dq: [ 'qheavy', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qlight', ['d'] ]
+    select: all
+    correlators: *ref_corrVT3ptPS
+
+  # One-link vector current and scalar density H-to-H
+  HVx2H:
+    step: 1
+    spinTasteParent: 'G5-G5'
+    extT: *ref_tSnkHtoH
+    Dq: [ 'qheavy', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qlight', ['d'] ]
+    select: all
+    correlators: *ref_corrVxS3ptPS
+
+  # Vector and tensor-current Hs-to-Hs
+  HsV2Hs:
+    step: 2
+    spinTasteParent: 'G5T-G5T'
+    extT: *ref_tSnkHtoH
+    Dq: [ 'qheavy', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qstrange', ['d'] ]
+    select: all
+    correlators: *ref_corrVT3ptPS
+
+  # One-link vector current and scalar density Hs-to-Hs
+  HsVx2Hs:
+    step: 2
+    spinTasteParent: 'G5-G5'
+    extT: *ref_tSnkHtoH
+    Dq: [ 'qheavy', ['d'] ]
+    Pq: [ 'qheavy' ]
+    Sq: [ 'qstrange', ['d'] ]
+    select: all
+    correlators: *ref_corrVxS3ptPS
+
+  ######################################################################
+  # 3pt functions with twisted boundary conditions for the daugther quark
+  ######################################################################
+
+  # Vector and tensor-current H-to-pi
+  HV2pi_twisted:  # mother hadron at rest
+    step: 1
+    spinTasteParent: 'G5T-G5T'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qlight', ['d'], [7, 8, 9] ]
+    Pq: [ 'qheavy', [[0, 0, 0], [1, 1, 0]]]
+    Sq: [ 'qlight', ['d'] ]
+    select: all
+    correlators: &ref_corrVT3ptPS_twisted [
+      [ -1, GT-GT,  [2, 1, 0] ],  # TODO: think about relative phases
+      [  1, GXT-GT, [2, 1, 0] ],  # TODO: think about relative phases
+      [  1, GYT-GT, [2, 1, 0] ],  # TODO: think about relative phases
+      # Skip GZT-GT, since the z-component of the momentum vanishes
+    ]
+
+  # One-link vector current and scalar density H-to-pi
+  HVx2pi_twisted:  # mother hadron at rest
+    step: 1
+    spinTasteParent: 'G5-G5'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qlight', ['d'], [7, 8, 9] ]
+    Pq: [ 'qheavy', [[0, 0, 0], [1, 1, 0]]]
+    Sq: [ 'qlight', ['d'] ]
+    select: all
+    correlators: &ref_corrVxS3ptPS_twisted [
+      [ -1, GX-G1,  [2, 1, 0] ],  # TODO: think about relative phases
+      [  1, GY-G1,  [2, 1, 0] ],  # TODO: think about relative phases
+      # Skip GZ-G1, since the z-component of the momentum vanishes
+      [  1, G1-G1,  [2, 1, 0] ],
+    ]
+
+  # Vector and tensor-current H-to-K
+  HV2K_twisted:  # mother hadron at rest
+    step: 2
+    spinTasteParent: 'G5T-G5T'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qstrange', ['d'], [7, 8, 9] ]
+    Pq: [ 'qheavy', [[0, 0, 0], [1, 1, 0]]]
+    Sq: [ 'qlight', ['d'] ]
+    select: all
+    correlators: *ref_corrVT3ptPS_twisted
+
+  # One-link vector current and scalar density H-to-K
+  HVx2K_twisted:  # mother hadron at rest
+    step: 2
+    spinTasteParent: 'G5-G5'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qstrange', ['d'], [7, 8, 9] ]
+    Pq: [ 'qheavy', [[0, 0, 0], [1, 1, 0]]]
+    Sq: [ 'qlight', ['d'] ]
+    select: all
+    correlators: *ref_corrVxS3ptPS_twisted
+
+  # Vector and tensor-current Hs-to-K
+  HsV2K_twisted:  # mother hadron at rest
+    step: 2
+    spinTasteParent: 'G5T-G5T'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qlight', ['d'], [7, 8, 9] ]
+    Pq: [ 'qheavy', [[0, 0, 0], [1, 1, 0]]]
+    Sq: [ 'qstrange', ['d'] ]
+    select: all
+    correlators: *ref_corrVT3ptPS_twisted
+
+  # One-link vector current and scalar density Hs-to-K
+  HsVx2K_twisted:  # mother hadron at rest
+    step: 2
+    spinTasteParent: 'G5-G5'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qlight', ['d'], [7, 8, 9] ]
+    Pq: [ 'qheavy', [[0, 0, 0], [1, 1, 0]]]
+    Sq: [ 'qstrange', ['d'] ]
+    select: all
+    correlators: *ref_corrVxS3ptPS_twisted
+
+  # HV2H - no twisting, since daughter quark is always heavy
+  # HVx2H - no twisting, since daughter quark is always heavy
+  # HsV2Hs - no twisting, since daughter quark is always heavy
+  # HsVx2Hs - no twisting, since daughter quark is always heavy
+
+  ######################################################################
+  # 3pt functions with a boosted mother quark
+  ######################################################################
+
+  # Vector and tensor-current H-to-pi
+  HV2pi_boosted_mother:
+    step: 1
+    spinTasteParent: 'G5T-G5T'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qlight', ['d'] ]
+    Pq: [ 'qheavy' , [[1, 1, 0], [2,0,0], [-1, 0, 0], [-2, 0, 0]] ]
+    Sq: [ 'qlight', ['d'] ]
+    select: all
+    correlators: &ref_corrVT3ptPS_boosted_mother [
+      [ -1, GT-GT,  [0, 0, 0] ],
+      [ -1, GT-GT,  [1, 0, 0] ],
+      [ -1, GT-GT,  [1, 1, 0] ],
+      [ -1, GT-GT,  [2, 0, 0] ],
+
+      [  1, GXT-GT, [1, 0, 0] ],
+      [  1, GXT-GT, [1, 1, 0] ],
+      [ -1, GYT-GT, [1, 1, 0] ],
+      [  1, GXT-GT, [2, 0, 0] ],
+    ]
+
+  # One-link vector current and scalar density H-to-pi
+  HVx2pi_boosted_mother:
+    step: 1
+    spinTasteParent: 'G5-G5'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qlight', ['d'] ]
+    Pq: [ 'qheavy', [[1, 1, 0], [2,0,0], [-1, 0, 0], [-2, 0, 0]] ]
+    Sq: [ 'qlight', ['d'] ]
+    select: all
+    correlators: &ref_corrVxS3ptPS_boosted_mother [
+      [ -1, GX-G1,  [1, 0, 0] ],
+      [ -1, GX-G1,  [1, 1, 0] ],
+      [  1, GY-G1,  [1, 1, 0] ],
+      [ -1, GX-G1,  [2, 0, 0] ],
+
+      [  1, G1-G1,  [0, 0, 0] ],
+      [  1, G1-G1,  [1, 0, 0] ],
+      [  1, G1-G1,  [1, 1, 0] ],
+      [  1, G1-G1,  [2, 0, 0] ],
+    ]
+
+  # # Vector and tensor-current H-to-K
+  HV2K_boosted_mother:
+    step: 2
+    spinTasteParent: 'G5T-G5T'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qstrange', ['d'] ]
+    Pq: [ 'qheavy', [[1, 1, 0], [2,0,0], [-1, 0, 0], [-2, 0, 0]] ]
+    Sq: [ 'qlight', ['d'] ]
+    select: all
+    correlators: *ref_corrVT3ptPS_boosted_mother
+
+  # # # One-link vector current and scalar density H-to-K
+  HVx2K_boosted_mother:
+    step: 2
+    spinTasteParent: 'G5-G5'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qstrange', ['d'] ]
+    Pq: [ 'qheavy', [[1, 1, 0], [2,0,0], [-1, 0, 0], [-2, 0, 0]] ]
+    Sq: [ 'qlight', ['d'] ]
+    select: all
+    correlators: *ref_corrVxS3ptPS_boosted_mother
+
+  # # # Vector and tensor-current Hs-to-K
+  HsV2K_boosted_mother:
+    step: 2
+    spinTasteParent: 'G5T-G5T'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qlight', ['d'] ]
+    Pq: [ 'qheavy', [[1, 1, 0], [2,0,0], [-1, 0, 0], [-2, 0, 0]] ]
+    Sq: [ 'qstrange', ['d'] ]
+    select: all
+    correlators: *ref_corrVT3ptPS_boosted_mother
+
+  # # One-link vector current and scalar density Hs-to-K
+  HsVx2K_boosted_mother:
+    step: 2
+    spinTasteParent: 'G5-G5'
+    extT: *ref_tSnkHtopi
+    Dq: [ 'qlight', ['d'] ]
+    Pq: [ 'qheavy', [[1, 1, 0], [2,0,0], [-1, 0, 0], [-2, 0, 0]] ]
+    Sq: [ 'qstrange', ['d'] ]
+    select: all
+    correlators: *ref_corrVxS3ptPS_boosted_mother
+
+  # HV2H -- skip since both mother and daughter are heavy
+  # HVx2H -- skip since both mother and daughter are heavy
+  # HsV2Hs -- skip since both mother and daughter are heavy
+  # HsVx2Hs -- skip since both mother and daughter are heavy
+
+######################################################################
+# Table for converting code gamma notation to bilinear notation
+# Used to construct the correlator names
+corrKey:
+  prefix:
+    GX:  'V1'
+    GY:  'V2'
+    GZ:  'V3'
+    GT:  'V4'
+    G5:  'P5'
+    GYZ: 'T23'
+    GZX: 'T31'
+    GXY: 'T12'
+    GXT: 'T14'
+    GYT: 'T24'
+    GZT: 'T34'
+    G5X: 'A1'
+    G5Y: 'A2'
+    G5Z: 'A3'
+    G5T: 'A4'
+    G1:  'S'
+
+######################################################################
+# MILC code I/O commands for file types
+######################################################################
+fileCmd:
+  wf:
+    load: 'load_source'
+  lat:
+    load: 'reload_parallel'
+    save: 'save_parallel_scidac'
+  eig:
+    load: 'reload_parallel_ks_eigen'
+    save: 'save_parallel_ks_eigen'
+  propKS:
+    load: 'reload_serial_ksprop'
+    save: 'save_partfile_scidac_ksprop'
+  propClover:
+    load: 'reload_serial_wprop'
+    save: 'save_partfile_scidac_wprop'
+  src:
+    load: 'load_source_serial'
+    save: 'save_partfile_scidac_ks_source'
+  corr:
+    save: 'save_corr_fnal'
