@@ -30,7 +30,7 @@ def addRootPaths(param):
     archiveRoot = archiveRootDir(param['archiveRoot'], afm, lrun)
     # Add to the parameter dictionary
     root['remote'] = remoteRoot
-#    root['remoteSSD'] = "DW_JOB_STRIPED"
+    root['remoteSSD'] = "DW_JOB_STRIPED"
     root['archive'] = archiveRoot
 
 ######################################################################
