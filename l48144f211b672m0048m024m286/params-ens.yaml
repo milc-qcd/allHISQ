@@ -84,10 +84,10 @@ quarks:
     naik_epsilon: ['-0.0433', '-0.0533', '-0.1918', '-0.3673', '-0.5683']
     residual_loose:
       L2: 0
-      R2: 0.5
+      R2: 1e-3
     residual_fine:
       L2: 0
-      R2: 1e-5
+      R2: 1e-3
     set_type: single
     inv_type: CGZ
     maxCG:
