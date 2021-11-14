@@ -9,12 +9,11 @@ submit:
   walltime: "6:00:00"
   layout:
 #    njobs: &refNjobs 48 # Number of concurrent subjobs within a job
-    njobs: &refNjobs 33 # Number of concurrent subjobs within a job
+    njobs: &refNjobs 48 # Number of concurrent subjobs within a job
     basenodes: 24       # Number of nodes in one concurrent subjob
     ppn: 16             # MPI ranks per node
     layoutSciDAC:       # Node and I/O geometry
-#      node: [4, 4, 4, 288]
-      node: [4, 4, 4, 198]
+      node: [4, 4, 4, 288]
       io: [4, 4, 4, 6]
     jobGeom: [ 1, 1, 1, *refNjobs]
 

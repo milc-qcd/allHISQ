@@ -8,14 +8,14 @@ ensemble:
 tsrcRange:
   loose:
     start: 0
-    stop:  192
+    stop:  0
     step:  8
     precess: 6
   fine:
     start: 0
     stop: 192
-    step: 192
-    precess: 2
+    step: 8
+    precess: 6
 
 # Intervals between configuration numbers
 cfgsep:
@@ -29,7 +29,7 @@ tSnkHtoH: &ref_tSnkHtoH   [ 28, 35, 43, 52 ]
 eigen:
   Nvecs: 0
 
-stream: run1a
+stream: run2
 
 ######################################################################
 # Quark parameters
@@ -73,14 +73,16 @@ quarks:
 
   qheavy:
     type: KS
-    mass: ['0.164','0.1827','0.365','0.548','0.731', '0.767' ]  # 0.9, 1.0, 2.0, 3.0, 3.5, 4.2 mc
-    naik_epsilon: ['-0.0179', '-0.0222', '-0.0849', '-0.1781', '-0.2877', '-0.3101' ]
+#    mass: ['0.164','0.1827','0.365','0.548','0.731', '0.767' ]  # 0.9, 1.0, 2.0, 3.0, 3.5, 4.2 mc
+#    naik_epsilon: ['-0.0179', '-0.0222', '-0.0849', '-0.1781', '-0.2877', '-0.3101'' ]
+    mass: ['0.164','0.1827', '0.365', '0.548', '0.731', '0.843' ]  # 0.9, 1.0, 2.0, 3.0, 4.0, 4.6 mc
+    naik_epsilon: ['-0.0179', '-0.0222', '-0.0849', '-0.1781', '-0.2877',  '-0.3578' ]
     residual_loose:
-      L2: 1e-16
-      R2: 0.0
+      L2: 1e-14
+      R2: 1e-3
     residual_fine:
-      L2: 1e-16
-      R2: 0.0
+      L2: 1e-14
+      R2: 1e-3
     set_type: single
     inv_type: CGZ
     maxCG:

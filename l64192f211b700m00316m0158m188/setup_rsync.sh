@@ -23,8 +23,7 @@ done
 ENS="l64192f211b700m00316m0158m188"
 
 ENSFILES="
-run1a \
-test \
+run2 \
 "
 
 for f in ${ENSFILES}
