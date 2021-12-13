@@ -3,7 +3,8 @@
 # Python 3 version
 
 import sys, os, yaml, re, subprocess
-sys.path.append("/Users/wijay/GitHub/MILC/milc_qcd/python3lib/MILCprompts/")
+# sys.path.append("/Users/wijay/GitHub/MILC/milc_qcd/python3lib/MILCprompts/")
+sys.path.append("/lustre1/heavylight/wjay/GitHub/milc_qcd/python3lib/MILCprompts/")
 from MILCprompts import *
 from allHISQKeys import *
 from allHISQFiles import *
@@ -1543,7 +1544,6 @@ def runParam(seriesCfgs, precTsrcs, ncases, njobs, param):
             prec, tsrc = decodePrecTsrc(precTsrcsrep[kjob])
             precs.append(prec)
             tsrcs.append(int(tsrc))
-
             print(datetime.now(),"Calculation with tsrcs", tsrcs, "and precs", precs)
             sys.stdout.flush()
             doJobSteps(param, tsrcs, precs, njobs, seriesCfgsrep, asciiIOFileSets, binIOFileSets)
@@ -1559,8 +1559,9 @@ def loadParamsJoin(YAMLEns, YAMLAll):
         ens = open(YAMLEns,'r').readlines()
         all = open(YAMLAll,'r').readlines()
         param = yaml.safe_load("".join(ens+all))
-    except:
+    except Exception as err:
         print("ERROR: Error loading the parameter files", YAMLEns, YAMLAll)
+        print(err)
         sys.exit(1)
 
     return param
@@ -1658,6 +1659,7 @@ def main():
     # Command-line args:
     if len(sys.argv) < 10:
         print("Usage", sys.argv[0], "<cfgList> <tsrcList> <ncases> <njobs> <myjobid> <jobcmdfile> <yaml> <yaml-launch> <yaml-ens> <yaml-machine>")
+        print("Found args:", sys.argv)
         sys.exit(1)
 
     # Decode arguments
