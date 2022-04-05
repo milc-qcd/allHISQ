@@ -14,12 +14,19 @@ def lockFileName(todoFile):
 def waitSetTodoLock(lockFile):
     """Set lock file"""
 
+    status = True
+
     while os.access(lockFile, os.R_OK):
         print("Lock file present. Sleeping.")
         sys.stdout.flush()
         time.sleep(600)
+        # Abort if STOP file is present
+        if os.access('STOP', os.R_OK):
+            status = False
+            break
 
     subprocess.call(["touch", lockFile])
+    return status
     
 ######################################################################
 def removeTodoLock(lockFile):
