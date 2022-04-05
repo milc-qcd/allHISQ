@@ -479,15 +479,25 @@ def checkPendingJobs(YAMLAll, YAMLMachine, YAMLEns, YAMLLaunch):
     lockFile = lockFileName(todoFile)
 
     # First, just get a list of entries
-    waitSetTodoLock(lockFile)
+    success = waitSetTodoLock(lockFile)
+    if not success:
+        print("Exiting because STOP file is present")
+        sys.exit(0)
     todoList = readTodo(todoFile)
     removeTodoLock(lockFile)
     entryList = sorted(todoList,key=keyToDoEntries)
 
     # Run through the entries
     while len(entryList) > 0:
+        # Stop if STOP file is found
+        if os.access('STOP', os.R_OK):
+            print("Exiting because STOP file is present")
+            sys.exit(0)
         # Wait to access the todo file
-        waitSetTodoLock(lockFile)
+        success = waitSetTodoLock(lockFile)
+        if not success:
+            print("Exiting because STOP file is present")
+            sys.exit(0)
         todoList = readTodo(todoFile)
         todoEntry = nextFinished(param, todoList, entryList)
         if todoEntry == None:
@@ -539,7 +549,10 @@ def checkPendingJobs(YAMLAll, YAMLMachine, YAMLEns, YAMLLaunch):
         sys.stdout.flush()
 
         # Update the todo file
-        waitSetTodoLock(lockFile)
+        success = waitSetTodoLock(lockFile)
+        if not success:
+            print("Exiting because STOP file is present")
+            sys.exit(0)
         todoList = readTodo(todoFile)
         todoList[todoEntry] = newTodo
         writeTodo(todoFile, todoList)
