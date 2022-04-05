@@ -8,7 +8,7 @@
 #SBATCH -S 4
 #SBATCH -A mp13
 #SBATCH -V
-#####DW jobdw capacity=16000GB access_mode=striped type=scratch
+#DW jobdw capacity=16000GB access_mode=striped type=scratch
 
 # Submission command must define environment the variable RUNCMDFILE
 # sbatch -N ${NODES} -t ${walltime} -J ${jobname} ${slurm_script}
@@ -32,11 +32,11 @@ runcmdfile=${SLURM_SUBMIT_DIR}/${RUNCMDFILE}
 echo "`date` Running on nodes"
 echo $SLURM_JOB_NODELIST
 
-# if [ -z "${DW_JOB_STRIPED}" ]
-# then
-#   echo "FATAL: no DW_JOB_STRIPED in environment"
-#   exit 1
-# fi
+if [ -z "${DW_JOB_STRIPED}" ]
+then
+  echo "FATAL: no DW_JOB_STRIPED in environment"
+  exit 1
+fi
 
 if [ ! -f "${runcmdfile}" ]
 then
@@ -54,30 +54,29 @@ for f in `awk '{for(i=1;i<=NF;i++)if(index($i,"inJob")>0)print $i}' ${runcmdfile
 do
   for g in ${f}*
   do
-      #    echo "sed 's/JOBID/'${SLURM_JOBID}'/' < $g | sed 's|DW_JOB_STRIPED|'${DW_JOB_STRIPED}'/'"
-      echo "sed 's/JOBID/'${SLURM_JOBID}'/' < $g"
-      #      sed 's|JOBID|'${SLURM_JOBID}'|' < $g | sed 's|DW_JOB_STRIPED|'${DW_JOB_STRIPED}'|' > foo.${SLURM_JOBID}
-      sed 's|JOBID|'${SLURM_JOBID}'|' < $g > foo.${SLURM_JOBID}
-    cp foo.${SLURM_JOBID} $g
-    rm foo.${SLURM_JOBID}
+      echo "sed 's/JOBID/'${SLURM_JOBID}'/' < $g | sed 's|DW_JOB_STRIPED|'${DW_JOB_STRIPED}'|'"
+      sed 's|JOBID|'${SLURM_JOBID}'|' < $g | sed 's|DW_JOB_STRIPED|'${DW_JOB_STRIPED}'|' > foo.${SLURM_JOBID}
+      cp foo.${SLURM_JOBID} $g
+      rm foo.${SLURM_JOBID}
   done
 done
 
 # The set up script creates a file tree under "DW_JOB_STRIPED" that we
 # copy to datawarp, now that we know where it is.
-# for d in DW_JOB_STRIPED/prop/*
-# do
-#   c=`basename $d`
-#   mkdir -p ${DW_JOB_STRIPED}/prop/${c}
-# #  rmdir $d
-# done
-# 
-# for d in DW_JOB_STRIPED/rand/*
-# do
-#   c=`basename $d`
-#   mkdir -p $DW_JOB_STRIPED/rand/${c}
-# #  rmdir $d
-# done
+
+for d in DW_JOB_STRIPED/prop/*
+do
+  c=`basename $d`
+  mkdir -p ${DW_JOB_STRIPED}/prop/${c}
+#  rmdir $d
+done
+
+for d in DW_JOB_STRIPED/rand/*
+do
+  c=`basename $d`
+  mkdir -p $DW_JOB_STRIPED/rand/${c}
+#  rmdir $d
+done
 
 # Run production jobs out of $CSCRATCH
 SCRATCH_HOME=$CSCRATCH
