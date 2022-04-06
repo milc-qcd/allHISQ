@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 # Python 3 version
 
@@ -51,7 +51,7 @@ def countQueue( scheduler,  myjobname ):
     elif scheduler == 'PBS':
         cmd = ' '.join(["qstat -u", user, "| grep", user, "| grep -w", myjobname, "| wc -l"])
     elif scheduler == 'SLURM':
-        cmd = ' '.join(["squeue -u", user, "| grep", user, "| grep -w", myjobname, "| wc -l"])
+        cmd = ' '.join(["squeue -u", user, "| grep", user, "| grep -w", myjobname, "| grep -vw CG | wc -l"])
     elif scheduler == 'Cobalt':
         cmd = ' '.join(["qstat -fu", user, "| grep", user, "| grep -w", myjobname, "| wc -l"])
     else:
@@ -158,7 +158,7 @@ def setupJob(cfgnoTsrcs, njobs, jobSeqNo):
                   "../scripts/params-launch.yaml",
                   "params-ens.yaml params-machine.yaml"]
 
-    cmd = " ".join(["python ../scripts/make-allHISQ-prompts.py"] + argList + scriptList)
+    cmd = " ".join(["python3 ../scripts/make-allHISQ-prompts.py"] + argList + scriptList)
     print(cmd)
 
     reply = ""
@@ -171,6 +171,23 @@ def setupJob(cfgnoTsrcs, njobs, jobSeqNo):
 
     return runCmdFile
     
+######################################################################
+def checkComplete():
+    """Check completion of queued jobs and purge scratch files"""
+    cmd = "../scripts/check_completed.py"
+    print(cmd)
+    sys.stdout.flush()
+    reply = ""
+    try:
+        reply = subprocess.check_output(cmd, shell=True).decode().splitlines()
+    except subprocess.CalledProcessError as e:
+        print("Error checking job completion.  Return code", e.returncode)
+
+    for line in reply:
+        print(line)
+
+    return
+
 ######################################################################
 def submitJob(param, runCmdFile, jobScript):
     """Submit the job"""
@@ -217,7 +234,7 @@ def submitJob(param, runCmdFile, jobScript):
     elif scheduler == 'PBS':
         cmd = [ "qsub", "-l", ",".join(["nodes="+str(nodes), "walltime="+walltime]), "-N", jobname, jobScript ]
     elif scheduler == 'SLURM':
-        cmd = [ "sbatch", "-N", str(nodes), "-n", NP, "-t", walltime, "-J", jobname, archflags, jobScript ]
+        cmd = [ "sbatch", "-n", NP, "-t", walltime, "-J", jobname, archflags, jobScript ]
     elif scheduler == 'Cobalt':
         cmd = [ "qsub", "-A LatticeQCD_3", "-n", str(nodes), "-t", walltime, "--jobname", jobname, archflags, "--mode script", "--env LATS="+LATS+":NCASES="+NCASES+":NJOBS="+NJOBS+":NP="+NP, jobScript ]
     else:
@@ -293,6 +310,9 @@ def nannyLoop(YAML, YAMLLaunch):
             print("Spawn job process stopped because STOP file is present")
             break
 
+        if os.access("HELLO", os.R_OK):
+            print("I'm on the job")
+
         todoFile = param['nanny']['todofile']
         maxCases = param['nanny']['maxcases']
         njobs = param['submit']['layout']['njobs']
@@ -327,6 +347,9 @@ def nannyLoop(YAML, YAMLLaunch):
 
             # Set up the job
             runCmdFile = setupJob(cfgnoTsrcs, njobs, jobSeqNo)
+
+            # Check completion and purge scratch files for complete jobs
+            checkComplete()
 
             # Submit the job
             status, jobid = submitJob(param, runCmdFile, jobScript)

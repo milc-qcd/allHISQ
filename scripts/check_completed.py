@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 # Python 3 version
 
@@ -114,33 +114,39 @@ def decodePrecTsrc(seriesCfg):
     return seriesCfg.split(".")
 
 ######################################################################
-def purgeProps(param,seriesCfg):
+def purgeProps(param,seriesCfg,precTsrc):
     """Purge propagators for the specified configuration"""
 
-    print("Purging props for", seriesCfg)
+    print("Purging props for", seriesCfg, precTsrc)
     series, cfg = decodeSeriesCfg(seriesCfg)
     configID = codeCfg(series, cfg)
+    (prec, tsrc) = precTsrc.split(".")
+    searchKey = "t{0:d}{1:s}.{2:s}".format(int(tsrc), prec, configID)
     prop = param['files']['prop']
     subdirs = prop['subdirs'] + [ configID ]
     remotePath = os.path.join(*subdirs)
-    cmd = ' '.join([ "nohup", "/bin/rm -r", remotePath, "> /dev/null 2> /dev/null &"])
+    cmd = ' '.join(["find", remotePath, "-name \'*" + searchKey + "*\' -exec /bin/rm '{}' \;"])
     print(cmd)
+    sys.stdout.flush()
     try:
         subprocess.call(cmd, shell=True)
     except subprocess.CalledProcessError as e:
         print("ERROR: can't remove props.  Error code", e.returncode, ".")
+    sys.stdout.flush()
 
 ######################################################################
-def purgeRands(param,seriesCfg):
+def purgeRands(param,seriesCfg,precTsrc):
     """Purge random sources for the specified configuration"""
 
     print("Purging rands for", seriesCfg)
     series, cfg = decodeSeriesCfg(seriesCfg)
     configID = codeCfg(series, cfg)
+    (prec, tsrc) = precTsrc.split(".")
+    searchKey = "t{0:d}{1:s}.{2:s}".format(int(tsrc), prec, configID)
     rand = param['files']['rand']
     subdirs = rand['subdirs'] + [ configID ]
     remotePath = os.path.join(*subdirs)
-    cmd = ' '.join([ "nohup", "/bin/rm -r", remotePath, "> /dev/null 2> /dev/null &"])
+    cmd = ' '.join(["find", remotePath, "-name \'*" + searchKey + "*\' -exec /bin/rm '{}' \;"])
     print(cmd)
     try:
         subprocess.call(cmd, shell=True)
@@ -290,8 +296,8 @@ def goodLogs(param, jobCase):
         logPath = os.path.join(stream, s06Cfg, tsrcID, "logs", expectFile)
         try:
             stat = os.stat(logPath)
-        except OSError:
-            print("ERROR: Can't find expected output file", path)
+        except FileNotFoundError:
+            print("ERROR: Can't find expected output file", logPath)
             return False
 
         # Check for "RUNNING COMPLETED"
@@ -521,8 +527,8 @@ def checkPendingJobs(YAMLAll, YAMLMachine, YAMLEns, YAMLLaunch):
             newTodo = (seriesCfg, precTsrc, "X", jobID, jobSeqNo)
             
             # Cleanup from complete and incomplete runs
-            #        purgeProps(param,seriesCfg)
-            #        purgeRands(param,seriesCfg)
+            purgeProps(param,seriesCfg, precTsrc)
+            purgeRands(param,seriesCfg, precTsrc)
             purgeSymLinks(param, jobCase)
 
             # Create tar file for this job from entries in the data and logs tree

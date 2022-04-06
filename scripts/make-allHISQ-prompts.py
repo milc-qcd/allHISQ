@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 # Python 3 version
 
@@ -1083,12 +1083,13 @@ def launchJob(param, asciiIOFileSet, njobs):
         qmpjob = " -qmp-job {0:d} {1:d} {2:d} {3:d}".format(*tuple(param['submit']['layout']['jobGeom']))
     else:
         qmpjob = ""
+    qmpalloc = "-qmp-alloc-map 3 2 1 0 -qmp-logic-map 3 2 1 0"
     # stdio
     inFile = stdin.path()
     outFile = stdout.path()
     errFile = stderr.path()
     # Complete command
-    cmd = ' '.join([ mpirun, mpiparam, numa, launchScript, execFile, qmpgeom, qmpjob, inFile, outFile, errFile ])
+    cmd = ' '.join([ mpirun, mpiparam, numa, launchScript, execFile, qmpgeom, qmpjob, qmpalloc, inFile, outFile, errFile ])
     print("#", cmd)
     sys.stdout.flush()
 

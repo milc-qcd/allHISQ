@@ -151,7 +151,7 @@ def writeTodo(todoFile, todoList):
     for line in sorted(todoList, key=keyToDoEntries):
         a = tuple(todoList[line])
         if len(a) == 6:
-            print("{0} {1} {2} {3} {4} {6}".format(*a),file=todo)
+            print("{0} {1} {2} {3} {4} {5}".format(*a),file=todo)
         elif len(a) == 5:
             print("{0} {1} {2} {3} {4}".format(*a),file=todo)
         elif len(a) == 4:
