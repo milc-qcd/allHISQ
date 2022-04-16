@@ -159,7 +159,8 @@ def submitJob(param, cfgnos, jobScript):
     elif scheduler == 'PBS':
         cmd = [ "qsub", "-l", ",".join(["nodes="+str(nodes), "walltime="+walltime]), "-N", jobname, jobScript ]
     elif scheduler == 'SLURM':
-        cmd = [ "sbatch", "-N", str(nodes), "-n", NP, "-t", walltime, "-J", jobname, archflags, jobScript ]
+#        cmd = [ "sbatch", "-N", str(nodes), "-n", NP, "-t", walltime, "-J", jobname, archflags, jobScript ]
+        cmd = [ "sbatch", "-N", str(nodes), "-t", walltime, "-J", jobname, archflags, jobScript ]
     elif scheduler == 'Cobalt':
         cmd = [ "qsub", "-A LatticeQCD_3", "-n", str(nodes), "-t", walltime, "--jobname", jobname, archflags, "--mode script", "--env LATS="+LATS+":NCASES="+NCASES+":NJOBS="+NJOBS+":NP="+NP, jobScript ]
     else:

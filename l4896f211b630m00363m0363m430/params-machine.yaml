@@ -3,24 +3,32 @@
 # Job submission parameters
 ######################################################################
 submit:
-  jobname: allHISQ
+  jobname: allHISQp
   jobScript: run.slurm
-  locale: bnl-skylake
-  walltime: "24:00:00"
+  locale: bnl-ic
+  walltime: "18:00:00"
   layout:
     njobs: &refNjobs 1  # Number of concurrent subjobs within a job (not supported)
     basenodes: 4        # Number of nodes in one concurrent subjob
-    ppn: 4              # MPI ranks per node
+    ppn: 2              # MPI ranks per node
     layoutSciDAC:       # Node and I/O geometry
-      node: [1, 2, 2, 4]
-      io: [1, 2, 2, 4]
-    jobGeom: [ 1, 1, 1, *refNjobs]
+      node: [1, 2, 2, 2]
+      io: [1, 2, 2, 2]
+#  locale: bnl-skylake
+#  walltime: "24:00:00"
+#  layout:
+#    njobs: &refNjobs 1  # Number of concurrent subjobs within a job (not supported)
+#    basenodes: 4        # Number of nodes in one concurrent subjob
+#    ppn: 4              # MPI ranks per node
+#    layoutSciDAC:       # Node and I/O geometry
+#      node: [1, 2, 2, 4]
+#      io: [1, 2, 2, 4]
+#    jobGeom: [ 1, 1, 1, *refNjobs]
 
 nanny:
   todofile: todo  # Ensemble series letter is included with cfg number
   maxcases: 1     # Number of cfgs to run in a single job submission
-#  maxqueue: 50    # Number of jobs to keep in the queue at one time
-  maxqueue: 24    # Number of jobs to keep in the queue at one time
+  maxqueue: 25    # Number of jobs to keep in the queue at one time
   wait: 30        # Seconds between nanny job checks
 
 ######################################################################

@@ -22,7 +22,8 @@ def listMass(param, qk):
                             
 #######################################################################
 def decodeSeriesCfg(seriesCfg):
-    """Decode series, cfg, as it appeaers in the todo file"""
+    """Decode series, cfg, as it appeaers in the todo file
+       Takes x.nnn -> [x, nnn]"""
     return seriesCfg.split(".")
 
 #######################################################################
@@ -1002,9 +1003,16 @@ def launchJob(param, asciiIOFileSet, njobs):
         return
     else:
         try:
-            subprocess.check_output(cmd, shell=True)
+            reply = subprocess.check_output(cmd, shell=True)
         except subprocess.CalledProcessError as e:
             print("ERROR: ", mpirun, "exited with code", e.returncode, ".")
+            print( "output was" )
+            print( e.output.decode() )
+            print( "stdout was" )
+            print( e.stdout.decode() )
+            if e.stderr != None:
+                print( "stderr was" )
+                print( e.stderr.decode() )
             return 1
     return 0
     
