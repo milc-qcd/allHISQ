@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 # Python 3 version
 
@@ -173,13 +173,13 @@ def submitJob(param, cfgnos, jobScript):
     try:
         reply = subprocess.check_output(cmd, shell=True)
     except subprocess.CalledProcessError as e:
-        print(reply)
+        print(reply.decode())
         print("Job submission error.  Return code", e.returncode)
         sys.exit(1)
 
-    print(reply)
+    print(reply.decode())
 
-    reply = reply.splitlines()
+    reply = reply.decode().splitlines()
 
     # Get job ID
     if scheduler == 'LSF':
