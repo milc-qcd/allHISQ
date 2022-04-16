@@ -4,6 +4,7 @@
 ####### -A G-80204
 #SBATCH -e stderrJob%jnode%n
 #SBATCH -o stdoutJob%jnode%n
+####### --qos=vippj_p1000
 #SBATCH -V
 
 # Submission command must define environment variables LATS, NCASES
@@ -82,7 +83,7 @@ then
     ibrun ./make_ssd_dirs.sh ${LATS} ${NCASES}
 fi
 
-python ../scripts/make-allHISQ-prompts-NoHiddenSSD.py ${argList} ${scriptList}
+python3 ../scripts/make-allHISQ-prompts-NoHiddenSSD.py ${argList} ${scriptList}
 
 if [ $? -ne 0 ]
 then
