@@ -21,7 +21,7 @@ apelink:              # Applies only to links in point-split operators
 job:
   steprange:
     low: 0
-    high: 3
+    high: 1
 
 ######################################################################
 # 2pt correlators.  Their "steps" must precede the 3pts.
