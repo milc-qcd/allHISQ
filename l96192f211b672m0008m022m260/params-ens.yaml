@@ -8,7 +8,7 @@ ensemble:
 tsrcRange:
   loose:
     start: 0
-    stop:  96
+    stop:  192
     step:  6
     precess: 6
   fine:
@@ -30,7 +30,7 @@ tSnkHtoH: &ref_tSnkHtoH   [ 22, 23, 26, 29, 32 ]
 eigen:
   Nvecs: 0
 
-stream: run1a
+stream: run3a
 
 ######################################################################
 # Quark parameters
@@ -46,8 +46,8 @@ quarks:
     residual_fine:
       L2: 1e-6
       R2: 0.
-    set_type multimass
-    inv_type CG
+    set_type: single
+    inv_type: CGZ
     maxCG: 
       iters: 4000
       restarts: 10
@@ -64,8 +64,8 @@ quarks:
     residual_fine:
       L2: 1e-7
       R2: 0.
-    set_type multimass
-    inv_type CG
+    set_type: single
+    inv_type: CGZ
     maxCG:
       iters: 2000
       restarts: 10
@@ -77,13 +77,13 @@ quarks:
     mass: ['0.257','0.286','0.572','0.858','1.144' ]  # 0.9, 1.0, 2.0, 3.0, 4.0 mc
     naik_epsilon: ['-0.0433', '-0.0533', '-0.1918', '-0.3673', '-0.5683']
     residual_loose:
-      L2: 1e-16
-      R2: 1e-5
+      L2: 1e-14
+      R2: 1e-4
     residual_fine:
-      L2: 1e-16
-      R2: 1e-5
-    set_type multimass
-    inv_type CG
+      L2: 1e-14
+      R2: 1e-4
+    set_type: single
+    inv_type: CGZ
     maxCG:
       iters: 400
       restarts: 10
@@ -91,14 +91,22 @@ quarks:
     deflate: 'no'
 
 tarCheck:             # For checking that the output tarball is complete
-# Values for production running 32 loose time sources and one fine
+# Values for production running 16 loose time sources and one fine
 #   tarEntries: 10905
 #   tarbzip2Size: 426002340
 #   tarDataLines: 47878800
 #   tarDataWords: 140500512
 
-# Values for production running 32 loose time sources and no fine
-  tarEntries: 5520
-  tarbzip2Size: 400000000
-  tarDataLines: 45062400
-  tarDataWords: 132235776
+# Values for production running 16 loose time sources and no fine
+#  tarEntries: 5520
+#  tarbzip2Size: 400000000
+#  tarDataLines: 45062400
+#  tarDataWords: 132235776
+
+# Values for production running only step 0 with 16 loose time sources and one fine
+  tarEntries: 451
+  tarbzip2Size: 11161153
+  tarDataLines: 1306800
+  tarDataWords: 3839088
+
+
