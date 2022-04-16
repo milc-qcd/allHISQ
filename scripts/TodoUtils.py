@@ -124,7 +124,11 @@ def writeTodo(todoFile, lockFile, todoList):
             
     for line in sorted(todoList, key=keyToDoEntries):
         a = tuple(todoList[line])
-        if len(a) == 4:
+        if len(a) == 6:
+            print("{0} {1} {2} {3} {4} {6}".format(*a),file=todo)
+        elif len(a) == 5:
+            print("{0} {1} {2} {3} {4}".format(*a),file=todo)
+        elif len(a) == 4:
             print("{0} {1} {2} {3}".format(*a),file=todo)
         elif len(a) == 3:
             print("{0} {1} {2}".format(*a),file=todo)
