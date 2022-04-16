@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 # Python 3 version
 
@@ -520,8 +520,10 @@ def createRandomSource(param, work, rndSq, rndDq, tsrcConfigId):
     
     maxCG = quark['maxCG']
     check = 'sourceonly'
+    set_type = 'single'
+    inv_type = 'UML'
     precision = 1
-    thisSet = KSsolveSet(rwSrcDum, twist, check, maxCG, precision)
+    thisSet = KSsolveSet(rwSrcDum, twist, check, set_type, inv_type, maxCG, precision)
     deflate = None
     if param['eigen']['Nvecs'] > 0:
         deflate = 'no'
@@ -599,13 +601,15 @@ def startKSSolveSet(param, qk, thisSrc):
     quark = param['quarks'][qk]
     maxCG = quark['maxCG']
     check = 'yes'
+    set_type = quark['set_type']
+    inv_type = quark['inv_type']
     twist = [0, 0, 0]
     if param['residQuality'] == 'fine':
         precision = 2
     else:
         precision = quark['precision']
 
-    thisSet = KSsolveSet(thisSrc, twist, check, maxCG, precision)
+    thisSet = KSsolveSet(thisSrc, twist, check, set_type, inv_type, maxCG, precision)
 
     return thisSet
 
@@ -993,7 +997,8 @@ def launchJob(param, asciiIOFileSet, njobs):
 
     # Launch the job.  But if debugging, just print the command
     if param['scriptDebug'] == 'debug':
-        print(cmd,file=open(stdlog.path(),'a'))
+#        print(cmd,file=open(stdlog.path(),'a'))
+        print(cmd)
         return
     else:
         try:
