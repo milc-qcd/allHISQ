@@ -5,7 +5,7 @@ submit:
   jobname: allHISQ
   jobScript: run.slurm
   locale: frontera-clx
-  walltime: "24:00:00"
+  walltime: "14:00:00"
   layout:
     njobs: &refNjobs 1  # Number of concurrent subjobs within a job
     basenodes: 128      # Number of nodes in one concurrent subjob
@@ -18,7 +18,7 @@ submit:
 nanny:
   todofile: todo  # Ensemble series letter is included with cfg number
   maxcases: 1     # Number of cfgs to run in a single job submission
-  maxqueue: 16    # Number of jobs to keep in the queue at one time
+  maxqueue: 40    # Number of jobs to keep in the queue at one time
   wait: 30        # Seconds between nanny job checks
 
 ######################################################################
