@@ -3,7 +3,7 @@
 
 # For Python 3 version
 
-import sys, os, yaml, subprocess
+import sys, os, yaml, subprocess, time
 
 ######################################################################
 def lockFileName(todoFile):
@@ -11,14 +11,30 @@ def lockFileName(todoFile):
     return todoFile + ".lock"
 
 ######################################################################
-def setTodoLock(lockFile):
+def existTodoLock(lockFile):
+    """Check whether lock file exists"""
+
+    return os.access(lockFile, os.R_OK)
+
+######################################################################
+def waitSetTodoLock(lockFile):
     """Set lock file"""
 
-    if os.access(lockFile, os.R_OK):
-        print("Error. Lock file present. Quitting.")
-        sys.exit(1)
+    go = True
 
-    subprocess.call(["touch", lockFile])
+    while os.access(lockFile, os.R_OK):
+        print("Lock file present. Sleeping.")
+        sys.stdout.flush()
+        time.sleep(10)
+        # Abort if STOP file is present
+        if os.access('STOP', os.R_OK):
+            go = False
+            break
+
+    if go:
+        subprocess.call(["touch", lockFile])
+
+    return go
     
 ######################################################################
 def removeTodoLock(lockFile):
@@ -61,11 +77,27 @@ def loadParam(file):
 
     return param
 
+############################################################
+def loadParamsJoin(YAMLEns, YAMLAll):
+    """Concatenate two YAML parameter files and load
+    We need this because YAMLEns defines a reference needed
+    by YAMLAll"""
+    
+    # Initial parameter file
+    try:
+        ens = open(YAMLEns,'r').readlines()
+        all = open(YAMLAll,'r').readlines()
+        param = yaml.safe_load("".join(ens+all))
+    except:
+        print("ERROR: Error loading the parameter files", YAMLEns, YAMLAll)
+        sys.exit(1)
+
+    return param
+
 ######################################################################
-def readTodo(todoFile, lockFile):
+def readTodo(todoFile):
     """Read the todo file"""
     
-    setTodoLock(lockFile)
     todoList = dict()
     try:
         with open(todoFile) as todo:
@@ -81,7 +113,8 @@ def readTodo(todoFile, lockFile):
         for i in range(len(a)):
             if type(a[i]) is bytes:
                 a[i] = a[i].decode('ASCII')
-        todoList[a[0]] = a
+        key = a[0]+"-"+a[1]
+        todoList[key] = a
 
     todo.close()
     return todoList
@@ -90,8 +123,9 @@ def readTodo(todoFile, lockFile):
 def keyToDoEntries(td):
     """Sort key for todo entries with format x.nnnn"""
 
-    (stream, cfg) = td.split(".")
-    return "{0:s}{1:010d}".format(stream, int(cfg))
+    (streamCfg, precTsrc) = td.split("-")
+    (stream, cfg) = streamCfg.split(".")
+    return "{0:s}{1:010d}{2:s}".format(stream, int(cfg), precTsrc)
 
 ######################################################################
 def cmpToDoEntries(td1, td2):
@@ -109,7 +143,7 @@ def cmpToDoEntries(td1, td2):
     return order
 
 ######################################################################
-def writeTodo(todoFile, lockFile, todoList):
+def writeTodo(todoFile, todoList):
     """Write the todo file"""
 
     # Back up the files
@@ -125,7 +159,7 @@ def writeTodo(todoFile, lockFile, todoList):
     for line in sorted(todoList, key=keyToDoEntries):
         a = tuple(todoList[line])
         if len(a) == 6:
-            print("{0} {1} {2} {3} {4} {6}".format(*a),file=todo)
+            print("{0} {1} {2} {3} {4} {5}".format(*a),file=todo)
         elif len(a) == 5:
             print("{0} {1} {2} {3} {4}".format(*a),file=todo)
         elif len(a) == 4:
@@ -138,5 +172,3 @@ def writeTodo(todoFile, lockFile, todoList):
             print("{0}".format(*a),file=todo)
 
     todo.close()
-
-    removeTodoLock(lockFile)

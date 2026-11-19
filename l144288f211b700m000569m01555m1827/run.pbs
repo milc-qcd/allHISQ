@@ -1,0 +1,163 @@
+#! /bin/bash -l
+#### -l select=4
+##PBS -A LatticeQCD_aesp_CNDA
+#PBS -A LatticeFlavor
+#### -l (walltime script)
+#PBS -l filesystems=home:flare
+#PBS -q prod
+#### -N (script job name)
+#### -l place=scatter
+#PBS -k doe
+
+echo "Start job script `date`"
+
+# Change to working directory
+cd ${PBS_O_WORKDIR}
+
+# Job environment
+. env.sh
+
+export FI_PROVIDER=cxi
+#env
+
+# MPI and OpenMP settings
+NNODES=`wc -l < $PBS_NODEFILE`
+NRANKS_PER_NODE=12
+NDEPTH=2
+NTHREADS=2
+
+NTOTRANKS=$(( NNODES * NRANKS_PER_NODE ))
+echo "NUM_OF_NODES= ${NNODES} TOTAL_NUM_RANKS= ${NTOTRANKS} RANKS_PER_NODE= ${NRANKS_PER_NODE} THREADS_PER_RANK= ${NTHREADS}"
+
+echo "RUNCMDFILE = ${RUNCMDFILE}"
+
+export TZ='/usr/share/zoneinfo/US/Central'
+export OMP_PROC_BIND=spread
+export OMP_NUM_THREADS=8
+unset OMP_PLACES
+# export OMP_PLACES=threads
+
+#export LD_LIBRARY_PATH=/opt/aurora/24.086.0/spack/oneapi/0.7.0/install/2024.04.15.002/linux-sles15-x86_64/oneapi-2024.04.15.002/fftw-3.3.10-53sipvityldhv6i2f7adjiymj3ccubql/lib/:$LD_LIBRARY_PATH
+
+jobid=${PBS_JOBID_SHORT}
+if [ -z "${jobid}" ]
+then
+    # e.g. Convert 1761917.aurora-pbs-0001.hostmgmt.cm.aurora.alcf.anl.gov  to 1761917.aurora
+    jobid=`echo ${PBS_JOBID} | awk -F- '{print $1}'`
+fi
+
+echo Jobid: ${PBS_JOBID_SHORT}
+echo Running on host `hostname`
+echo Running on nodes `cat $PBS_NODEFILE`
+pwd
+
+# Scratch area for this job
+# ./make_ssd_dirs.sh
+
+## default lmods
+# export LMOD_SYSTEM_DEFAULT_MODULES="prepend-deps/default:append-deps/default"
+
+# QUDA settings
+export QUDA_ENABLE_TUNING=1
+export QUDA_ENABLE_MPS=1
+export QUDA_ENABLE_P2P=0
+export QUDA_ENABLE_GDR=1
+export QUDA_MILC_HISQ_RECONSTRUCT=13
+export QUDA_MILC_HISQ_RECONSTRUCT_SLOPPY=9
+export QUDA_RESOURCE_PATH=`pwd`
+
+# MPI pipeline settings
+# export MPIR_CVAR_CH4_OFI_ENABLE_GPU_PIPELINE=1
+# export MPIR_CVAR_CH4_OFI_GPU_PIPELINE_THRESHOLD=0
+# export MPIR_CVAR_CH4_OFI_GPU_PIPELINE_BUFFER_SZ=33554432
+# export MPIR_CVAR_CH4_OFI_GPU_PIPELINE_NUM_BUFFERS_PER_CHUNK=256
+# export MPIR_CVAR_CH4_OFI_GPU_PIPELINE_MAX_NUM_BUFFERS=256
+# export MPIR_CVAR_CH4_OFI_GPU_PIPELINE_D2H_ENGINE_TYPE=0
+MPIR_CVAR_CH4_OFI_ENABLE_GPU_PIPELINE=0
+
+export EnableImplicitScaling=0
+#export ZE_AFFINITY_MASK=0.0
+
+# OneAPI Settings
+export DPCPP_CPU_NUM_CUS=48
+unset SYCL_DEVICE_FILTER
+export ONEAPI_DEVICE_SELECTOR=level_zero:gpu
+#export MKL_VERBOSE=2
+
+echo "EnableImplicitScaling: $EnableImplicitScaling"
+echo "ZE_AFFINITY_MASK: $ZE_AFFINITY_MASK"
+echo "SYCL_DEVICE_FILTER: $SYCL_DEVICE_FILTER"
+echo "ONEAPI_DEVICE_SELECTOR: $ONEAPI_DEVICE_SELECTOR"
+
+#echo "Starting GPU check"
+#gpu_check -rq
+#echo "GPU check ended"
+
+# Executable
+executable="../bin/ks_spectrum_hisq"
+#ldd $executable
+
+# Run script
+runcmdfile=${PBS_O_WORKDIR}/${RUNCMDFILE}
+if [ ! -f "${runcmdfile}" ]
+then
+  echo "FATAL: run command file ${runcmdfile} not found"
+  exit 1
+else
+  echo "Running with RUNCMDFILE ${RUNCMDFILE}"
+fi
+
+# Edit the input files appearing in the job command file
+# replacing "JOBID" with the job number
+# and "DW_JOB_STRIPED" with the datawarp path.
+
+#DW_JOB_STRIPED=/home/detar/flare/allHISQ/scratch
+DW_JOB_STRIPED=/flare/LatticeFlavor/detar/allHISQ/scratch
+echo "Replacing 'JOBID' with ${jobid} and 'DW_JOB_STRIPED' with ${DW_JOB_STRIPED}"
+
+stem=`echo ${runcmdfile} | sed 's/.sh$//'` # Strip trailing .sh
+for subcmdfile in ${stem}*
+do
+    # List references to inJob
+    for f in `awk '{for(i=1;i<=NF;i++)if(index($i,"inJob")>0)print $i}' ${subcmdfile}`
+    do
+	for g in ${f}*
+	do
+	    # Edit the inJob* file
+#	    echo "sed 's/JOBID/'${jobid}'/' < $g | sed 's|DW_JOB_STRIPED|'${DW_JOB_STRIPED}'/'"
+	    sed 's|JOBID|'${jobid}'|' < $g | sed 's|DW_JOB_STRIPED|'${DW_JOB_STRIPED}'|' > foo.${jobid}
+	    mv foo.${jobid} $g
+	done
+    done
+done
+
+# Python scripts
+export PYTHONPATH=$PYTHONPATH:${HOME}/python_modules
+export PYTHONPATH="../scripts/:${PYTHONPATH}"
+
+BIND0=`for i in \`seq  4 8  51\`; do printf ":%i-%i,%i-%i" $((i)) $((i+7)) $((i+104)) $((i+111)); done`
+BIND1=`for i in \`seq 56 8 103\`; do printf ":%i-%i,%i-%i" $((i)) $((i+7)) $((i+104)) $((i+111)); done`
+export CPUBIND="--cpu-bind list$BIND0$BIND1"
+
+# Set up job files
+rundir=`dirname ${runcmdfile}`
+cp ${executable} ${rundir}
+cp tunecache.tsv ${rundir}
+cp unfreeze.sh ${rundir}
+cp catch_suspend.sh ${rundir}
+cp fix_suspend.sh ${rundir}
+
+# Job launch
+echo "`date` Running the job launch commands from ${runcmdfile}:"
+pushd ${rundir}
+/bin/bash ${runcmdfile}
+status=$?
+popd
+
+if [ $? -ne 0 ]
+then
+  echo "`date` Exiting because of errors in job"
+  exit 1
+else
+  exit 0
+fi

@@ -1,6 +1,16 @@
-C. DeTar 7 June 2018
+C. DeTar 19 November 2026
 
-allHISQ package requirements.  They are installed at FNAL already:
+This is a collection of files used in the allHISQ project. The
+directories for specific ensembles (except for
+"l144288f211b700m000569m01555m1827") have not been updated for a long
+time.
+
+I just updated the "scripts" directory to the scripts I used on
+Aurora.  I also added Aurora parameter files for
+l144288f211b700m000569m01555m1827.
+
+---------------------
+Here are the allHISQ package requirements.
 
 pyYAML and Cheetah
 
@@ -13,7 +23,7 @@ To build, you need to set your PYTHONPATH to something like
 
 $HOME/python_modules:$HOME/python_modules/lib/python
 
-Then you can run
+Then you can run (Note: these are old instructions.  Probably you can use python3 now.)
 
 python2.7 ./setup.py install --prefix=$HOME/python_modules --install-lib=$HOME/python_modules/lib/python
 
@@ -31,3 +41,9 @@ There have been some changes in the way the "coordinate_origin" and
 "time_bc" are handled, so you need an up-to-date pull of this branch.
 
 
+--------------------------------------
+
+MILCprompts.py
+
+Needs to be installed where Python finds installed packages.  I put
+mine in ~/MILCprompts.py and added that path to $PYTHONPATH.

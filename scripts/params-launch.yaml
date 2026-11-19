@@ -51,6 +51,14 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
     numa: 'numactl -m 0'
     jobidName: 'SLURM_JOBID'
 
+  nersc_perlmutter:
+    scheduler: SLURM
+#    mpiparam: '-n NP -c 16 --cpu_bind=cores --slurmd-debug=debug'
+    mpiparam: '-n NP -c 32'
+    mpirun: 'srun'
+    numa: './mps-wrapper.sh ./bind4-perlmutter.sh'
+    jobidName: 'SLURM_JOBID'
+
   alcf_bgq:
     scheduler: Cobalt
 #    mpiparam: '-p 32 -n NP --block $COBALT_PARTNAME --verbose=INFO --envs BG_SHAREDMEMSIZE=64MB --envs PAMID_VERBOSE=1 --mapping /gpfs/mira-home/detar/mapfiles/n4096c32s448162g16161632.map :'
@@ -95,21 +103,9 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
     scheduler: SLURM
     mpiparam: '-n NP -c 8'
     mpirun: 'srun'
-    numa: '--distribution=cyclic:cyclic --cpu_bind=sockets'
 #    numa: '--distribution=cyclic:cyclic --cpu_bind=sockets --mem_bind=no'
-#    mpiparam: '-n NP'
+#    mpiparam: '-n NP -cpus-per-rank 8'
 #    mpirun: 'mpirun'
-#    numa: ''
-    jobidName: 'SLURM_JOBID'
-    launchScript: ''
-
-  bnl-ic-k80:
-    scheduler: SLURM
-#    mpiparam: '-n NP -c 8'
-#    mpirun: 'srun'
-#    numa: '--distribution=cyclic:cyclic --cpu_bind=sockets --mem_bind=no'
-    mpiparam: '-n NP -cpus-per-rank 18'
-    mpirun: 'mpirun'
     numa: ''
     jobidName: 'SLURM_JOBID'
     launchScript: ''
@@ -123,3 +119,26 @@ launch:           # The NP string gets replaced with basenodes * ppn * njobs
     jobidName: 'SLURM_JOBID'
     launchScript: ''
 
+  frontier-hip:
+    scheduler: SLURM
+    numa: ''
+    mpiparam: '-n NP -N NODES ${CPU_MASK}'
+    mpirun: 'srun'
+    jobidName: 'SLURM_JOBID'
+    launchScript: ''
+
+  vista:
+    scheduler: SLURM
+    numa: ''
+    mpiparam: '-n NP -N NODEs -cpus-per-rank 72'
+    mpirun: 'ibrun'
+    jobidName: 'SLURM_JOBID'
+    launchScript: ''
+
+  aurora:
+    scheduler: PBS
+    numa: ''
+    mpiparam: '-n NP --ppn 12 ${CPUBIND} --hostfile MYHOSTFILE gpu_tile_compact.sh'
+    mpirun: 'mpiexec'
+    jobidName: 'PBS_JOBID'
+    launchScript: ''

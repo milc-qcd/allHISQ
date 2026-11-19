@@ -1,0 +1,123 @@
+ensemble:
+  run: 144288f211b700m000569m01555m1827
+  dim: [ 144, 144, 144, 288 ]
+  u0: 1               # Simone 10/21/2015 (MILC code forces u0 = 1 for HISQ)
+  atrue: 0.04259      # B, D decay constant paper 1712.09262
+  afm: '0.042'        # Subdirectory label
+
+tsrcRange:
+  loose:
+    start: 0
+    stop:  0
+    step:  12
+    precess: 3
+  fine:
+    start: 0
+    stop: 288
+    step: 12
+    precess: 3
+
+# Intervals between configuration numbers
+cfgsep:
+  a: 6
+  b: 6
+  c: 6
+  d: 6
+  e: 6
+  x: 4    # For testing
+
+tSnkHtopi: &ref_tSnkHtopi [ 34, 39, 45, 52 ]
+tSnkHtoH: &ref_tSnkHtoH   [ 28, 35, 43, 52 ]
+
+apelink:              # Applies only to links in point-split operators
+  weight: 0.05
+  iter: 20
+
+eigen:
+  Nvecs: 0
+
+stream: run3
+
+######################################################################
+# Quark parameters
+######################################################################
+quarks:
+  qlight:
+    type: KS
+    mass: ['0.000569']
+    naik_epsilon: ['0.']
+    residual_loose:
+      L2: 2e-3
+      R2: 0.
+    residual_fine:
+      L2: 1e-9
+      R2: 0.
+    set_type: multisource
+    inv_type: CGZ
+    maxCG: 
+      iters: 4000
+      restarts: 10
+    precision: 2
+    deflate: 'yes'
+
+  qstrange:
+    type: KS
+    mass: ['0.01555']
+    naik_epsilon: ['0.']
+    residual_loose:
+      L2: 2e-3
+      R2: 0.
+    residual_fine:
+      L2: 1e-9
+      R2: 0.
+    set_type: multisource
+    inv_type: CGZ
+    maxCG:
+      iters: 2000
+      restarts: 5
+    precision: 2
+    deflate: 'no'
+
+  qheavy:
+    type: KS
+#    mass: ['0.164','0.1827','0.365','0.548','0.731', '0.767' ]  # 0.9, 1.0, 2.0, 3.0, 4.0, 4.2 mc
+#    naik_epsilon: ['-0.0179', '-0.0222', '-0.0849', '-0.1781', '-0.2877', '-0.3101' ]
+    mass: ['0.164','0.1827', '0.365', '0.548', '0.731', '0.843' ]  # 0.9, 1.0, 2.0, 3.0, 4.0, 4.6 mc
+    naik_epsilon: ['-0.0179', '-0.0222', '-0.0849', '-0.1781', '-0.2877',  '-0.3578' ]
+    residual_loose:
+      L2: 1e-14
+      R2: 1e-3
+    residual_fine:
+      L2: 0
+      R2: 2e-4
+#      R2: 1e-5
+    set_type: single
+    inv_type: CGZ
+    maxCG:
+      iters: 400
+      restarts: 5
+    precision: 2
+    deflate: 'no'
+
+outputCheck:
+   corrFiducial: '/home/detar/flare/allHISQ/l144288f211b700m000569m01555m1827/corr.fiducial'
+   corrFiles: 5968
+
+tarCheck:             # For checking that the output tarball is complete
+# Values for production running 12 loose time sources plus one fine
+  tarEntries: 8791
+  tarbzip2Size: 196000000
+  tarDataLines: 22794096 
+  tarDataWords: 66457456
+  
+# loose data 21040704 61345344 
+# fine data   1753392  5112112
+
+# Values for production running 12 loose time sources and no fine
+#  tarEntries: 4445
+#  tarbzip2Size: 181000000
+#  tarDataLines: 21040704 
+#  tarDataWords: 61345344
+
+
+

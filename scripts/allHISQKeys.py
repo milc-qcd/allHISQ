@@ -82,6 +82,23 @@ def cmpQuarkKeys2(qkKey1, qkKey2):
     return order
 
 ######################################################################
+def cmpQuarkKeys3(qkKey1, qkKey2):
+    """Compare quark keys.  This order is for multisource KS"""
+
+    (rq1, qk1, m1, e1, r1, srcKey1, snk1) = splitQuarkKey(qkKey1)
+    (rq2, qk2, m2, e2, r2, srcKey2, skn2) = splitQuarkKey(qkKey2)
+#    (src1, mom1) = splitSrcKey(srcKey1)
+#    (src2, mom2) = splitSrcKey(srcKey2)
+
+    # Sort first on source and momentum, then on mass
+
+    order = (float(m1) > float(m2)) - (float(m1) < float(m2))
+    if order == 0:
+        order = (srcKey1 > srcKey2) - (srcKey1 < srcKey2)
+
+    return order
+
+######################################################################
 def cmp_to_key(mycmp):
     'Convert a cmp= function into a key= function'
     class K:
